@@ -1,126 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canjeo de Estampas</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
-        body {
-            font-family: 'Comic Neue', cursive;
-            text-align: center;
-            background: url('./imagenes/fondo.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-        }
-        .sticker {
-            display: inline-block;
-            margin: 20px;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            position: relative;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            animation: glowEffect 2s infinite alternate;
-        }
-        .sticker img {
-            width: 120px;
-            height: 120px;
-            border-radius: 10px;
-            animation: stickerGlow 1.5s infinite alternate;
-        }
-        .sticker button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .raro { border: 4px solid blue; background-color: #d0e1ff; }
-        .epico { border: 4px solid purple; background-color: #e1c0ff; }
-        .legendario { border: 4px solid orange; background-color: #ffdbac; }
-        .mitico { border: 4px solid red; background-color: #ffc0c0; }
-        .exclusivo { border: 4px solid gold; background-color: #fff7c0; }
-        .superexclusivo { border: 4px solid black; background-color: #ffcc00; animation: superGlow 1.5s infinite alternate; }
-
-        @keyframes glowEffect {
-            0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-            100% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
-        }
-
-        @keyframes stickerGlow {
-            0% { filter: brightness(1); }
-            100% { filter: brightness(1.5); }
-        }
-        
-        @keyframes superGlow {
-            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 1); }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#142b2b">
+  <meta name="description" content="La aventura del saber: explora Los Insurgentes, resuelve retos y juega al trompo con Oliver.">
+  <title>Los Insurgentes · La aventura del saber</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="engine.js"></script>
+  <script defer src="audio.js"></script>
+  <script defer src="game.js"></script>
 </head>
 <body>
-    <h1>Canjeo de Estampas</h1>
-    <h2>Estampas del Día</h2>
-    <div id="stickerContainer"></div>
-    <script>
-        function obtenerEstampasDelDia() {
-            return [
-                { id: 1, nombre: "Taco Feliz", costo: 800, img: "./imagenes/taco_feliz.jpeg", rareza: "raro" },
-                { id: 2, nombre: "Pollito Amarillo", costo: 900, img: "./imagenes/pollito_amarillo.png", rareza: "epico" },
-                { id: 3, nombre: "Huevo Tierno", costo: 1000, img: "./imagenes/huevo_tierno.png", rareza: "legendario" },
-                { id: 4, nombre: "Gato Fresa", costo: 1100, img: "./imagenes/gato_fresa.png", rareza: "mitico" },
-                { id: 5, nombre: "Capibara Estrella", costo: 1200, img: "./imagenes/capibara_estrella.jpg", rareza: "exclusivo" },
-                { id: 6, nombre: "Aguacate Kawaii", costo: 1300, img: "./imagenes/aguacate_kawaii.jpg", rareza: "superexclusivo" }
-            ];
-        }
-
-        function renderStickers() {
-            const container = document.getElementById("stickerContainer");
-            container.innerHTML = "";
-            let stickers = obtenerEstampasDelDia();
-            stickers.forEach(sticker => {
-                let div = document.createElement("div");
-                div.className = `sticker ${sticker.rareza}`;
-                div.innerHTML = `
-                    <img src="${sticker.img}" alt="${sticker.nombre}"><br>
-                    <strong>${sticker.nombre}</strong><br>
-                    <span style="font-size: 18px; color: black;">${sticker.rareza.toUpperCase()}</span><br>
-                    Costo: ${sticker.costo} puntos<br>
-                    <button onclick="canjear('${sticker.img}', ${sticker.costo})">Canjear</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function canjear(imagen, costo) {
-            let cantidadPuntos = prompt(`Ingrese la cantidad de puntos para canjear esta estampa (Costo: ${costo} puntos):`);
-            if (cantidadPuntos !== null && !isNaN(cantidadPuntos) && cantidadPuntos.trim() !== "") {
-                cantidadPuntos = parseInt(cantidadPuntos);
-                if (cantidadPuntos >= costo) {
-                    imprimir(imagen);
-                } else {
-                    alert(`Necesitas al menos ${costo} puntos para canjear esta estampa.`);
-                }
-            } else {
-                alert("Entrada no válida. Intente nuevamente.");
-            }
-        }
-
-        function imprimir(imagen) {
-            let ventana = window.open("", "_blank");
-            ventana.document.write("<html><head><title>Impresión de Estampas</title><style>");
-            ventana.document.write("@page { size: landscape; margin: 0; }"); // Ajuste para modo horizontal
-            ventana.document.write("body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }");
-            ventana.document.write("img { width: 100%; height: auto; max-height: 100vh; }");
-            ventana.document.write("</style></head><body>");
-            ventana.document.write(`<img src="${imagen}">`);
-            ventana.document.write("</body></html>");
-            ventana.document.close();
-            setTimeout(() => { ventana.print(); ventana.close(); }, 500);
-        }
-
-        renderStickers();
-    </script>
+  <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
+    <canvas id="world" tabindex="0" aria-label="Terreno de la escuela. Muévete con las flechas o WASD y usa E para interactuar."></canvas>
+    <header id="hud">
+      <div class="hud-title"><span id="player-name" class="school-name player-name" aria-label="Personaje que controlas">LOS INSURGENTES</span><span id="objective">Entra por el portón azul</span></div>
+      <div class="hud-actions">
+        <span class="score" aria-label="Estrellas conseguidas"><span id="stars">☆☆☆</span><small id="points">0 puntos</small></span>
+        <button id="map-button" class="square-button" type="button" aria-label="Ver mapa y ayuda" title="Mapa y ayuda (M)">Mapa</button>
+        <button id="sound-button" class="square-button" type="button" aria-label="Activar sonido" aria-pressed="false" title="Activar sonido">♪</button>
+      </div>
+    </header>
+    <div id="location-tag">Entrada · Los Insurgentes</div>
+    <div id="interaction" hidden><span class="keycap">E / A</span> <span id="interaction-label"></span></div>
+    <div id="oliver-invitation" class="speech-bubble" hidden><strong>Oliver</strong><span>¿Quieres jugar trompo conmigo?</span></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="touch-controls" aria-label="Controles del juego">
+      <div id="dpad" aria-label="Movimiento">
+        <button type="button" data-direction="up" aria-label="Caminar hacia arriba">▲</button>
+        <button type="button" data-direction="left" aria-label="Caminar a la izquierda">◀</button>
+        <span class="dpad-center" aria-hidden="true"></span>
+        <button type="button" data-direction="right" aria-label="Caminar a la derecha">▶</button>
+        <button type="button" data-direction="down" aria-label="Caminar hacia abajo">▼</button>
+      </div>
+      <button id="action-button" type="button" aria-label="Interactuar"><strong>A</strong><span>Acción</span></button>
+    </div>
+    <footer id="keyboard-hint"><span>WASD / Flechas · Caminar</span><span>E / Espacio · Acción</span><span>Shift · Correr</span><span>M · Mapa</span></footer>
+    <div id="fade" aria-hidden="true"></div>
+    <section id="start-screen" class="intro-screen" aria-labelledby="start-title">
+      <img id="title-school" class="intro-background" alt="La Escuela Primaria Los Insurgentes en pixel art">
+      <div class="intro-shade" aria-hidden="true"></div>
+      <div class="title-composition">
+        <p class="title-kicker">ESCUELA PRIMARIA</p>
+        <h1 id="start-title"><span>Los</span>Insurgentes</h1>
+        <p class="adventure-title">La aventura del saber</p>
+        <div class="title-stars" aria-hidden="true">✦ · ✦ · ✦</div>
+        <button id="start-button" class="start-button" type="button" disabled>Preparando aventura…</button>
+        <p id="load-status" class="title-status" role="status">Cargando tu escuela</p>
+        <button id="title-music" class="title-music" type="button" aria-pressed="false">♪ Escuchar música</button>
+      </div>
+      <p class="title-controls">Enter / START · Comenzar<br>Xbox 360: joystick · Caminar &nbsp; | &nbsp; A · Acción</p>
+    </section>
+    <dialog id="welcome-dialog" class="welcome-scene" aria-labelledby="director-name">
+      <img id="welcome-school" class="intro-background" alt="Fachada de la escuela Los Insurgentes en pixel art">
+      <div class="welcome-shade" aria-hidden="true"></div>
+      <img id="director-portrait" class="director-portrait" alt="El director José Guadalupe te da la bienvenida">
+      <div class="director-speech">
+        <h2 id="director-name">Director José Guadalupe</h2>
+        <p id="director-message"></p>
+        <div class="welcome-actions"><button id="welcome-uniform" class="uniform-button" type="button">X · Ver mi uniforme</button><button id="welcome-continue" class="primary-button" type="button">A · Comenzar aventura</button></div>
+      </div>
+    </dialog>
+    <dialog id="uniform-dialog" aria-labelledby="uniform-guide-title">
+      <div class="uniform-director"><img id="uniform-director-portrait" alt="Director José Guadalupe"><div><p class="eyebrow">DIRECTOR JOSÉ GUADALUPE</p><h2 id="uniform-guide-title">¿Quieres saber cómo es tu uniforme diario?</h2><p id="uniform-today"></p></div><button id="uniform-close" class="close-button" type="button" aria-label="Cerrar guía de uniformes">✕</button></div>
+      <img id="uniform-poster" class="uniform-poster" alt="Guía de uniformes de 3.º A en pixel art: lunes de gala, martes con opción de Educación Física, miércoles y viernes de polo roja y mezclilla, jueves de blanco y cuadros.">
+      <details class="uniform-readable"><summary>Leer los detalles de cada día</summary><dl id="uniform-daily-details"></dl><p>Todos los días: uniforme fajado, cabello limpio y peinado. Zapatos negros o tenis blancos según corresponda.</p></details>
+      <button id="uniform-return" class="primary-button" type="button">A · Volver con el director</button>
+      <p class="fine-print uniform-pad-help">A, B o Escape para volver. En la bienvenida, pulsa X o U para consultar la guía.</p>
+    </dialog>
+    <dialog id="trompo-dialog" aria-labelledby="trompo-title">
+      <div class="trompo-heading"><h2 id="trompo-title">El reto del trompo</h2><button id="trompo-close" class="close-button" type="button" aria-label="Volver a la explanada">✕</button></div>
+      <div class="trompo-score"><span id="trompo-round">Ronda 1 de 3</span><b id="trompo-score">Tú 0 · Oliver 0</b></div>
+      <canvas id="trompo-canvas" width="720" height="280" aria-label="Tú y Oliver lanzan sus trompos en la explanada"></canvas>
+      <div id="trompo-meter" class="launch-meter" aria-label="Fuerza del lanzamiento"><span class="gold-zone"></span><span id="trompo-needle"></span></div>
+      <p id="trompo-message" role="status" aria-live="polite"></p>
+      <button id="trompo-action" class="primary-button" type="button">A · Lanzar trompo</button>
+      <p class="trompo-help">A, Espacio o E para lanzar. Gana el trompo que gira más tiempo.</p>
+    </dialog>
+    <dialog id="quiz-dialog" aria-labelledby="quiz-title">
+      <div class="dialog-top"><p id="quiz-subject" class="eyebrow"></p><span id="quiz-progress"></span></div>
+      <h2 id="quiz-title"></h2>
+      <p id="passage" class="passage" hidden></p>
+      <p id="question" class="question"></p>
+      <div id="answers"></div>
+      <p id="feedback" role="status" aria-live="polite"></p>
+      <button id="next-question" class="primary-button" type="button" hidden>Continuar</button>
+      <p class="fine-print">Tómate tu tiempo. Puedes volver a intentarlo.</p>
+    </dialog>
+    <dialog id="map-dialog" aria-labelledby="map-title">
+      <div class="dialog-top"><h2 id="map-title">Tu escuela, tu aventura</h2><button id="close-map" class="close-button" type="button" aria-label="Cerrar mapa">✕</button></div>
+      <div class="map-layout">
+        <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte, 4.º A entre 6.º B y 2.º B, 2.º A con puerta azul entre 1.º B y 3.º A, teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
+        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b>Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p class="fine-print">En computadora: flechas o WASD para caminar, E para actuar y Shift para correr. En teléfono: cruceta y A.</p><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="downloads/Aventura_Insurgentes_3A.zip" download>Descargar para jugar sin internet</a></div>
+        <section class="uniform-settings" aria-labelledby="uniform-title">
+          <div class="uniform-control"><label id="uniform-title" for="school-day">Uniforme de 3.º A</label><select id="school-day"><option value="auto">Hoy · automático</option><option value="1">Lunes · gala</option><option value="2">Martes · deportivo</option><option value="3">Miércoles · polo rojo</option><option value="4">Jueves · blanco y cuadros</option><option value="5">Viernes · polo rojo</option></select></div>
+          <p id="uniform-summary"></p>
+          <button id="map-uniform" class="uniform-button" type="button">Ver guía de uniformes</button>
+          <p class="uniform-help">Cambian con el día de Nuevo Laredo. Puedes elegir otro día para ver su uniforme. El fin de semana conservan el de viernes.</p>
+          <details class="class-roster"><summary id="class-roster-title">3.º A · alumnos</summary><ol id="class-list"></ol></details>
+          <details class="class-roster"><summary>Personal de la escuela</summary><ol id="teacher-list"></ol></details>
+          <p class="uniform-help">Acércate a los alumnos y al personal para ver sus nombres.</p>
+        </section>
+      </div>
+    </dialog>
+    <dialog id="victory-dialog" aria-labelledby="victory-title">
+      <p class="eyebrow">RETO COMPLETADO</p><div class="victory-stars" aria-hidden="true">★ ★ ★</div>
+      <h2 id="victory-title">¡Las tres estrellas son tuyas!</h2>
+      <p>Exploraste tu escuela y superaste los retos de sumas, lectura y números.</p>
+      <p id="final-score"></p>
+      <button id="continue-button" class="primary-button" type="button">Seguir explorando</button>
+      <button id="restart-button" class="text-button" type="button">Empezar otra aventura</button>
+    </dialog>
+    <noscript><div class="noscript-message">Activa JavaScript para jugar esta aventura.</div></noscript>
+  </main>
 </body>
 </html>
