@@ -2,6 +2,8 @@
   'use strict';
   const G=window.SchoolGame;
   const $=id=>document.getElementById(id);
+  const schoolStore=window.SchoolSettings.createStore(G,{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
+  window.InsurgentesSchool=schoolStore;
   const canvas=$('world'), ctx=canvas.getContext('2d',{alpha:false});
   let state=G.createState(), loaded=false, width=innerWidth, height=innerHeight, scale=1, lastTime=0;
   let camera={x:1034,y:1080}, mapOpen=false, toastTimer=0, animationHandle=0;
@@ -11,8 +13,9 @@
   const uniformDialog=$('uniform-dialog');
   const trompoCanvas=$('trompo-canvas'), topCtx=trompoCanvas.getContext('2d');
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');
-  const music=new window.SchoolAudio.Player();
-  let soundOn=true, currentFeedback='', windowActive=true;
+  const audioSources=Object.fromEntries(Object.entries({...window.SchoolAudio.AUDIO_PATHS,...window.INSURGENTES_AUDIO}).map(([key,path])=>[key,window.SchoolAssets?.url(path)||path]));
+  const music=new window.SchoolAudio.Player({sources:audioSources});
+  let soundOn=true, currentFeedback='', windowActive=true,schoolEditorOpen=false;
   let gamepadButtons=[],gamepadIndex=null,gamepadId='',menuDirection=0,menuRepeatAt=0,selectedAnswer=0,questionKey='';
   const gamepadSamples=new Map();
   let controllerTitleStatus=null,controllerMapStatus=null,controllerStatus='';
@@ -59,7 +62,7 @@
   function syncMusic() {
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(['title','welcome','trompo'].includes(scene)?scene:state.scene);
-    music.setPaused(document.hidden||!windowActive);
+    music.setPaused(document.hidden||!windowActive||schoolEditorOpen);
     music.update();
   }
   function updateSoundButton() {
@@ -258,16 +261,24 @@
     if(!mapDialog.open)mapDialog.showModal();
   }
   function closeMap(){mapDialog.close();mapOpen=false;clearInput();canvas.focus({preventScroll:true});}
+  function classroomLabel(){return G.MAP_LABELS[9].text.replace(/\n/g,' ');}
+  function syncSchoolNames(){
+    $('map-classroom-name').textContent=G.STATIONS.classroom.name;
+    $('uniform-title').textContent='Uniforme de '+classroomLabel();
+    $('class-roster-title').textContent=classroomLabel()+' · '+G.STUDENTS.length+' alumnos';
+    $('teacher-list').replaceChildren();
+    for(const teacher of G.TEACHERS){const item=document.createElement('li');item.textContent=teacherLabel(teacher);$('teacher-list').append(item);}
+  }
   function syncUI() {
-    $('player-name').textContent=state.player.name+' · 3.º A';
+    $('player-name').textContent=state.player.name+' · '+classroomLabel();
     $('player-name').title='Juegas como '+state.player.name;
     $('objective').textContent=G.objective(state);
     $('stars').textContent='★'.repeat(Object.values(state.completed).filter(Boolean).length)+'☆'.repeat(3-Object.values(state.completed).filter(Boolean).length);
     $('points').textContent=state.points+' puntos';
     const p=state.player;
-    $('location-tag').textContent=state.scene==='classroom'?'Salón 3.º A':p.y>1150?'Entrada · Los Insurgentes':p.y<520?'Cancha de fútbol':p.y>960?'Fuente y mural':'Patio de la escuela';
+    $('location-tag').textContent=state.scene==='classroom'?G.STATIONS.classroom.name:p.y>1150?'Entrada · Los Insurgentes':p.y<520?'Cancha de fútbol':p.y>960?'Fuente y mural':'Patio de la escuela';
     const target=G.nearby(state);
-    $('interaction').hidden=!target||state.phase!=='play'||!!state.quiz||mapOpen;
+    $('interaction').hidden=!target||state.phase!=='play'||!!state.quiz||mapOpen||schoolEditorOpen;
     $('interaction-label').textContent=target?.label||'';
     $('action-button').setAttribute('aria-label',target?.label||'Interactuar');
     const uniform=G.UNIFORM_DAYS[state.schoolDay];
@@ -393,12 +404,12 @@
     if(state.scene==='outside'){
       drawMapLabels();
       marker(998,1016,'Sumas',state.completed.fountain,time);
-      marker(G.CLASSROOM_DOOR.x,G.CLASSROOM_DOOR.y-2,'3.º A',state.completed.classroom,time);
+      marker(G.CLASSROOM_DOOR.x,G.CLASSROOM_DOOR.y-2,classroomLabel(),state.completed.classroom,time);
       marker(643,413,'Números',state.completed.field,time);
       const b=state.ball;ctx.save();ctx.font='25px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#153b3140';ctx.beginPath();ctx.ellipse(b.x,b.y+7,11,4,0,0,Math.PI*2);ctx.fill();ctx.fillText('⚽',b.x,b.y);ctx.restore();
     }else{
       marker(640,166,'Lectura',state.completed.classroom,time);
-      ctx.save();ctx.font='bold 17px Trebuchet MS';ctx.fillStyle='#28554d';ctx.textAlign='center';ctx.fillText('3.º A · El cuaderno de Lucía',640,85);ctx.restore();
+      ctx.save();ctx.font='bold 17px Trebuchet MS';ctx.fillStyle='#28554d';ctx.textAlign='center';ctx.fillText(classroomLabel()+' · El cuaderno de Lucía',640,85);ctx.restore();
     }
     const classmates=G.classmatesInScene(state),teachers=G.teachersInScene(state);
     const actors=[...classmates.map(student=>({student,y:student.y})),...teachers.map(teacher=>({teacher,y:teacher.y})),{player:true,y:state.player.y}].sort((a,b)=>a.y-b.y);
@@ -511,6 +522,10 @@
     if(!controller)return {x:0,y:0,run:false};
     const pressed=controller.pressed,{x,y}=controller;
     const edge=index=>!!pressed[index]&&!gamepadButtons[index];
+    if(schoolEditorOpen){
+      if(edge(1))window.SchoolEditor?.close();
+      gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
+    }
     if(edge(3))setSound(!(soundOn&&music.ready));
     if(state.phase==='title'){if(edge(0)||edge(9))startGame();}
     else if(state.phase==='welcome'){if(edge(2))showUniformGuide();else if(edge(0)||edge(9))finishWelcome();}
@@ -547,7 +562,7 @@
     if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
-      if(!mapOpen)G.tick(state,dt,inputVector(controller));
+      if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
     }
     drainEvents();syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
   }
@@ -582,6 +597,7 @@
     for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,event=>{touch.delete(event.pointerId);button.classList.remove('pressed');});
   }
   window.addEventListener('keydown',event=>{
+    if(schoolEditorOpen)return;
     const key=event.key.toLowerCase();
     const gameKeys=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','e','m','shift'];
     if(state.phase==='title'){if((key==='enter'||key===' ')&&!event.repeat){event.preventDefault();startGame();}return;}
@@ -607,6 +623,10 @@
     held.add(key);
   });
   window.addEventListener('keyup',event=>held.delete(event.key.toLowerCase()));
+  window.addEventListener('school-editor-visibility',event=>{
+    schoolEditorOpen=!!event.detail.open;clearInput();
+    enableWorldControls(state.phase==='play'&&!schoolEditorOpen);syncMusic();
+  });
   window.addEventListener('pointerdown',()=>{if(soundOn&&!music.ready)void activateSound();});
   window.addEventListener('gamepadconnected',event=>{
     if(event.gamepad)gamepadSamples.delete(gamepadKey(event.gamepad));
@@ -623,17 +643,13 @@
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
     return new Promise((resolve,reject)=>{
-      const img=new Image();img.onload=()=>{images[key]=img;resolve();};img.onerror=()=>reject(new Error('No se pudo cargar '+key));img.src=window.INSURGENTES_ASSETS?.[key]||path;
+      const img=new Image();img.onload=()=>{images[key]=img;resolve();};img.onerror=()=>reject(new Error('No se pudo cargar '+key));img.src=window.INSURGENTES_ASSETS?.[key]||window.SchoolAssets?.url(path)||path;
     });
   }
   const teacherAssets=new Map(G.TEACHERS.map(teacher=>[teacher.assetKey,teacher.assetPath]));
   Promise.all([...Object.entries(G.ASSET_PATHS).map(([key,path])=>loadImage(key,path)),...Array.from(teacherAssets,([key,path])=>loadImage(key,path))]).then(()=>{
     loaded=true;$('start-button').disabled=false;$('start-button').textContent='PULSA START PARA JUGAR';$('load-status').textContent='Tu escuela. Tu gran aventura.';
-    $('title-school').src=window.INSURGENTES_ASSETS?.introBg||G.ASSET_PATHS.introBg;
-    $('welcome-school').src=window.INSURGENTES_ASSETS?.introBg||G.ASSET_PATHS.introBg;
-    $('director-portrait').src=window.INSURGENTES_ASSETS?.directorPortrait||G.ASSET_PATHS.directorPortrait;
-    $('uniform-director-portrait').src=window.INSURGENTES_ASSETS?.directorPortrait||G.ASSET_PATHS.directorPortrait;
-    $('uniform-poster').src=window.INSURGENTES_ASSETS?.uniformGuide||G.ASSET_PATHS.uniformGuide;
+    for(const [id,key] of [['title-school','introBg'],['welcome-school','introBg'],['director-portrait','directorPortrait'],['uniform-director-portrait','directorPortrait'],['uniform-poster','uniformGuide'],['overview-image','map']])$(id).src=images[key].src;
     $('start-button').focus({preventScroll:true});resize();
     if(window.INSURGENTES_ASSETS){$('overview-image').src=window.INSURGENTES_ASSETS.map;document.querySelector('.download-link').hidden=true;}
   }).catch(error=>{
@@ -649,8 +665,8 @@
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
   }
   for(const student of [...G.STUDENTS].sort((a,b)=>a.name.localeCompare(b.name,'es'))){const item=document.createElement('li');item.textContent=student.name;$('class-list').append(item);}
-  $('class-roster-title').textContent='3.º A · '+G.STUDENTS.length+' alumnos';
-  for(const teacher of G.TEACHERS){const item=document.createElement('li');item.textContent=teacherLabel(teacher);$('teacher-list').append(item);}
+  schoolStore.subscribe(()=>{syncSchoolNames();syncUI();});
+  syncSchoolNames();
   for(const [day,uniform] of Object.entries(G.UNIFORM_DAYS)){
     const term=document.createElement('dt'),description=document.createElement('dd');term.textContent=uniform.name+' · '+uniform.uniform;
     description.textContent=uniform.description+(day==='2'?' También se permite camisa blanca con pantalón o blusa blanca con uniforme de cuadros.':'');

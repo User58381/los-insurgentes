@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-version="20261009-editor-1">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,10 +7,8 @@
   <meta name="description" content="La aventura del saber: explora Los Insurgentes, resuelve retos y juega al trompo con Oliver.">
   <title>Los Insurgentes · La aventura del saber</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css">
-  <script defer src="engine.js"></script>
-  <script defer src="audio.js"></script>
-  <script defer src="game.js"></script>
+  <link id="game-style" rel="stylesheet" href="style.css?v=20261009-editor-1">
+  <script defer src="bootstrap.js?v=20261009-editor-1"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
@@ -50,6 +48,7 @@
         <button id="start-button" class="start-button" type="button" disabled>Preparando aventura…</button>
         <p id="load-status" class="title-status" role="status">Cargando tu escuela</p>
         <button id="title-music" class="title-music" type="button" aria-pressed="false">♪ Escuchar música</button>
+        <button class="title-editor" type="button" data-open-school-editor>⚙ Editar escuela</button>
       </div>
       <p class="title-controls">Enter / START · Comenzar<br>Xbox 360: joystick · Caminar &nbsp; | &nbsp; A · Acción</p>
     </section>
@@ -93,7 +92,8 @@
       <div class="dialog-top"><h2 id="map-title">Tu escuela, tu aventura</h2><button id="close-map" class="close-button" type="button" aria-label="Cerrar mapa">✕</button></div>
       <div class="map-layout">
         <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte, 4.º A entre 6.º B y 2.º B, 2.º A con puerta azul entre 1.º B y 3.º A, teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
-        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b>Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p class="fine-print">En computadora: flechas o WASD para caminar, E para actuar y Shift para correr. En teléfono: cruceta y A.</p><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="downloads/Aventura_Insurgentes_3A.zip" download>Descargar para jugar sin internet</a></div>
+        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p class="fine-print">En computadora: flechas o WASD para caminar, E para actuar y Shift para correr. En teléfono: cruceta y A.</p><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="downloads/Aventura_Insurgentes_3A.zip" download>Descargar para jugar sin internet</a></div>
+        <section class="school-tools"><button class="uniform-button" type="button" data-open-school-editor>⚙ Editar escuela</button><p>Cambia las etiquetas de los edificios y los grupos de los profes. Guarda una copia o actualiza los archivos del juego.</p></section>
         <section class="uniform-settings" aria-labelledby="uniform-title">
           <div class="uniform-control"><label id="uniform-title" for="school-day">Uniforme de 3.º A</label><select id="school-day"><option value="auto">Hoy · automático</option><option value="1">Lunes · gala</option><option value="2">Martes · deportivo</option><option value="3">Miércoles · polo rojo</option><option value="4">Jueves · blanco y cuadros</option><option value="5">Viernes · polo rojo</option></select></div>
           <p id="uniform-summary"></p>
@@ -104,6 +104,19 @@
           <p class="uniform-help">Acércate a los alumnos y al personal para ver sus nombres.</p>
         </section>
       </div>
+    </dialog>
+    <dialog id="school-editor" aria-labelledby="school-editor-title">
+      <div class="school-editor-heading"><div><p class="eyebrow">TU ESCUELA, A TU MANERA</p><h2 id="school-editor-title">Editar escuela</h2></div><button id="school-editor-close" class="close-button" type="button" aria-label="Cerrar editor de la escuela">✕</button></div>
+      <p id="school-save-status" class="school-save-status" role="status" aria-live="polite"></p>
+      <div class="school-editor-tabs" aria-label="Qué quieres editar"><button type="button" data-school-tab="labels" aria-pressed="true">Salones y edificios</button><button type="button" data-school-tab="teachers" aria-pressed="false">Profes y grupos</button></div>
+      <div id="school-label-panel" class="school-label-panel">
+        <aside class="school-editor-map"><h3>Ubica cada edificio</h3><p>Toca un número del mapa para editar su etiqueta.</p><canvas id="school-map-canvas" width="1215" height="1295" aria-label="Mapa numerado de los edificios. También puedes elegirlos en la lista de etiquetas."></canvas><p id="school-selected-building" class="school-map-caption"></p></aside>
+        <section aria-labelledby="school-labels-title"><h3 id="school-labels-title">Etiquetas del mapa</h3><p class="school-editor-help">Elige grado y grupo para un salón, o escribe el nombre del espacio.</p><div id="school-label-rows"></div></section>
+      </div>
+      <section id="school-teacher-panel" hidden aria-labelledby="school-teachers-title"><h3 id="school-teachers-title">Qué grupo imparte cada profe</h3><p class="school-editor-help">Elige grado y grupo. También puedes escribir una materia, varios grupos o un cargo.</p><div id="school-teacher-rows"></div></section>
+      <div class="school-save-tools"><div><h3>Llévate tus ajustes</h3><p>Exporta las etiquetas y los grupos. Importa ese archivo para usarlos en otro navegador.</p></div><div class="school-save-buttons"><button id="school-export" class="uniform-button" type="button">↓ Exportar guardado</button><button id="school-import" class="uniform-button" type="button">↑ Importar guardado</button><input id="school-import-file" type="file" accept=".json,application/json" hidden></div></div>
+      <div class="school-refresh-tools"><div><h3>Actualizar el juego</h3><p>Vuelve a cargar los archivos más recientes. Tus etiquetas y grupos se conservan; el juego vuelve a la portada.</p></div><button id="school-clear-cache" class="uniform-button" type="button">↻ Borrar caché y actualizar</button></div>
+      <p class="school-editor-help">Los ajustes se guardan en este navegador. Una copia exportada te permite recuperarlos si borras los datos del navegador.</p>
     </dialog>
     <dialog id="victory-dialog" aria-labelledby="victory-title">
       <p class="eyebrow">RETO COMPLETADO</p><div class="victory-stars" aria-hidden="true">★ ★ ★</div>

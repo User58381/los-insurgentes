@@ -266,7 +266,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     }
     if (p.y > 1150 && distance(p, {x:1034,y:1174}) < 78) return {id:'gate',label:'Entrar a la escuela',x:1034,y:1139};
     if (p.y < 1140 && distance(p, {x:1104,y:1090}) < 63) return {id:'leave',label:'Salir por la entrada',x:1104,y:1090};
-    if (distance(p,CLASSROOM_DOOR) < 65) return {id:'door',label:'Entrar a 3.º A',x:CLASSROOM_DOOR.x,y:CLASSROOM_DOOR.y-11};
+    if (distance(p,CLASSROOM_DOOR) < 65) return {id:'door',label:'Entrar a '+STATIONS.classroom.name,x:CLASSROOM_DOOR.x,y:CLASSROOM_DOOR.y-11};
     for (const id of ['fountain','field']) {
       const s = STATIONS[id];
       if (distance(p,s) < s.reach) return {id,label: state.completed[id] ? 'Repetir el reto' : 'Reto de '+s.subject.toLowerCase(),x:s.x,y:s.y};
@@ -409,7 +409,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     if(state.phase==='trompo')return 'Reto del trompo con Oliver';
     if(state.scene==='outside'&&state.player.y>1150) return 'Entra por el portón azul';
     if(!state.completed.fountain) return 'Busca la estrella de la fuente';
-    if(!state.completed.classroom) return state.scene==='classroom'?'Acércate al pizarrón':'Visita tu salón 3.º A';
+    if(!state.completed.classroom) return state.scene==='classroom'?'Acércate al pizarrón':'Visita '+STATIONS.classroom.name;
     if(!state.completed.field) return 'Sube a la cancha para el último reto';
     return '¡Tres estrellas! Sigue explorando';
   }

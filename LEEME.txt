@@ -1,0 +1,38 @@
+LOS INSURGENTES: EDITOR DE LA ESCUELA
+
+INSTALAR EN TU GITHUB ACTUAL
+1. Descomprime este ZIP.
+2. En User58381/los-insurgentes, abre Add file > Upload files.
+3. Sube TODOS estos archivos a la raíz del repositorio, donde está index.html:
+   index.html, style.css, engine.js, game.js, bootstrap.js, school-settings.js y school-editor.js.
+   Reemplaza los archivos existentes y añade los nuevos. No subas el ZIP ni la carpeta exterior.
+4. Guarda el cambio en main y espera a que termine la publicación de GitHub Pages.
+5. La primera vez, abre el juego y pulsa Ctrl + F5 para cargar también el nuevo index.html.
+
+EDITAR DESDE EL JUEGO
+Pulsa "Editar escuela" en la portada, o abre Mapa > Editar escuela durante la aventura.
+En "Salones y edificios", toca un número del mapa o busca su fila en la lista.
+Elige grado y grupo para asignar una etiqueta como 6.º B. También puedes escribir el nombre de un espacio, como Dirección o Cooperativa.
+En "Profes y grupos", elige el grado y grupo de cada profesor, o escribe una materia, varios grupos o un cargo.
+Los cambios válidos se guardan automáticamente en ese navegador. El mensaje de arriba indica si se guardaron.
+Los textos de acceso y del reto siguen el nombre que hayas asignado al salón jugable.
+El juego se pausa mientras editas. Puedes cerrar con la X, Escape o B del mando.
+
+LLEVAR LOS AJUSTES A OTRO NAVEGADOR
+1. En Editar escuela, pulsa "Exportar guardado".
+2. Conserva el archivo Escuela_Los_Insurgentes.json.
+3. Abre el juego en el otro navegador y entra a Editar escuela.
+4. Pulsa "Importar guardado" y selecciona ese archivo.
+El archivo contiene las etiquetas de los edificios y las asignaciones del personal. Estos ajustes son locales a cada navegador; se comparten importando el guardado.
+
+ACTUALIZAR SIN ARRASTRAR ARCHIVOS ANTIGUOS DEL NAVEGADOR
+Después de publicar una actualización, usa "Borrar caché y actualizar" dentro de Editar escuela.
+El juego vuelve a la portada y vuelve a solicitar sus archivos con una dirección nueva.
+Las etiquetas y los grupos guardados se conservan. Si borras los datos completos del navegador desde sus ajustes, podrás recuperarlos importando tu copia JSON.
+
+ARCHIVOS DEL REPOSITORIO
+Mantén audio.js y las carpetas assets y downloads que ya tiene tu juego.
+Este paquete incluye la corrección de la animación de piernas, el soporte Xbox One/360 y el sonido de START para las respuestas correctas.
+
+VALIDACIÓN
+Se verificaron el formato del guardado, persistencia y recuperación, importación/exportación, formularios, textos de la escuela, recarga de archivos, pausa al editar y controles con entradas simuladas. También se revisó la animación en todos los uniformes y direcciones.
