@@ -13,7 +13,9 @@
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');
   const music=new window.SchoolAudio.Player();
   let soundOn=true, currentFeedback='', windowActive=true;
-  let gamepadButtons=[],gamepadIndex=null,menuDirection=0,menuRepeatAt=0,selectedAnswer=0,questionKey='';
+  let gamepadButtons=[],gamepadIndex=null,gamepadId='',menuDirection=0,menuRepeatAt=0,selectedAnswer=0,questionKey='';
+  const gamepadSamples=new Map();
+  let controllerTitleStatus=null,controllerMapStatus=null,controllerStatus='';
   try {soundOn=localStorage.getItem('insurgentes-sound')!=='no';} catch (_) {}
   music.setEnabled(soundOn);
   const spriteRows={down:0,left:1,right:2,up:3};
@@ -396,19 +398,98 @@
       else button.classList.remove('controller-choice');
     });
   }
-  function controllerInput(timestamp) {
-    let pad=null;
-    try{pad=Array.from(navigator.getGamepads?.()||[]).find(p=>p&&p.connected!==false);}catch(_){}
-    if(!pad){gamepadButtons=[];gamepadIndex=null;menuDirection=0;return {x:0,y:0,run:false};}
-    if(gamepadIndex!==pad.index){gamepadButtons=[];gamepadIndex=pad.index;}
-    const pressed=Array.from(pad.buttons,button=>typeof button==='number'?button>.5:!!button?.pressed||button?.value>.5);
-    const edge=index=>!!pressed[index]&&!gamepadButtons[index];
-    let x=Number(pad.axes[0])||0,y=Number(pad.axes[1])||0;
-    const magnitude=Math.hypot(x,y),deadzone=.22;
+  function isXboxGamepad(pad) {
+    return /xbox|xinput|microsoft|045e/i.test(pad.id||'');
+  }
+  function gamepadKey(pad) {return String(pad.index)+':'+(pad.id||'');}
+  function buttonPressed(button) {
+    return typeof button==='number'?button>.5:!!button?.pressed||Number(button?.value)>.5;
+  }
+  function normalizeGamepad(pad) {
+    const raw=Array.from(pad.buttons||[],buttonPressed),axes=Array.from(pad.axes||[]);
+    let pressed=raw;
+    // Windows Bluetooth HID can expose an unmapped Xbox layout: X/Y are
+    // 3/4, View/Menu are 10/11, and the D-pad is a hat on axis 9.
+    // Never remap a browser-standard or XInput layout a second time.
+    const bluetoothHid=pad.mapping!=='standard'&&isXboxGamepad(pad)&&raw.length>=15&&raw.length<16&&axes.length>=10;
+    if(bluetoothHid){
+      pressed=Array(17).fill(false);
+      [0,1,3,4,6,7,null,null,10,11,13,14,null,null,null,null,12].forEach((source,index)=>{
+        if(source!==null)pressed[index]=!!raw[source];
+      });
+      pressed[6]=Number(axes[3])>0;pressed[7]=Number(axes[4])>0;
+      const hat=Number(axes[9]);
+      if(Number.isFinite(hat)&&hat!==0){
+        pressed[12]=(hat>=-1&&hat<-.7)||(hat>=.95&&hat<=1);
+        pressed[13]=hat>=-.2&&hat<.45;
+        pressed[14]=hat>=.4&&hat<=1;
+        pressed[15]=hat>=-.75&&hat<-.1;
+      }
+    }
+    const axis=index=>Number.isFinite(Number(axes[index]))?Math.max(-1,Math.min(1,Number(axes[index]))):0;
+    let x=axis(0),y=axis(1);
+    const magnitude=Math.hypot(x,y),deadzone=.18;
     if(magnitude<=deadzone)x=y=0;
     else{const factor=(Math.min(1,magnitude)-deadzone)/(1-deadzone)/magnitude;x*=factor;y*=factor;}
     if(pressed[14]||pressed[15])x=(pressed[15]?1:0)-(pressed[14]?1:0);
     if(pressed[12]||pressed[13])y=(pressed[13]?1:0)-(pressed[12]?1:0);
+    return {pad,pressed,x,y,active:pressed.some(Boolean)||Math.hypot(x,y)>.1,
+      signature:pressed.map(Number).join('')+':'+x.toFixed(2)+','+y.toFixed(2)};
+  }
+  function updateControllerStatus(message) {
+    if(controllerStatus===message)return;
+    controllerStatus=message;
+    if(controllerTitleStatus)controllerTitleStatus.textContent=message;
+    if(controllerMapStatus)controllerMapStatus.textContent=message;
+  }
+  function resetController() {
+    gamepadButtons=[];gamepadIndex=null;gamepadId='';menuDirection=0;menuRepeatAt=0;
+  }
+  function readController() {
+    let pads=[];
+    try{
+      const getPads=navigator.getGamepads||navigator.webkitGetGamepads;
+      if(typeof getPads!=='function'){
+        resetController();gamepadSamples.clear();updateControllerStatus('Mando: abre el juego en Chrome o Edge y pulsa A.');return null;
+      }
+      pads=Array.from(getPads.call(navigator)||[]).filter(pad=>pad&&pad.connected!==false);
+    }catch(_){
+      resetController();gamepadSamples.clear();updateControllerStatus('Mando: abre el enlace del juego en su propia pestaña y pulsa A.');return null;
+    }
+    if(!pads.length){
+      resetController();gamepadSamples.clear();updateControllerStatus('Mando Xbox: haz clic en el juego y pulsa A para activarlo.');return null;
+    }
+    const samples=pads.map(normalizeGamepad);
+    const changed=samples.filter(sample=>sample.active&&sample.signature!==gamepadSamples.get(gamepadKey(sample.pad)));
+    const current=samples.find(sample=>sample.pad.index===gamepadIndex&&(sample.pad.id||'')===gamepadId);
+    const selected=changed.find(sample=>isXboxGamepad(sample.pad))||changed[0]||current||samples.find(sample=>isXboxGamepad(sample.pad))||samples.find(sample=>sample.pad.mapping==='standard')||samples[0];
+    const liveKeys=new Set(samples.map(sample=>gamepadKey(sample.pad)));
+    for(const key of gamepadSamples.keys())if(!liveKeys.has(key))gamepadSamples.delete(key);
+    for(const sample of samples)gamepadSamples.set(gamepadKey(sample.pad),sample.signature);
+    if(selected.pad.index!==gamepadIndex||(selected.pad.id||'')!==gamepadId){
+      resetController();gamepadIndex=selected.pad.index;gamepadId=selected.pad.id||'';
+    }
+    updateControllerStatus(isXboxGamepad(selected.pad)?'Control Xbox listo · A: acción · B: correr · START: mapa':'Control listo · A: acción · B: correr · START: mapa');
+    return selected;
+  }
+  function initControllerHints() {
+    const titleControls=document.querySelector('.title-controls');
+    if(titleControls){
+      titleControls.innerHTML='Enter / START · Comenzar<br>Xbox One / 360: joystick · Caminar &nbsp; | &nbsp; A · Acción<br>';
+      controllerTitleStatus=document.createElement('span');titleControls.append(controllerTitleStatus);
+    }
+    const mapHelp=document.querySelector('.controller-help');
+    if(mapHelp){
+      mapHelp.textContent='Xbox One por Bluetooth, Xbox 360 y XInput: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.';
+      controllerMapStatus=document.createElement('p');controllerMapStatus.className='fine-print';
+      mapHelp.parentElement.append(controllerMapStatus);
+    }
+  }
+  function controllerInput(timestamp) {
+    const controller=readController();
+    if(!controller)return {x:0,y:0,run:false};
+    const pressed=controller.pressed,{x,y}=controller;
+    const edge=index=>!!pressed[index]&&!gamepadButtons[index];
     if(edge(3))setSound(!(soundOn&&music.ready));
     if(state.phase==='title'){if(edge(0)||edge(9))startGame();}
     else if(state.phase==='welcome'){if(edge(2))showUniformGuide();else if(edge(0)||edge(9))finishWelcome();}
@@ -429,7 +510,7 @@
       menuDirection=0;
       if(edge(2)||edge(8)||edge(9))openMap();else if(edge(0))interact();
     }
-    gamepadButtons=pressed;
+    gamepadButtons=pressed.slice();
     return {x,y,run:!!pressed[1]};
   }
   function inputVector(controller) {
@@ -442,6 +523,7 @@
   function frame(timestamp) {
     const dt=Math.min(.05,lastTime?(timestamp-lastTime)/1000:1/60);lastTime=timestamp;
     if(timestamp-lastDayCheck>30000){G.refreshSchoolDay(state);lastDayCheck=timestamp;}
+    if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
       if(!mapOpen)G.tick(state,dt,inputVector(controller));
@@ -505,7 +587,15 @@
   });
   window.addEventListener('keyup',event=>held.delete(event.key.toLowerCase()));
   window.addEventListener('pointerdown',()=>{if(soundOn&&!music.ready)void activateSound();});
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();music.setPaused(true);});
+  window.addEventListener('gamepadconnected',event=>{
+    if(event.gamepad)gamepadSamples.delete(gamepadKey(event.gamepad));
+    readController();if(document.hasFocus?.())windowActive=true;
+  });
+  window.addEventListener('gamepaddisconnected',event=>{
+    if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
+    readController();
+  });
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;music.setPaused(true);});
   window.addEventListener('focus',()=>{windowActive=true;lastTime=0;syncMusic();});
   document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;G.refreshSchoolDay(state);syncUI();syncMusic();});
   window.addEventListener('pagehide',()=>{clearInput();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
@@ -545,5 +635,6 @@
     description.textContent=uniform.description+(day==='2'?' También se permite camisa blanca con pantalón o blusa blanca con uniforme de cuadros.':'');
     $('uniform-daily-details').append(term,description);
   }
+  initControllerHints();readController();
   enableWorldControls(false);updateSoundButton();resize();installAgentTools();animationHandle=requestAnimationFrame(frame);
 })();
