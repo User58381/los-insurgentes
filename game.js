@@ -137,7 +137,7 @@
       }
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
-      if(['correct','try','kick'].includes(event.type))playTone(event.type);
+      if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
       if(event.type==='trompo-open'){
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
         $('trompo-action').focus({preventScroll:true});
