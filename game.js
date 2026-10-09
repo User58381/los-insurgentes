@@ -261,13 +261,18 @@
     if(!mapDialog.open)mapDialog.showModal();
   }
   function closeMap(){mapDialog.close();mapOpen=false;clearInput();canvas.focus({preventScroll:true});}
-  function classroomLabel(){return G.MAP_LABELS[9].text.replace(/\n/g,' ');}
+  function classroomLabel(){return G.classroomLabel();}
   function syncSchoolNames(){
     $('map-classroom-name').textContent=G.STATIONS.classroom.name;
     $('uniform-title').textContent='Uniforme de '+classroomLabel();
     $('class-roster-title').textContent=classroomLabel()+' · '+G.STUDENTS.length+' alumnos';
     $('teacher-list').replaceChildren();
-    for(const teacher of G.TEACHERS){const item=document.createElement('li');item.textContent=teacherLabel(teacher);$('teacher-list').append(item);}
+    for(const teacher of window.SchoolSettings.orderedTeachers(G)){
+      const item=document.createElement('li'),name=document.createElement('span');
+      name.textContent=teacherLabel(teacher);item.append(name);
+      if(teacher.fullName){const fullName=document.createElement('small');fullName.className='staff-full-name';fullName.textContent=teacher.fullName;item.append(fullName);}
+      $('teacher-list').append(item);
+    }
   }
   function syncUI() {
     $('player-name').textContent=state.player.name+' · '+classroomLabel();
@@ -646,7 +651,7 @@
       const img=new Image();img.onload=()=>{images[key]=img;resolve();};img.onerror=()=>reject(new Error('No se pudo cargar '+key));img.src=window.INSURGENTES_ASSETS?.[key]||window.SchoolAssets?.url(path)||path;
     });
   }
-  const teacherAssets=new Map(G.TEACHERS.map(teacher=>[teacher.assetKey,teacher.assetPath]));
+  const teacherAssets=new Map(G.TEACHERS.filter(teacher=>teacher.assetKey&&teacher.assetPath).map(teacher=>[teacher.assetKey,teacher.assetPath]));
   Promise.all([...Object.entries(G.ASSET_PATHS).map(([key,path])=>loadImage(key,path)),...Array.from(teacherAssets,([key,path])=>loadImage(key,path))]).then(()=>{
     loaded=true;$('start-button').disabled=false;$('start-button').textContent='PULSA START PARA JUGAR';$('load-status').textContent='Tu escuela. Tu gran aventura.';
     for(const [id,key] of [['title-school','introBg'],['welcome-school','introBg'],['director-portrait','directorPortrait'],['uniform-director-portrait','directorPortrait'],['uniform-poster','uniformGuide'],['overview-image','map']])$(id).src=images[key].src;

@@ -32,6 +32,7 @@
     field: { name: 'La cancha', subject: 'Números', icon: '✦', x: 643, y: 413, reach: 76, scene: 'outside' }
   };
   const CLASSROOM_DOOR = { x: 1090, y: 702 };
+  let classroomLabelIndex = 9;
   const MAP_LABELS = [
     {text:'6.º B',x:245,y:602}, {text:'4.º A',x:338,y:602},
     {text:'2.º B',x:431,y:602}, {text:'5.º A',x:524,y:602},
@@ -44,6 +45,21 @@
     {text:'Dirección',x:811,y:938}, {text:'Usos\nmúltiples',x:1035,y:815},
     {text:'Teatro',x:241,y:800}
   ];
+  // Each numbered label stays attached to its physical building.
+  function buildingEntrance(index) {
+    const label=MAP_LABELS[index];
+    if(!label)return null;
+    if(index<10)return {x:label.x+15,y:index===0?697:702};
+    if(index===10)return {x:148,y:699};
+    if(index<16)return {x:label.x+15,y:1045};
+    return index===16?{x:1055,y:1000}:{x:335,y:820};
+  }
+  function setClassroomBuilding(index) {
+    const entrance=buildingEntrance(index);
+    if(!entrance||!canStand('outside',entrance.x,entrance.y))return false;
+    classroomLabelIndex=index;Object.assign(CLASSROOM_DOOR,entrance);return true;
+  }
+  function classroomLabel(){return MAP_LABELS[classroomLabelIndex].text.replace(/\n/g,' ');}
   // Ground footprints omit roof overhangs and stage shadows that cover walkways.
   const OUTSIDE_RECTS = [
     [89, 503, 80, 176], [206, 544, 645, 138], [875, 544, 241, 138],
@@ -104,19 +120,42 @@
     {id:'claudia',name:'Señora Claudia',group:'Intendente',assetKey:'staffBatch1',assetPath:'assets/personal-escuela-tanda-1.png',frames:[[407,28,158,280,78,268],[396,314,176,271,85.5,262],[388,587,181,261,94.5,257],[405,848,151,256,76.5,246]],positions:{outside:{x:450,y:1050,facing:'down'}}},
     {id:'ema',name:'Maestra Ema',group:'2.º B',assetKey:'staffBatch1',assetPath:'assets/personal-escuela-tanda-1.png',frames:[[619,26,162,282,80,271],[630,309,154,276,60,269],[608,586,163,262,93,257],[617,848,162,259,81.5,249]],positions:{outside:{x:398,y:705,facing:'down'}}},
     {id:'luis_miguel',name:'Maestro Luis Miguel',group:'5.º A',assetKey:'staffBatch1',assetPath:'assets/personal-escuela-tanda-1.png',frames:[[842,16,154,292,76.5,283],[856,308,142,277,61,270],[845,585,145,263,76,257],[843,848,149,258,75,249]],positions:{outside:{x:563,y:705,facing:'down'}}},
-    {id:'norma',name:'Maestra Norma',group:'1.º B',assetKey:'staffBatch1',assetPath:'assets/personal-escuela-tanda-1.png',frames:[[1068,24,180,284,89,276],[1090,309,170,276,66.5,272],[1058,585,177,263,104,261],[1073,848,171,264,84.5,253]],positions:{outside:{x:916,y:705,facing:'down'}}},
-    {id:'emilia',name:'Maestra Emilia',group:'6.º B',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[91,13,181,315,91,311],[110,328,157,294,67,292],[88,622,162,284,94,281],[103,906,154,215,76,207]],positions:{outside:{x:245,y:697,facing:'down'}}},
-    {id:'angelica',name:'Maestra Angélica',group:'4.º A',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[354,9,171,321,86,315],[363,330,166,294,71,293],[349,624,173,282,96.5,279],[366,906,147,215,73.5,207]],positions:{outside:{x:372,y:735,facing:'down'}}},
+    {id:'norma',name:'Maestra Norma',group:'2.º A',assetKey:'staffBatch1',assetPath:'assets/personal-escuela-tanda-1.png',frames:[[1068,24,180,284,89,276],[1090,309,170,276,66.5,272],[1058,585,177,263,104,261],[1073,848,171,264,84.5,253]],positions:{outside:{x:916,y:705,facing:'down'}}},
+    {id:'emilia',name:'Maestra Emilia',group:'4.º A',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[91,13,181,315,91,311],[110,328,157,294,67,292],[88,622,162,284,94,281],[103,906,154,215,76,207]],positions:{outside:{x:245,y:697,facing:'down'}}},
+    {id:'angelica',name:'Maestra Angélica',group:'5.º B',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[354,9,171,321,86,315],[363,330,166,294,71,293],[349,624,173,282,96.5,279],[366,906,147,215,73.5,207]],positions:{outside:{x:372,y:735,facing:'down'}}},
     {id:'criss',name:'Criss',group:'Intendente',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[616,19,172,311,86,305],[620,330,163,295,73.5,290],[616,625,162,281,86.5,278],[628,906,152,215,73.5,208]],positions:{outside:{x:909,y:1050,facing:'down'}}},
-    {id:'emilio',name:'Maestro Emilio',group:'5.º A',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[865,4,178,323,90,320],[883,327,155,295,70,293],[879,622,154,284,79.5,281],[882,906,148,215,74.5,207]],positions:{outside:{x:525,y:790,facing:'down'}}},
+    {id:'emilio',name:'Maestro Emilio',group:'6.º B',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[865,4,178,323,90,320],[883,327,155,295,70,293],[879,622,154,284,79.5,281],[882,906,148,215,74.5,207]],positions:{outside:{x:525,y:790,facing:'down'}}},
     {id:'cesia',name:'Maestra Cesia',group:'4.º B',assetKey:'staffBatch2',assetPath:'assets/personal-escuela-tanda-2.png',frames:[[1114,19,223,313,113.5,305],[1138,332,190,294,81.5,290],[1128,626,194,280,107,277],[1144,906,167,215,83.5,207]],positions:{outside:{x:810,y:705,facing:'down'}}},
     {id:'blanca',name:'Maestra Blanca',group:'1.º A',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[109,11,172,306,89.5,299],[124,317,156,294,66.5,290],[110,611,156,278,86,275],[119,889,150,233,74.5,223]],positions:{outside:{x:580,y:1040,facing:'down'}}},
-    {id:'diana',name:'Maestra Diana',group:'4.º A',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[361,17,176,302,88,294],[378,319,156,294,62.5,288],[362,613,157,276,94,272],[368,889,161,233,80.5,226]],positions:{outside:{x:386,y:805,facing:'down'}}},
+    {id:'diana',name:'Maestra Diana',group:'1.º B',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[361,17,176,302,88,294],[378,319,156,294,62.5,288],[362,613,157,276,94,272],[368,889,161,233,80.5,226]],positions:{outside:{x:386,y:805,facing:'down'}}},
     {id:'laura',name:'Maestra Laura',group:'3.º B',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[609,16,175,302,88,295],[623,318,161,295,61.5,289],[606,613,158,276,96,273],[618,889,155,233,78.5,226]],positions:{outside:{x:628,y:705,facing:'down'}}},
     {id:'lolo',name:'Maestro Lolo',group:'6.º A',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[857,9,176,306,87,301],[877,315,129,296,63.5,292],[875,611,130,278,69.5,275],[864,889,155,233,77.5,225]],positions:{outside:{x:714,y:1040,facing:'down'}}},
     {id:'mauricio',name:'Mauricio',group:'Administrativo · Dirección',assetKey:'staffBatch3',assetPath:'assets/personal-escuela-tanda-3.png',frames:[[1120,0,164,315,82,310],[1133,315,141,294,64.5,292],[1134,609,141,280,75.5,278],[1132,889,145,233,72.5,225]],positions:{outside:{x:831,y:1040,facing:'down'}}},
     {id:'guadalupe',name:'Maestro José Guadalupe',group:'Director',assetKey:'directorGuadalupe',assetPath:'assets/director-guadalupe.png',frames:[[243,61,288,557,146,546],[766,68,252,551,126,541],[252,636,260,548,135,539],[740,638,285,547,143,538]],positions:{outside:{x:777,y:868,facing:'down'}}}
   ];
+  const ORGANIZATION_REVISION='20261009-lista-maestros';
+  const OFFICIAL_STAFF = {
+    blanca:{fullName:'Blanca Griselda Martínez Sánchez',assignment:'1.º A'},
+    diana:{fullName:'Diana Paola Ruiz Gómez',assignment:'1.º B'},
+    norma:{fullName:'Norma Alicia Manzano Sepúlveda',assignment:'2.º A'},
+    ema:{fullName:'Ema Alejandra Caudillo Guerrero',assignment:'2.º B'},
+    angel:{fullName:'Ángel Arroyo Vargas',assignment:'3.º A'},
+    laura:{fullName:'Laura Vanessa Rodríguez Castro',assignment:'3.º B'},
+    emilia:{fullName:'Emilia Mijares Rubio',assignment:'4.º A'},
+    cesia:{fullName:'Cesia Hernández Rosales',assignment:'4.º B'},
+    luis_miguel:{fullName:'Luis Miguel García Robles',assignment:'5.º A'},
+    angelica:{fullName:'Angélica Martínez Rico',assignment:'5.º B'},
+    lolo:{fullName:'Dolores Niño Morín',assignment:'6.º A'},
+    emilio:{fullName:'José Emilio Arroyo Mijares',assignment:'6.º B'},
+    criss:{fullName:'Cristel Deyanira Montes Dimas',assignment:'Intendente'},
+    mauricio:{fullName:'Mauricio Vidal Salinas',assignment:'Administrativo · Dirección'}
+  };
+  for(const teacher of TEACHERS){
+    const official=OFFICIAL_STAFF[teacher.id];
+    if(official)Object.assign(teacher,{fullName:official.fullName,group:official.assignment,officialAssignment:official.assignment});
+  }
+  // A directory entry can be added before a portrait is available.
+  TEACHERS.push({id:'maria_alejandra',name:'María Alejandra',fullName:'María Alejandra Alvarado Sandoval',group:'Velador',officialAssignment:'Velador',positions:{}});
   function teachersInScene(state) {
     return TEACHERS.filter(teacher=>teacher.positions[state.scene]).map(teacher=>({...teacher,...teacher.positions[state.scene]}));
   }
@@ -416,5 +455,5 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
   function snapshot(state) {
     return {phase:state.phase,scene:state.scene,player:{id:state.player.id,name:state.player.name,style:state.player.style},position:{x:Math.round(state.player.x),y:Math.round(state.player.y)},stars:Object.values(state.completed).filter(Boolean).length,points:state.points,goals:state.goals,completed:{...state.completed},objective:objective(state),nearby:nearby(state)?.label||null,question:state.quiz?{station:state.quiz.station,index:state.quiz.index,correct:state.quiz.correct,feedback:state.quiz.feedback}:null,trompo:state.trompo?{round:state.trompo.round,stage:state.trompo.stage,power:Math.round(state.trompo.power*100),wins:state.trompo.wins,oliverWins:state.trompo.oliverWins}:null,classmates:STUDENTS.length,schoolDay:UNIFORM_DAYS[state.schoolDay].name,uniform:UNIFORM_DAYS[state.schoolDay].uniform,automaticDay:state.dayMode==='auto',teachers:teachersInScene(state).map(teacher=>({name:teacher.name,group:teacher.group}))};
   }
-  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
+  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,buildingEntrance,setClassroomBuilding,classroomLabel,ORGANIZATION_REVISION,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
 });

@@ -1,38 +1,77 @@
-LOS INSURGENTES: EDITOR DE LA ESCUELA
+LOS INSURGENTES: ORGANIZACIÓN DE MAESTROS Y SALONES
+Versión 20261009-organizacion-2
 
-INSTALAR EN TU GITHUB ACTUAL
-1. Descomprime este ZIP.
+ACTUALIZAR TU JUEGO EN GITHUB
+1. Descomprime el ZIP.
 2. En User58381/los-insurgentes, abre Add file > Upload files.
-3. Sube TODOS estos archivos a la raíz del repositorio, donde está index.html:
-   index.html, style.css, engine.js, game.js, bootstrap.js, school-settings.js y school-editor.js.
-   Reemplaza los archivos existentes y añade los nuevos. No subas el ZIP ni la carpeta exterior.
-4. Guarda el cambio en main y espera a que termine la publicación de GitHub Pages.
-5. La primera vez, abre el juego y pulsa Ctrl + F5 para cargar también el nuevo index.html.
+3. Sube estos ocho archivos a la raíz, donde ya está index.html:
+   index.html, style.css, engine.js, audio.js, game.js,
+   bootstrap.js, school-settings.js y school-editor.js.
+4. Guarda en main y espera a que termine la publicación de GitHub Pages.
+5. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
+   También puedes usar Editar escuela > Borrar caché y actualizar.
+El paquete completo incluye las imágenes y canciones en assets. Conserva sus rutas.
+El ZIP de actualización incluye los ocho archivos para reemplazarlos juntos.
 
-EDITAR DESDE EL JUEGO
-Pulsa "Editar escuela" en la portada, o abre Mapa > Editar escuela durante la aventura.
-En "Salones y edificios", toca un número del mapa o busca su fila en la lista.
-Elige grado y grupo para asignar una etiqueta como 6.º B. También puedes escribir el nombre de un espacio, como Dirección o Cooperativa.
-En "Profes y grupos", elige el grado y grupo de cada profesor, o escribe una materia, varios grupos o un cargo.
-Los cambios válidos se guardan automáticamente en ese navegador. El mensaje de arriba indica si se guardaron.
-Los textos de acceso y del reto siguen el nombre que hayas asignado al salón jugable.
-El juego se pausa mientras editas. Puedes cerrar con la X, Escape o B del mando.
+LA ORGANIZACIÓN DE LA LISTA
+1.º A: Blanca Griselda Martínez Sánchez
+1.º B: Diana Paola Ruiz Gómez
+2.º A: Norma Alicia Manzano Sepúlveda
+2.º B: Ema Alejandra Caudillo Guerrero
+3.º A: Ángel Arroyo Vargas
+3.º B: Laura Vanessa Rodríguez Castro
+4.º A: Emilia Mijares Rubio
+4.º B: Cesia Hernández Rosales
+5.º A: Luis Miguel García Robles
+5.º B: Angélica Martínez Rico
+6.º A: Dolores Niño Morín (personaje Maestro Lolo)
+6.º B: José Emilio Arroyo Mijares
 
-LLEVAR LOS AJUSTES A OTRO NAVEGADOR
-1. En Editar escuela, pulsa "Exportar guardado".
-2. Conserva el archivo Escuela_Los_Insurgentes.json.
-3. Abre el juego en el otro navegador y entra a Editar escuela.
-4. Pulsa "Importar guardado" y selecciona ese archivo.
-El archivo contiene las etiquetas de los edificios y las asignaciones del personal. Estos ajustes son locales a cada navegador; se comparten importando el guardado.
+Cristel Deyanira Montes Dimas conserva el personaje Criss y su cargo de intendente.
+Mauricio Vidal Salinas queda como administrativo en Dirección.
+María Alejandra Alvarado Sandoval queda registrada como velador en el directorio.
+Raúl, Claudia y el director José Guadalupe siguen presentes con sus personajes.
 
-ACTUALIZAR SIN ARRASTRAR ARCHIVOS ANTIGUOS DEL NAVEGADOR
-Después de publicar una actualización, usa "Borrar caché y actualizar" dentro de Editar escuela.
-El juego vuelve a la portada y vuelve a solicitar sus archivos con una dirección nueva.
-Las etiquetas y los grupos guardados se conservan. Si borras los datos completos del navegador desde sus ajustes, podrás recuperarlos importando tu copia JSON.
+UBICAR CADA SALÓN
+Pulsa Editar escuela en la portada, o Mapa > Editar escuela durante el juego.
+En Salones y edificios, toca un número y cambia el grado y grupo de ese edificio.
+Para intercambiar dos salones, modifica las dos etiquetas. Por ejemplo, coloca
+3.º A en el edificio 1 y 6.º B en el edificio 10.
+El profesor se ubica frente al edificio que tenga la etiqueta de su grupo.
+La entrada al salón jugable sigue al grupo asignado al maestro Ángel.
+En Profes y grupos, puedes modificar la asignación de cada maestro.
+Ver salón te lleva a la etiqueta del edificio correspondiente.
+Si un grupo aparece en dos edificios o todavía no tiene etiqueta, el editor
+te avisa para que completes la ubicación.
+La foto establece quién imparte cada grupo; las posiciones iniciales de los
+salones se conservan como punto de partida hasta que las ajustes.
 
-ARCHIVOS DEL REPOSITORIO
-Mantén audio.js y las carpetas assets y downloads que ya tiene tu juego.
-Este paquete incluye la corrección de la animación de piernas, el soporte Xbox One/360 y el sonido de START para las respuestas correctas.
+GUARDAR, EXPORTAR E IMPORTAR
+Los cambios válidos se guardan automáticamente en ese navegador.
+Exportar guardado descarga Escuela_Los_Insurgentes.json.
+En otro navegador, abre Editar escuela > Importar guardado y selecciona esa copia.
+Los guardados anteriores son compatibles. En la primera carga se corrigen las
+asignaciones antiguas de fábrica y se conservan las etiquetas y grupos personales.
+Aplicar lista de maestros restablece las asignaciones de esta foto y conserva
+las etiquetas que hayas editado. Una copia importada respeta los grupos del archivo.
+Borrar caché y actualizar solicita los archivos nuevos y conserva tus ajustes.
 
-VALIDACIÓN
-Se verificaron el formato del guardado, persistencia y recuperación, importación/exportación, formularios, textos de la escuela, recarga de archivos, pausa al editar y controles con entradas simuladas. También se revisó la animación en todos los uniformes y direcciones.
+JUEGO Y CONTROLES
+Se conservan los alumnos, música, uniformes, retos, trompos y animación de pies.
+Computadora: WASD o flechas; E/Espacio para actuar; Shift para correr; M para mapa.
+Teléfono: cruceta y botón A.
+Xbox One Bluetooth / Xbox 360 / XInput: joystick o cruceta, A para actuar,
+B para correr o cerrar y START/X para mapa. B también cierra el editor.
+Las respuestas correctas usan el sonido de START que proporcionaste.
+
+DESCARGAR UNA COPIA
+El enlace dentro del mapa descarga el ZIP de la rama main de tu repositorio.
+Así incluye la versión que publiques de los archivos del juego.
+Descomprime y abre el index.html que está dentro de la carpeta descargada.
+
+COMPROBACIONES
+Se comprobaron las asignaciones, la compatibilidad de guardados anteriores,
+importación/exportación, edición de salones, traslado de profesores y de la
+entrada jugable, entradas y salidas transitables en los dieciocho edificios,
+y los botones del editor. También se probaron entradas simuladas del mando
+Xbox estándar y Bluetooth y el sonido asignado a respuestas correctas.

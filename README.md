@@ -1,42 +1,73 @@
 # Los Insurgentes · La aventura del saber
 
-Juego web de la Escuela Primaria Los Insurgentes. Esta carpeta contiene la versión publicada más reciente: mapa de la escuela, alumnos y personal, uniformes diarios, música, salón 3.º A, retos y trompos con Oliver.
+Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261009-organizacion-2`.
 
-## Subir a GitHub y activar GitHub Pages
+Contiene el mapa, alumnos, uniformes por día, personal, bienvenida del director,
+retos, trompos con Oliver y las canciones proporcionadas.
 
-Se recomienda hacerlo en una computadora para arrastrar las carpetas completas.
+## Actualizar el repositorio actual
 
-1. Descomprime el archivo y abre la carpeta que contiene `index.html`.
-2. Inicia sesión en https://github.com y entra a https://github.com/new.
-3. Escribe `los-insurgentes` como nombre del repositorio. Elige **Public** para usar GitHub Pages con una cuenta gratuita. Puedes marcar **Add a README file**. Pulsa **Create repository**.
-4. En el repositorio, abre **Add file → Upload files**. Arrastra todo el contenido de la carpeta: `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`, `README.md`, `.nojekyll`, `assets` y `downloads`. Sube las carpetas con su contenido y conserva sus nombres. Sube el contenido, no la carpeta exterior ni el ZIP.
-5. Guarda con **Commit changes**, directamente en la rama `main`. Si aparece **Propose changes**, confirma el cambio y, si se crea una solicitud, intégrala en `main`.
-6. Abre **Settings → Pages**. En **Source**, elige **Deploy from a branch**. Selecciona **main** y **/(root)**. Pulsa **Save**.
-7. Cuando termine la publicación, Pages mostrará la dirección del juego. Será similar a `https://TU_USUARIO.github.io/los-insurgentes/`.
+1. Descomprime el paquete y abre la carpeta que contiene `index.html`.
+2. En [User58381/los-insurgentes](https://github.com/User58381/los-insurgentes), abre **Add file → Upload files**.
+3. Reemplaza juntos `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`,
+   `bootstrap.js`, `school-settings.js` y `school-editor.js` en la raíz.
+4. Conserva la carpeta `assets` con sus imágenes y canciones. El paquete completo también la incluye.
+5. Guarda en `main`, espera la publicación y abre [el juego](https://user58381.github.io/los-insurgentes/).
+6. Recarga con Ctrl + F5 o usa **Editar escuela → Borrar caché y actualizar**.
 
-El repositorio y el juego publicado con estas opciones serán públicos, incluidos los nombres que contiene el juego.
+Sube los archivos descomprimidos. Las rutas deben quedar al mismo nivel que
+`index.html`. Consulta `LEEME.txt` para las instrucciones de edición y guardados.
 
-## Comprobar que quedó bien
+## Maestros y grupos
 
-Abre la dirección de GitHub Pages y pulsa START. Comprueba la bienvenida del director, las imágenes, el sonido, el acceso al salón y el reto de Oliver. La música empieza después de una interacción del jugador.
+| Grupo | Nombre de la lista |
+| --- | --- |
+| 1.º A | Blanca Griselda Martínez Sánchez |
+| 1.º B | Diana Paola Ruiz Gómez |
+| 2.º A | Norma Alicia Manzano Sepúlveda |
+| 2.º B | Ema Alejandra Caudillo Guerrero |
+| 3.º A | Ángel Arroyo Vargas |
+| 3.º B | Laura Vanessa Rodríguez Castro |
+| 4.º A | Emilia Mijares Rubio |
+| 4.º B | Cesia Hernández Rosales |
+| 5.º A | Luis Miguel García Robles |
+| 5.º B | Angélica Martínez Rico |
+| 6.º A | Dolores Niño Morín (Maestro Lolo) |
+| 6.º B | José Emilio Arroyo Mijares |
 
-No abras la página con el botón de vista del archivo en GitHub: usa la dirección de GitHub Pages.
+Cristel Deyanira Montes Dimas figura como Criss, intendente; Mauricio Vidal
+Salinas como administrativo en Dirección; María Alejandra Alvarado Sandoval
+como velador en el directorio. Raúl, Claudia y José Guadalupe conservan sus personajes.
 
-Si aparece un error 404, verifica que `index.html` esté en la raíz del repositorio, que Pages use `main` y `/(root)`, y que la publicación haya terminado. Para actualizar el juego, vuelve a subir los archivos modificados a la misma rama.
+## Editar la escuela
+
+Abre **Editar escuela** desde la portada o el mapa. Los números señalan edificios
+fijos: cambia sus etiquetas para colocar el grupo que corresponda. Los profes
+siguen la etiqueta de su grupo, y la entrada al salón jugable sigue al grupo del
+maestro Ángel. En **Profes y grupos** puedes cambiar asignaciones y usar **Ver salón**.
+
+Los cambios se guardan en el navegador. **Exportar guardado** descarga una copia
+JSON para usarla con **Importar guardado** en otro navegador. **Aplicar lista de
+maestros** recupera las asignaciones de esta lista conservando las etiquetas.
+La actualización admite los guardados de la versión anterior.
+
+El mapa mantiene sus posiciones iniciales para que puedas ajustarlas: la lista
+de personal no determina dónde está físicamente cada salón.
 
 ## Controles
 
-- Computadora: flechas o WASD para caminar; E o Espacio para actuar; Shift para correr; M para mapa.
-- Teléfono: cruceta y botón A.
-- Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X o START para mapa; Y para sonido. Durante la bienvenida, X abre la guía de uniformes.
+- Computadora: WASD/flechas, E/Espacio para actuar, Shift para correr y M para mapa.
+- Teléfono: cruceta y A.
+- Xbox One Bluetooth, Xbox 360 y XInput: joystick/cruceta, A para actuar,
+  B para correr/cerrar, X o START para mapa y Y para sonido.
 
 ## Archivos
 
-No se necesita instalar Godot, Node ni compilar. Los archivos están listos para un alojamiento estático. Las imágenes y canciones usan rutas relativas, compatibles con GitHub Pages.
+Los archivos están preparados para alojamiento estático. El botón de descarga
+del mapa obtiene el ZIP de `main` del repositorio actual, con el código y los
+recursos que publiques. Si usas otro repositorio, actualiza esa dirección en `index.html`.
 
-El enlace del mapa permite descargar otra copia para jugar sin internet. Conserva `downloads/Aventura_Insurgentes_3A.zip` para mantener ese enlace.
-
-## Documentación oficial
+Documentación de GitHub:
 
 - https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository
 - https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site

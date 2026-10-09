@@ -55,8 +55,24 @@
   function renderRows(){
     const config=store.getConfig();rowElements.clear();$('school-label-rows').replaceChildren();$('school-teacher-rows').replaceChildren();
     config.labels.forEach((label,index)=>$('school-label-rows').append(makeRow(label.id,(index+1)+' · Edificio',label.name,true,index)));
-    for(const teacher of G.TEACHERS){const assignment=config.teachers.find(row=>row.id===teacher.id).assignment;$('school-teacher-rows').append(makeRow(teacher.id,teacher.name,assignment,false));}
+    for(const teacher of S.orderedTeachers(G)){
+      const assignment=config.teachers.find(row=>row.id===teacher.id).assignment,row=makeRow(teacher.id,teacher.name,assignment,false);
+      if(teacher.fullName){const detail=document.createElement('p');detail.className='school-official-name';detail.textContent=teacher.fullName;row.firstElementChild.after(detail);}
+      const room=document.createElement('div'),caption=document.createElement('span'),button=document.createElement('button');
+      room.className='school-teacher-room';room.dataset.roomFor=teacher.id;button.className='uniform-button';button.type='button';button.textContent='Ver salón';button.setAttribute('aria-label','Ver salón de '+teacher.name);
+      button.addEventListener('click',()=>{const matches=S.matchingBuildings(G,teacher.group);if(matches.length===1){tab('labels');selectLabel(matches[0],true);}});
+      room.append(caption,button);row.append(room);$('school-teacher-rows').append(row);
+    }
+    updateRoomHints();
     selectLabel(selectedLabel);showStoredStatus();
+  }
+  function updateRoomHints(){
+    for(const teacher of G.TEACHERS){
+      const room=rowElements.get(teacher.id)?.querySelector('[data-room-for]');if(!room)continue;
+      const isGroup=!!S.parseGroup(teacher.group),matches=S.matchingBuildings(G,teacher.group),unique=matches.length===1;
+      room.hidden=!isGroup;room.classList.toggle('school-room-warning',isGroup&&!unique);room.querySelector('button').hidden=!unique;
+      room.querySelector('span').textContent=unique?'Salón: edificio '+(matches[0]+1)+' · '+G.MAP_LABELS[matches[0]].text.replace(/\n/g,' '):matches.length?'Este grupo está en '+matches.length+' edificios. Revisa sus etiquetas.':'Falta ubicar este grupo: asígnalo a un edificio en el mapa.';
+    }
   }
   function tab(value){
     $('school-label-panel').hidden=value!=='labels';$('school-teacher-panel').hidden=value!=='teachers';
@@ -83,6 +99,10 @@
     setTimeout(()=>URL.revokeObjectURL(url),30000);status('Copia exportada. Impórtala en otro navegador para usar los mismos ajustes.');
   });
   $('school-import').addEventListener('click',()=>$('school-import-file').click());
+  $('school-apply-list').addEventListener('click',()=>{
+    const result=store.applyOfficialAssignments();renderRows();
+    if(result.persisted)status('✓ Grupos de la lista aplicados. Tus etiquetas y ubicaciones se conservan.');
+  });
   $('school-import-file').addEventListener('change',async event=>{
     const file=event.target.files[0];if(!file)return;
     try{
@@ -99,7 +119,7 @@
       location.replace(fresh);
     }catch(_){button.disabled=false;button.textContent='↻ Borrar caché y actualizar';status('No se pudo recargar. Vuelve a intentarlo.',true);}
   });
-  store.subscribe(()=>{if(dialog.open){showStoredStatus();redrawMap();}});
+  store.subscribe(()=>{if(dialog.open){showStoredStatus();redrawMap();updateRoomHints();}});
   window.addEventListener('storage',event=>{if(event.key===S.STORAGE_KEY){store.receive(event.newValue);if(dialog.open)renderRows();}});
   mapImage.onload=redrawMap;mapImage.src=window.SchoolAssets?.url(G.ASSET_PATHS.map)||G.ASSET_PATHS.map;
   window.SchoolEditor={open,close,isOpen:()=>dialog.open};

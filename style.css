@@ -63,6 +63,14 @@
 @media(max-height:570px){.welcome-actions{min-width:170px;max-width:210px;margin:0;gap:8px}.welcome-actions #welcome-continue{max-width:none;padding:10px 12px}.welcome-actions .uniform-button{padding:10px 12px}.director-portrait{bottom:185px;max-height:calc(100% - 185px)}.uniform-director>img{height:70px}.uniform-director h2{font-size:20px}}
 
 /* School labels, teaching assignments, and portable browser settings. */
+.staff-full-name{display:block;font-size:13px;color:#57715e;margin-top:3px;line-height:1.4}
+.school-official-name{grid-column:1/-1;margin:-3px 0 2px;color:#526e5b;font-size:13px;line-height:1.4}
+.school-teacher-room{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:#376449;line-height:1.5}
+.school-teacher-room .uniform-button{padding:6px 11px;min-height:36px;font-size:13px;white-space:nowrap}
+.school-room-warning{color:#8a5f1b}
+.school-official-tools{display:flex;align-items:center;gap:14px;margin:0 0 17px;padding:12px;background:#eaf0dd;border:1px solid #b8c9a9;border-radius:9px}
+.school-official-tools button{font-size:14px;flex-shrink:0}.school-official-tools p{margin:0;color:#526e5b;font-size:13px;line-height:1.5}
+@media(max-width:760px){.school-official-tools{align-items:stretch;flex-direction:column;gap:9px}.school-teacher-room{align-items:flex-start}.school-official-tools button{white-space:normal}}
 .title-editor{display:block;margin:14px auto 0;padding:8px 16px;border:1px solid #f6dc9570;border-radius:8px;background:#183e3bdb;color:#fff4d8;font-weight:700;font-size:14px}
 .title-editor:hover{background:#286c61}
 .school-tools{grid-column:1/-1;display:flex;align-items:center;gap:16px;border-top:1px solid #375c4125;padding-top:17px}.school-tools p{margin:0;color:#476957;line-height:1.5;font-size:14px}
