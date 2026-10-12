@@ -1,6 +1,6 @@
 # Los Insurgentes · La aventura del saber
 
-Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261009-organizacion-2`.
+Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-pacman-1`.
 
 Contiene el mapa, alumnos, uniformes por día, personal, bienvenida del director,
 retos, trompos con Oliver y las canciones proporcionadas.
@@ -11,12 +11,23 @@ retos, trompos con Oliver y las canciones proporcionadas.
 2. En [User58381/los-insurgentes](https://github.com/User58381/los-insurgentes), abre **Add file → Upload files**.
 3. Reemplaza juntos `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`,
    `bootstrap.js`, `school-settings.js` y `school-editor.js` en la raíz.
-4. Conserva la carpeta `assets` con sus imágenes y canciones. El paquete completo también la incluye.
+4. Añade `assets/maquinita-pacman.png` dentro de la carpeta `assets`. Conserva las otras imágenes y canciones; el paquete completo también las incluye.
 5. Guarda en `main`, espera la publicación y abre [el juego](https://user58381.github.io/los-insurgentes/).
 6. Recarga con Ctrl + F5 o usa **Editar escuela → Borrar caché y actualizar**.
 
 Sube los archivos descomprimidos. Las rutas deben quedar al mismo nivel que
 `index.html`. Consulta `LEEME.txt` para las instrucciones de edición y guardados.
+
+## Maquinita de Pac-Man en el salón
+
+La máquina amarilla con bordes rojos y joystick blanco de tus fotos aparece
+en pixel art a la derecha del pizarrón. Puedes acercarte por el pasillo y
+seleccionarla con **E** o **A**. La base tiene colisión y el paso frente a las
+bancas permanece abierto.
+
+Por ahora muestra **Pac-Man educativo · Próximamente**. El juego educativo
+se integrará cuando proporciones su código. Esta versión conserva los retos,
+música, controles y editor de maestros y salones.
 
 ## Maestros y grupos
 

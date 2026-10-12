@@ -1,5 +1,5 @@
-LOS INSURGENTES: ORGANIZACIÓN DE MAESTROS Y SALONES
-Versión 20261009-organizacion-2
+LOS INSURGENTES: MAQUINITA PAC-MAN EN EL SALÓN
+Versión 20261012-pacman-1
 
 ACTUALIZAR TU JUEGO EN GITHUB
 1. Descomprime el ZIP.
@@ -7,11 +7,21 @@ ACTUALIZAR TU JUEGO EN GITHUB
 3. Sube estos ocho archivos a la raíz, donde ya está index.html:
    index.html, style.css, engine.js, audio.js, game.js,
    bootstrap.js, school-settings.js y school-editor.js.
-4. Guarda en main y espera a que termine la publicación de GitHub Pages.
-5. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
+4. Añade maquinita-pacman.png dentro de la carpeta assets del repositorio.
+   Su ruta final debe ser assets/maquinita-pacman.png.
+5. Guarda en main y espera a que termine la publicación de GitHub Pages.
+6. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
    También puedes usar Editar escuela > Borrar caché y actualizar.
 El paquete completo incluye las imágenes y canciones en assets. Conserva sus rutas.
-El ZIP de actualización incluye los ocho archivos para reemplazarlos juntos.
+El ZIP de actualización incluye los ocho archivos y la imagen de la máquina.
+
+MAQUINITA EN EL SALÓN
+La máquina de tus fotos está a la derecha del pizarrón, en pixel art.
+Puedes acercarte por el pasillo y seleccionarla con E o A.
+Por ahora dice Pac-Man educativo - Próximamente. El juego educativo se
+integrará cuando nos compartas su código.
+Se comprobó que la base tiene colisión y que puedes llegar a la máquina,
+volver a la puerta y continuar usando el reto de lectura.
 
 LA ORGANIZACIÓN DE LA LISTA
 1.º A: Blanca Griselda Martínez Sánchez

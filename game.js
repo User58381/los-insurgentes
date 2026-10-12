@@ -147,6 +147,7 @@
       }
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
+      if(event.type==='arcade'){clearInput();showToast('Maquinita de Pac-Man educativo · Próximamente.');}
       if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
       if(event.type==='trompo-open'){
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
@@ -361,6 +362,11 @@
     ctx.save();ctx.fillStyle='#142f2945';ctx.beginPath();ctx.ellipse(teacher.x,teacher.y-1,12,4,0,0,Math.PI*2);ctx.fill();
     ctx.drawImage(images[teacher.assetKey],sx,sy,sw,sh,teacher.x-ax*factor,teacher.y-ay*factor,sw*factor,sh*factor);ctx.restore();
   }
+  function drawArcade(){
+    const cabinet=G.ARCADE,[sx,sy,sw,sh]=cabinet.frame;
+    ctx.save();ctx.fillStyle='#142f293b';ctx.beginPath();ctx.ellipse(cabinet.x,cabinet.y-1,35,6,0,0,Math.PI*2);ctx.fill();
+    ctx.drawImage(images.arcade,sx,sy,sw,sh,cabinet.x-cabinet.width/2,cabinet.y-cabinet.height,cabinet.width,cabinet.height);ctx.restore();
+  }
   function teacherLabel(teacher){return teacher.name+(teacher.group?' · '+teacher.group:'');}
   function drawActorNames(classmates,teachers) {
     const range=state.scene==='outside'?145:80,limit=state.scene==='outside'?4:1;
@@ -417,8 +423,8 @@
       ctx.save();ctx.font='bold 17px Trebuchet MS';ctx.fillStyle='#28554d';ctx.textAlign='center';ctx.fillText(classroomLabel()+' · El cuaderno de Lucía',640,85);ctx.restore();
     }
     const classmates=G.classmatesInScene(state),teachers=G.teachersInScene(state);
-    const actors=[...classmates.map(student=>({student,y:student.y})),...teachers.map(teacher=>({teacher,y:teacher.y})),{player:true,y:state.player.y}].sort((a,b)=>a.y-b.y);
-    for(const actor of actors){if(actor.student)drawClassmate(actor.student);else if(actor.teacher)drawTeacher(actor.teacher);else drawPlayer();}
+    const actors=[...classmates.map(student=>({student,y:student.y})),...teachers.map(teacher=>({teacher,y:teacher.y})),...(state.scene==='classroom'?[{arcade:true,y:G.ARCADE.y}]:[]),{player:true,y:state.player.y}].sort((a,b)=>a.y-b.y);
+    for(const actor of actors){if(actor.student)drawClassmate(actor.student);else if(actor.teacher)drawTeacher(actor.teacher);else if(actor.arcade)drawArcade();else drawPlayer();}
     drawActorNames(classmates,teachers);
     for(let i=eventParticles.length-1;i>=0;i--){
       const e=eventParticles[i];e.life-=dt;e.x+=e.vx*dt;e.y+=e.vy*dt;e.vy+=150*dt;
