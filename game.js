@@ -60,6 +60,7 @@
     updateSoundButton();if(enabled)void activateSound();
   }
   function syncMusic() {
+    music.setMusicPaused(window.PacmanArcade.isOpen());
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(['title','welcome','trompo'].includes(scene)?scene:state.scene);
     music.setPaused(document.hidden||!windowActive||schoolEditorOpen);
@@ -118,7 +119,16 @@
   function closeTrompo() {
     G.leaveTrompo(state);drainEvents();clearInput();syncUI();canvas.focus({preventScroll:true});
   }
+  function openPacman(){
+    if(window.PacmanArcade.isOpen())return;
+    clearInput();state.phase='pacman';enableWorldControls(false);
+    window.PacmanArcade.open({playerName:state.player.name,group:classroomLabel(),sound:playTone,
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);syncMusic();syncUI();canvas.focus({preventScroll:true});
+        showToast(report.score?'Pac-Man · '+report.score+' puntos · '+report.correct+' '+(report.correct===1?'suma resuelta':'sumas resueltas'):'Volviste al salón. ¡La aventura continúa!');}
+    });syncMusic();syncUI();
+  }
   function restart() {
+    if(window.PacmanArcade.isOpen())window.PacmanArcade.close();
     if(victoryDialog.open) victoryDialog.close();
     if(quizDialog.open) quizDialog.close();
     if(mapDialog.open) mapDialog.close();
@@ -147,7 +157,7 @@
       }
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
-      if(event.type==='arcade'){clearInput();showToast('Maquinita de Pac-Man educativo · Próximamente.');}
+      if(event.type==='arcade')openPacman();
       if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
       if(event.type==='trompo-open'){
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
@@ -538,6 +548,10 @@
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
     }
     if(edge(3))setSound(!(soundOn&&music.ready));
+    if(window.PacmanArcade.isOpen()){
+      window.PacmanArcade.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});
+      gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
+    }
     if(state.phase==='title'){if(edge(0)||edge(9))startGame();}
     else if(state.phase==='welcome'){if(edge(2))showUniformGuide();else if(edge(0)||edge(9))finishWelcome();}
     else if(state.phase==='uniform'){if(edge(0)||edge(1)||edge(2)||edge(9))closeUniformGuide();}
@@ -573,7 +587,8 @@
     if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
-      if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
+      if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
+      else if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
     }
     drainEvents();syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
   }
@@ -608,6 +623,7 @@
     for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,event=>{touch.delete(event.pointerId);button.classList.remove('pressed');});
   }
   window.addEventListener('keydown',event=>{
+    if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
     if(schoolEditorOpen)return;
     const key=event.key.toLowerCase();
     const gameKeys=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','e','m','shift'];
@@ -647,9 +663,9 @@
     if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
     readController();
   });
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;music.setPaused(true);});
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();music.setPaused(true);});
   window.addEventListener('focus',()=>{windowActive=true;lastTime=0;syncMusic();});
-  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;G.refreshSchoolDay(state);syncUI();syncMusic();});
+  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden)window.PacmanArcade.suspend();G.refreshSchoolDay(state);syncUI();syncMusic();});
   window.addEventListener('pagehide',()=>{clearInput();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
@@ -670,7 +686,7 @@
   function installAgentTools(){
     const model=document.modelContext;if(!model?.registerTool)return;
     const lifecycle=new AbortController();
-    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return G.snapshot(state);}};
+    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot()};}};
     const startTool={name:'start_school_adventure',title:'Pulsar START',description:'Pulsa START en la portada y abre la bienvenida del director. No reinicia una partida en curso.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta acción no acepta parámetros.');if(state.phase!=='title')throw new Error('La aventura ya está en curso.');return startGame();}};
     for(const item of [tool,startTool]){try{void Promise.resolve(model.registerTool(item,{signal:lifecycle.signal})).catch(error=>console.warn('No se pudo registrar la herramienta del juego',error));}catch(error){console.warn('Herramientas del juego no disponibles',error);}}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});

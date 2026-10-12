@@ -8,13 +8,19 @@
   const PLAYLISTS={title:['patio1'],welcome:['patio1'],outside:['patio2','patio1'],classroom:['classroom'],trompo:['trompo']};
   // Keep the existing short educational cues alongside the supplied samples.
   const EFFECTS={correct:[72,76],star:[72,76,79],victory:[72,76,79,84],goal:[67,72,79],try:[62,60]};
+  const PAC_EFFECTS={
+    'pac-dot':{notes:[78,66],step:.035,length:.045,volume:.055},
+    'pac-power':{notes:[72,79,84,91],step:.065,length:.11,volume:.09},
+    'pac-ready':{notes:[60,67,72,76,79],step:.075,length:.13,volume:.08},
+    'pac-hit':{notes:[67,64,60,55,48],step:.06,length:.12,volume:.08}
+  };
   class Player{
     constructor(options={}){
       this.Context=options.AudioContext||root.AudioContext||root.webkitAudioContext;
       this.Audio=options.Audio||root.Audio;
       this.fetch=options.fetch||root.fetch?.bind(root);
       this.sources={...AUDIO_PATHS,...root.INSURGENTES_AUDIO,...options.sources};
-      this.context=null;this.master=null;this.enabled=true;this.ready=false;this.activated=false;this.paused=false;
+      this.context=null;this.master=null;this.enabled=true;this.ready=false;this.activated=false;this.paused=false;this.musicOnlyPaused=false;
       this.scene='title';this.track='patio1';this.playlist=PLAYLISTS.title;this.playlistIndex=0;
       this.voices=new Set();this.bufferPromises=new Map();this.effectEpoch=0;
       this.music=null;this.playPending=false;this.blocked=false;this.playEpoch=0;this.destroyed=false;
@@ -43,7 +49,7 @@
       }catch(_){this.ready=!!(this.music&&!this.music.paused);return this.ready;}
     }
     startMusic(){
-      if(!this.music||!this.activated||!this.enabled||this.paused||this.destroyed||this.blocked||this.playPending||!this.music.paused)return;
+      if(!this.music||!this.activated||!this.enabled||this.paused||this.musicOnlyPaused||this.destroyed||this.blocked||this.playPending||!this.music.paused)return;
       this.playPending=true;const epoch=this.playEpoch;
       try{
         Promise.resolve(this.music.play()).then(()=>{
@@ -77,6 +83,10 @@
       this.paused=!!paused;
       if(this.paused){this.pauseMusic();this.stopVoices();}else this.startMusic();
     }
+    setMusicPaused(paused){
+      if(this.musicOnlyPaused===!!paused)return;this.musicOnlyPaused=!!paused;
+      if(this.musicOnlyPaused)this.pauseMusic();else this.startMusic();
+    }
     async loadBuffer(kind){
       if(!this.context?.decodeAudioData||!this.fetch)return null;
       if(!this.bufferPromises.has(kind)){
@@ -90,16 +100,17 @@
     attachVoice(voice,gain){
       this.voices.add(voice);voice.onended=()=>{this.voices.delete(voice);voice.disconnect();gain?.disconnect();};
     }
-    note(midi,at,length,volume){
+    note(midi,at,length,volume,type='triangle'){
       if(!midi||!this.context||this.context.state!=='running')return;
       const osc=this.context.createOscillator(),gain=this.context.createGain();
-      osc.type='triangle';osc.frequency.value=440*Math.pow(2,(midi-69)/12);
+      osc.type=type;osc.frequency.value=440*Math.pow(2,(midi-69)/12);
       gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+.012);gain.gain.exponentialRampToValueAtTime(.0001,at+length);
       osc.connect(gain);gain.connect(this.master);this.attachVoice(osc,gain);osc.start(at);osc.stop(at+length+.025);
     }
     update(){this.startMusic();}
     async effect(kind){
       if(!this.ready||!this.enabled||this.paused||this.destroyed||this.context?.state!=='running')return false;
+      if(PAC_EFFECTS[kind]){const cue=PAC_EFFECTS[kind],now=this.context.currentTime;cue.notes.forEach((midi,i)=>this.note(midi,now+i*cue.step,cue.length,cue.volume,'square'));return true;}
       if(['start','throw','kick'].includes(kind)){
         const epoch=this.effectEpoch,buffer=await this.loadBuffer(kind);
         if(!buffer||epoch!==this.effectEpoch||!this.enabled||this.paused||this.destroyed)return false;
@@ -115,5 +126,5 @@
       if(this.context)void this.context.close();this.ready=false;
     }
   }
-  return {Player,AUDIO_PATHS,PLAYLISTS,EFFECTS};
+  return {Player,AUDIO_PATHS,PLAYLISTS,EFFECTS,PAC_EFFECTS};
 });

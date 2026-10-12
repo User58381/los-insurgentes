@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-version="20261012-pacman-1">
+<html lang="es" data-version="20261012-pacman-jugable-1">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,8 +7,8 @@
   <meta name="description" content="La aventura del saber: explora Los Insurgentes, resuelve retos y juega al trompo con Oliver.">
   <title>Los Insurgentes · La aventura del saber</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
-  <link id="game-style" rel="stylesheet" href="style.css?v=20261012-pacman-1">
-  <script defer src="bootstrap.js?v=20261012-pacman-1"></script>
+  <link id="game-style" rel="stylesheet" href="style.css?v=20261012-pacman-jugable-1">
+  <script defer src="bootstrap.js?v=20261012-pacman-jugable-1"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
@@ -104,6 +104,14 @@
           <p class="uniform-help">Acércate a los alumnos y al personal para ver sus nombres.</p>
         </section>
       </div>
+    </dialog>
+    <dialog id="pacman-dialog" aria-labelledby="pacman-title">
+      <header class="pac-header"><div><p id="pacman-player" class="pac-player"></p><h2 id="pacman-title">PAC-MAN <span>EDUCATIVO</span></h2></div><div class="pac-top-buttons"><button id="pacman-pause" type="button">Ⅱ Pausa</button><button id="pacman-close" type="button" aria-label="Volver al salón">✕ Salón</button></div></header>
+      <div class="pac-stats"><div><small>PUNTOS</small><strong id="pacman-score">0</strong></div><div><small>RÉCORD</small><strong id="pacman-record">0</strong></div><div><small>NIVEL</small><strong id="pacman-level">1</strong></div><div><small>VIDAS</small><strong id="pacman-lives" aria-label="Vidas restantes">♥♥♥</strong></div></div>
+      <div class="pac-lesson"><p id="pacman-operation">Busca una bolita grande</p><span id="pacman-power">SIN PODER</span><div id="pacman-answers" class="pac-answers" aria-label="Respuestas en los fantasmas" hidden><span id="pacman-answer-0"></span><span id="pacman-answer-1"></span><span id="pacman-answer-2"></span><span id="pacman-answer-3"></span></div></div>
+      <div class="pac-board"><canvas id="pacman-canvas" width="420" height="460" aria-label="Laberinto de Pac-Man. Muévete con flechas o WASD, come una bolita grande y alcanza al fantasma que lleva la respuesta correcta."></canvas><div id="pacman-overlay" class="pac-overlay"><div><p class="pac-kicker">LA MAQUINITA DEL SALÓN</p><h3 id="pacman-overlay-title">PAC-MAN EDUCATIVO</h3><p id="pacman-overlay-copy"></p><label id="pacman-range-row" class="pac-range">Tus sumas<select id="pacman-range"><option value="9">Sumas sencillas · 0 a 9</option><option value="49">Sumas de dos cifras · 0 a 49</option></select></label><button id="pacman-start" class="pac-start" type="button">A / Enter · Jugar</button></div></div></div>
+      <p id="pacman-message" class="pac-message" role="status" aria-live="polite"></p>
+      <footer class="pac-footer"><div class="pac-dpad" aria-label="Movimiento de Pac-Man"><button type="button" data-pac-direction="up" aria-label="Pac-Man hacia arriba">▲</button><button type="button" data-pac-direction="left" aria-label="Pac-Man hacia la izquierda">◀</button><span></span><button type="button" data-pac-direction="right" aria-label="Pac-Man hacia la derecha">▶</button><button type="button" data-pac-direction="down" aria-label="Pac-Man hacia abajo">▼</button></div><p>Flechas / WASD · Mover<br>P / START · Pausa<br>A / Enter · Jugar o continuar<br>B / Esc · Volver al salón</p></footer>
     </dialog>
     <dialog id="school-editor" aria-labelledby="school-editor-title">
       <div class="school-editor-heading"><div><p class="eyebrow">TU ESCUELA, A TU MANERA</p><h2 id="school-editor-title">Editar escuela</h2></div><button id="school-editor-close" class="close-button" type="button" aria-label="Cerrar editor de la escuela">✕</button></div>

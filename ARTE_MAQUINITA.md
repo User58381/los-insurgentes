@@ -6,8 +6,7 @@ a partir de las dos fotografías de la máquina y el salón como referencia de e
 
 Se utiliza como un sprite independiente en el renderizador del juego. La imagen
 original del salón se conserva. Posición y base: `ARCADE` en `engine.js`; dibujo:
-`drawArcade` en `game.js`. El evento `arcade` queda preparado para conectar el juego
-educativo cuando se proporcione su código.
+`drawArcade` en `game.js`. El evento `arcade` abre el minijuego de `pacman-engine.js` y `pacman-ui.js`.
 
 ## Prompt de generación
 

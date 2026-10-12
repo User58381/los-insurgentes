@@ -303,7 +303,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     const p = state.player;
     if (state.scene === 'classroom') {
       if (distance(p, {x:640,y:721}) < 75) return { id:'exit', label:'Salir al patio', x:640, y:722 };
-      if(distance(p,ARCADE)<ARCADE.reach)return {id:'arcade',label:'Ver la maquinita de Pac-Man',x:ARCADE.x,y:ARCADE.y};
+      if(distance(p,ARCADE)<ARCADE.reach)return {id:'arcade',label:'Jugar Pac-Man educativo',x:ARCADE.x,y:ARCADE.y};
       if (distance(p, STATIONS.classroom) < STATIONS.classroom.reach) return { id:'classroom', label:state.completed.classroom ? 'Leer de nuevo' : 'Reto de lectura', x:640, y:145 };
       return null;
     }
