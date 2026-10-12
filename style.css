@@ -62,6 +62,15 @@
 @media(max-width:650px){.welcome-actions{margin-top:15px;min-width:0}.director-portrait{bottom:345px;max-height:calc(100% - 345px)}.welcome-actions #welcome-continue{padding:13px 12px}.welcome-actions .uniform-button{font-size:16px}#uniform-dialog{padding:15px}.uniform-director{grid-template-columns:52px 1fr 36px;gap:10px}.uniform-director>img{width:52px;height:76px}.uniform-director h2{font-size:20px}.uniform-director .eyebrow{font-size:14px}.uniform-director .close-button{width:36px;height:36px}.uniform-readable dl{grid-template-columns:1fr;gap:4px}.uniform-readable dd{margin:0 0 12px}}
 @media(max-height:570px){.welcome-actions{min-width:170px;max-width:210px;margin:0;gap:8px}.welcome-actions #welcome-continue{max-width:none;padding:10px 12px}.welcome-actions .uniform-button{padding:10px 12px}.director-portrait{bottom:185px;max-height:calc(100% - 185px)}.uniform-director>img{height:70px}.uniform-director h2{font-size:20px}}
 
+/* Shared arrow-key menus. */
+.keyboard-choice{outline:3px solid #e1ab37!important;outline-offset:3px!important}
+.intro-screen .keyboard-choice,#pacman-dialog .keyboard-choice{outline-color:#fff09f!important}
+.menu-keyboard-help{font-size:13px;line-height:1.5;color:#58735f;margin:10px 0 16px}
+.director-speech .menu-keyboard-help{grid-column:1/-1;margin:0;color:#385c45}
+.keyboard-options{display:flex;flex-wrap:wrap;gap:9px;margin:15px 0}.keyboard-options button{flex:1}
+.keyboard-reader{max-height:60dvh;overflow:auto;touch-action:pan-y;scrollbar-gutter:stable}
+.uniform-readable .keyboard-reader{max-height:300px;padding:0 8px}
+.class-roster ol[data-keyboard-scroll]{max-height:280px;overflow:auto;padding-bottom:8px}
 /* School labels, teaching assignments, and portable browser settings. */
 /* Pac-Man educativo: styles also used by the standalone web edition. */
 #pacman-dialog{position:fixed;inset:0;margin:auto;width:min(720px,calc(100% - 16px));height:min(960px,calc(100dvh - 16px));max-width:none;max-height:none;padding:16px;background:#070c1c;color:#fff4d9;border:3px solid #f5c745;border-radius:14px;box-shadow:0 0 0 3px #17213c,0 15px 70px #000a;font-family:Consolas,'Courier New',monospace;touch-action:none;overflow:hidden;color-scheme:dark}

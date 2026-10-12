@@ -348,7 +348,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
       case 'director': openUniformGuide(state);break;
       case 'oliver':
         state.phase='trompo';p.walking=false;
-        state.trompo={round:1,stage:'aim',clock:0,power:0,wins:0,oliverWins:0,elapsed:0,tops:[],message:'Pulsa A cuando la aguja esté en la zona dorada.'};
+        state.trompo={round:1,stage:'aim',clock:0,power:0,wins:0,oliverWins:0,elapsed:0,tops:[],message:'Pulsa Enter o A cuando la aguja esté en la zona dorada.'};
         emit(state,'trompo-open');break;
     }
     return target.id;
@@ -407,7 +407,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     }
     if(t.stage==='result'){
       if(t.round===3){t.stage='complete';t.message=t.wins>t.oliverWins?'¡Ganaste el reto de Oliver!':t.wins===t.oliverWins?'¡Empate! Fue un gran reto.':'¡Bien jugado! Puedes volver a retar a Oliver.';return true;}
-      t.round++;t.stage='aim';t.clock=0;t.power=0;t.tops=[];t.message='Pulsa A cuando la aguja esté en la zona dorada.';return true;
+      t.round++;t.stage='aim';t.clock=0;t.power=0;t.tops=[];t.message='Pulsa Enter o A cuando la aguja esté en la zona dorada.';return true;
     }
     if(t.stage==='complete')return leaveTrompo(state);
     return false;
@@ -447,7 +447,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
   }
   function tick(state,dt,input={}) { if(state.phase==='trompo'){updateTrompo(state,dt);return;}move(state,input.x||0,input.y||0,dt,!!input.run); updateBall(state,dt); updateClassmates(state,dt); }
   function objective(state) {
-    if(state.phase==='title')return 'Pulsa START para jugar';
+    if(state.phase==='title')return 'Pulsa Enter o START para jugar';
     if(state.phase==='welcome')return 'La bienvenida del director José Guadalupe';
     if(state.phase==='uniform')return 'Tu uniforme de cada día';
     if(state.phase==='trompo')return 'Reto del trompo con Oliver';

@@ -1,12 +1,12 @@
-LOS INSURGENTES: PAC-MAN EDUCATIVO JUGABLE
-Versión 20261012-pacman-jugable-1
+LOS INSURGENTES: FLECHAS Y ENTER EN TODO EL JUEGO
+Versión 20261012-teclado-completo-1
 
 ACTUALIZAR TU JUEGO EN GITHUB
 1. Descomprime el ZIP.
 2. En User58381/los-insurgentes, abre Add file > Upload files.
-3. Sube estos diez archivos a la raíz, donde ya está index.html:
+3. Sube estos once archivos a la raíz, donde ya está index.html:
    index.html, style.css, engine.js, audio.js, game.js,
-   bootstrap.js, school-settings.js, school-editor.js, pacman-engine.js
+   bootstrap.js, school-settings.js, school-editor.js, keyboard.js, pacman-engine.js
    y pacman-ui.js.
 4. Añade maquinita-pacman.png dentro de la carpeta assets del repositorio.
    Su ruta final debe ser assets/maquinita-pacman.png.
@@ -14,11 +14,11 @@ ACTUALIZAR TU JUEGO EN GITHUB
 6. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
    También puedes usar Editar escuela > Borrar caché y actualizar.
 El paquete completo incluye las imágenes y canciones en assets. Conserva sus rutas.
-El ZIP de actualización incluye los diez archivos, la imagen de la máquina y
+El ZIP de actualización incluye los once archivos, la imagen de la máquina y
 una edición independiente del minijuego: Pacman_Educativo_Web.html.
 
 PAC-MAN EN EL SALÓN
-Acércate a la maquinita a la derecha del pizarrón y pulsa E o A.
+Acércate a la maquinita a la derecha del pizarrón y pulsa Enter, E o A.
 Pulsa Enter o A para iniciar. Come una bolita grande: los fantasmas se pondrán
 azules y mostrarán cuatro respuestas. Resuelve la suma y cómete al fantasma que
 lleve el resultado correcto. Ganas 500 puntos y pasas de nivel.
@@ -28,7 +28,10 @@ El poder dura 22 segundos. Cuando se agotan las bolitas grandes vuelven a
 aparecer, de modo que siempre puedes seguir intentando resolver la suma.
 
 CONTROLES DEL MINIJUEGO
-Teclado: flechas o WASD; Enter para empezar; P para pausar; Esc para volver.
+Teclado: flechas para mover y Enter para jugar o pausar.
+En pausa, elige Continuar o Salón con las flechas y confirma con Enter.
+Antes de empezar, elige el selector de sumas y usa izquierda/derecha para cambiarlo.
+También funcionan WASD, P para pausa y Esc para volver.
 Xbox: joystick o cruceta; A para empezar/continuar; START para pausa; B para salir.
 Teléfono: cruceta de Pac-Man y botones Jugar, Pausa y Salón.
 El sonido START se reproduce al responder correctamente. La música del salón
@@ -87,7 +90,15 @@ Borrar caché y actualizar solicita los archivos nuevos y conserva tus ajustes.
 
 JUEGO Y CONTROLES
 Se conservan los alumnos, música, uniformes, retos, trompos y animación de pies.
-Computadora: WASD o flechas; E/Espacio para actuar; Shift para correr; M para mapa.
+Computadora: flechas para moverte o elegir; Enter para actuar y confirmar.
+Mantén Enter 0.65 segundos para abrir el menú y mapa, sin hacer una acción.
+Desde ahí puedes elegir caminar/correr, sonido, uniformes y Editar escuela.
+En los menús y preguntas, usa las flechas y confirma con Enter.
+En el editor, arriba/abajo cambia de campo; izquierda/derecha cambia el grado;
+Enter activa un botón o pasa al siguiente campo. Escribe nombres y grupos.
+En las listas e imagen de uniformes, usa flechas para leer y Enter para seguir.
+En Pac-Man, Enter pausa. Las flechas eligen Continuar o Salón; Enter confirma.
+Siguen funcionando WASD, E/Espacio, Shift para correr y M para mapa.
 Teléfono: cruceta y botón A.
 Xbox One Bluetooth / Xbox 360 / XInput: joystick o cruceta, A para actuar,
 B para correr o cerrar y START/X para mapa. B también cierra el editor.

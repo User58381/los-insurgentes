@@ -81,7 +81,7 @@
   function open(){
     if(dialog.open)return;returnFocus=document.activeElement;renderRows();
     dialog.showModal();window.dispatchEvent(new CustomEvent('school-editor-visibility',{detail:{open:true}}));
-    $('school-editor-close').focus({preventScroll:true});
+    window.SchoolKeyboard.focus($('school-editor-close'),false);
   }
   function close(){if(dialog.open)dialog.close();}
   dialog.addEventListener('close',()=>{window.dispatchEvent(new CustomEvent('school-editor-visibility',{detail:{open:false}}));returnFocus?.focus({preventScroll:true});});

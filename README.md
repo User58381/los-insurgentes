@@ -1,6 +1,6 @@
 # Los Insurgentes · La aventura del saber
 
-Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-pacman-jugable-1`.
+Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-teclado-completo-1`.
 
 Contiene el mapa, alumnos, uniformes por día, personal, bienvenida del director,
 retos, trompos con Oliver y las canciones proporcionadas.
@@ -10,7 +10,7 @@ retos, trompos con Oliver y las canciones proporcionadas.
 1. Descomprime el paquete y abre la carpeta que contiene `index.html`.
 2. En [User58381/los-insurgentes](https://github.com/User58381/los-insurgentes), abre **Add file → Upload files**.
 3. Reemplaza juntos `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`,
-   `bootstrap.js`, `school-settings.js`, `school-editor.js`, `pacman-engine.js`
+   `bootstrap.js`, `school-settings.js`, `school-editor.js`, `keyboard.js`, `pacman-engine.js`
    y `pacman-ui.js` en la raíz.
 4. Añade `assets/maquinita-pacman.png` dentro de la carpeta `assets`. Conserva las otras imágenes y canciones; el paquete completo también las incluye.
 5. Guarda en `main`, espera la publicación y abre [el juego](https://user58381.github.io/los-insurgentes/).
@@ -21,7 +21,7 @@ Sube los archivos descomprimidos. Las rutas deben quedar al mismo nivel que
 
 ## Pac-Man educativo
 
-Acércate a la maquinita a la derecha del pizarrón y pulsa **E o A**. Se abre
+Acércate a la maquinita a la derecha del pizarrón y pulsa **Enter, E o A**. Se abre
 un Pac-Man con pixel art, laberinto, cuatro fantasmas, bolitas de poder,
 tres vidas, récord y niveles.
 
@@ -34,8 +34,10 @@ se añade la opción de sumas de 0 a 49. El poder dura 22 segundos para dar tiem
 a resolver y alcanzar al fantasma. Una respuesta incorrecta mantiene el nivel;
 el fantasma vuelve a su casa y puedes seguir buscando.
 
-Teclado: **flechas/WASD** para moverte, **Enter** para iniciar, **P** para pausa y
-**Esc** para volver al salón. Mando Xbox: **joystick/cruceta**, **A** para iniciar
+Teclado: **flechas** para moverte o elegir y **Enter** para iniciar o pausar.
+En pausa, elige **Continuar** o **Salón** con las flechas y confirma con Enter.
+En el selector de sumas, cambia la dificultad con **← →**. También siguen
+disponibles WASD, P para pausa y Esc para volver al salón. Mando Xbox: **joystick/cruceta**, **A** para iniciar
 o continuar, **START** para pausa y **B** para volver. En teléfono, usa la cruceta
 y los botones del minijuego.
 
@@ -86,7 +88,18 @@ de personal no determina dónde está físicamente cada salón.
 
 ## Controles
 
-- Computadora: WASD/flechas, E/Espacio para actuar, Shift para correr y M para mapa.
+- Flechas para moverte por la escuela, elegir respuestas y recorrer todos los menús.
+- Enter para comenzar, hablar, entrar o salir, responder, continuar y lanzar el trompo.
+- Mantén Enter unos **0.65 segundos** para abrir el menú y mapa. Elige **Paso: correr**
+  o **Paso: caminar**, sonido, uniformes o edición; confirma con Enter.
+- En el editor y el selector del día: **↑ ↓** cambia de campo, **← →** cambia el
+  grado o día y **Enter** activa botones o pasa al siguiente campo. Escribe nombres
+  y grupos con el teclado; los cambios siguen guardándose automáticamente.
+- En la imagen de uniformes y listas: las flechas desplazan la lectura; Enter
+  pasa a la siguiente opción. Los apartados se abren con Enter.
+- En Pac-Man: flechas para jugar y Enter para pausar; flechas y Enter para elegir
+  entre continuar y volver al salón.
+- También funcionan WASD, E/Espacio para actuar, Shift para correr y M para mapa.
 - Teléfono: cruceta y A.
 - Xbox One Bluetooth, Xbox 360 y XInput: joystick/cruceta, A para actuar,
   B para correr/cerrar, X o START para mapa y Y para sonido.

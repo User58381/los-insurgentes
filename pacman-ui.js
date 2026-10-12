@@ -1,6 +1,7 @@
 (function(){
   'use strict';
   const P=window.PacmanGame,$=id=>document.getElementById(id),dialog=$('pacman-dialog'),canvas=$('pacman-canvas'),ctx=canvas.getContext('2d');
+  const keyboard=window.SchoolKeyboard;
   const RECORD_KEY='insurgentes-pacman-record-v1';let opened=false,state=null,callbacks={},savedRecord={highScore:0,maxAddend:9},uiPhase='',lastRecord=0,lastSavedAt=0;
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   canvas.width=P.COLS*P.TILE;canvas.height=P.ROWS*P.TILE;
@@ -36,7 +37,11 @@
     else if(stage==='ready'){text('pacman-overlay-title','¡LISTO!');text('pacman-overlay-copy','Muévete por el laberinto. Evita a los fantasmas hasta tener poder.');}
     else if(stage==='gameover'){text('pacman-overlay-title','¡BUENA PARTIDA!');text('pacman-overlay-copy',state.score.toLocaleString('es-MX')+' puntos · '+state.correct+' '+(state.correct===1?'suma resuelta':'sumas resueltas')+'. Inténtalo de nuevo.');text('pacman-start','A / Enter · Volver a jugar');}
     P.draw(state,ctx,{reducedMotion});
-    if(uiPhase!==stage){uiPhase=stage;if(['intro','paused','gameover'].includes(stage))$('pacman-start').focus({preventScroll:true});}
+    if(uiPhase!==stage){
+      uiPhase=stage;
+      if(['intro','paused','gameover'].includes(stage))keyboard.focus($('pacman-start'),false);
+      else if(['ready','playing'].includes(stage)){keyboard.clear();canvas.focus({preventScroll:true});}
+    }
   }
   function open(options={}){
     if(opened)return;readRecord();callbacks=options;state=P.createState({highScore:savedRecord.highScore,maxAddend:savedRecord.maxAddend});lastRecord=state.highScore;lastSavedAt=0;uiPhase='';
@@ -54,12 +59,22 @@
     if(Math.abs(x)>.35||Math.abs(y)>.35)direction(Math.abs(x)>Math.abs(y)?(x<0?'left':'right'):(y<0?'up':'down'));
   }
   function key(event){
-    if(!opened||event.target?.matches?.('input,select,textarea,[contenteditable=true]'))return false;
+    if(!opened)return false;
     const key=event.key.toLowerCase(),directions={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down'};
-    if(directions[key]){direction(directions[key]);return true;}
     if(key==='escape'){if(!event.repeat)close();return true;}
     if(key==='p'){if(!event.repeat)togglePause();return true;}
-    if(key==='enter'||key===' '){if(!event.repeat)confirm();return true;}return false;
+    if(['intro','paused','gameover'].includes(state.phase)){
+      return keyboard.key(event,dialog,{filter:node=>!node.hasAttribute('data-pac-direction'),defaultTarget:$('pacman-start')});
+    }
+    if(directions[key]){direction(directions[key]);return true;}
+    if(key==='enter'||key===' '){
+      if(!event.repeat){
+        const active=document.activeElement;
+        if(active===$('pacman-close'))close();else togglePause();
+      }
+      return true;
+    }
+    return false;
   }
   function tick(dt){if(!opened)return;P.tick(state,dt);events();render();}
   function suspend(){if(opened&&state.phase!=='paused'&&P.pause(state))render();}

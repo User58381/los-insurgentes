@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   const G=window.SchoolGame;
+  const keyboard=window.SchoolKeyboard;
   const $=id=>document.getElementById(id);
   const schoolStore=window.SchoolSettings.createStore(G,{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
   window.InsurgentesSchool=schoolStore;
@@ -15,7 +16,7 @@
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');
   const audioSources=Object.fromEntries(Object.entries({...window.SchoolAudio.AUDIO_PATHS,...window.INSURGENTES_AUDIO}).map(([key,path])=>[key,window.SchoolAssets?.url(path)||path]));
   const music=new window.SchoolAudio.Player({sources:audioSources});
-  let soundOn=true, currentFeedback='', windowActive=true,schoolEditorOpen=false;
+  let soundOn=true, currentFeedback='', windowActive=true,schoolEditorOpen=false,keyboardRun=false,enterDown=false,enterTimer=0;
   let gamepadButtons=[],gamepadIndex=null,gamepadId='',menuDirection=0,menuRepeatAt=0,selectedAnswer=0,questionKey='';
   const gamepadSamples=new Map();
   let controllerTitleStatus=null,controllerMapStatus=null,controllerStatus='';
@@ -73,12 +74,15 @@
     $('sound-button').textContent=soundOn?'♫':'♪';
     $('title-music').setAttribute('aria-pressed',String(soundOn&&music.ready));
     $('title-music').textContent=soundOn&&music.ready?'♫ Silenciar música':'♪ Escuchar música';
+    $('map-sound').textContent=soundOn?'♫ Sonido activado':'♪ Sonido apagado';
+    $('map-sound').setAttribute('aria-pressed',String(soundOn));
   }
   function showToast(message) {
     $('toast').textContent=message;$('toast').classList.add('visible');
     clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),4200);
   }
   function clearInput() {
+    clearTimeout(enterTimer);enterTimer=0;enterDown=false;
     held.clear();touch.clear();
     document.querySelectorAll('[data-direction]').forEach(b=>b.classList.remove('pressed'));
     state.player.walking=false;
@@ -95,7 +99,7 @@
     if(!G.start(state))return G.snapshot(state);
     $('start-screen').hidden=true;clearInput();
     $('director-message').textContent=G.WELCOME_TEXT;
-    welcomeDialog.showModal();$('welcome-continue').focus({preventScroll:true});
+    welcomeDialog.showModal();keyboard.focus($('welcome-continue'),false);
     syncMusic();
     void activateSound('start');
     syncUI();return G.snapshot(state);
@@ -104,7 +108,7 @@
     if(!G.finishWelcome(state))return null;
     welcomeDialog.close();enableWorldControls(true);clearInput();canvas.focus({preventScroll:true});
     syncMusic();syncUI();
-    showToast('Juegas como '+state.player.name+'. Entra por el portón azul con E o A.');
+    showToast('Juegas como '+state.player.name+'. Usa Enter para actuar; mantenlo pulsado para ver las opciones.');
     return G.snapshot(state);
   }
   function showUniformGuide() {
@@ -161,17 +165,17 @@
       if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
       if(event.type==='trompo-open'){
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
-        $('trompo-action').focus({preventScroll:true});
+        keyboard.focus($('trompo-action'),false);
       }
       if(event.type==='trompo-close'){if(trompoDialog.open)trompoDialog.close();clearInput();canvas.focus({preventScroll:true});}
       if(event.type==='trompo-throw')playTone('throw');
       if(event.type==='trompo-win')playTone('correct');
       if(event.type==='uniform-open'){
         clearInput();enableWorldControls(false);
-        $('uniform-return').textContent=state.uniformReturnPhase==='welcome'?'A · Volver con el director':'A · Seguir explorando';
+        $('uniform-return').textContent=state.uniformReturnPhase==='welcome'?'Enter / A · Volver con el director':'Enter / A · Seguir explorando';
         $('uniform-today').textContent=(state.dayMode==='auto'?'Hoy: ':'Día elegido: ')+G.UNIFORM_DAYS[state.schoolDay].name+'. '+G.UNIFORM_DAYS[state.schoolDay].description;
         if(!uniformDialog.open)uniformDialog.showModal();
-        uniformDialog.scrollTop=0;$('uniform-return').focus({preventScroll:true});
+        uniformDialog.scrollTop=0;keyboard.focus($('uniform-return'),false);
       }
       if(event.type==='uniform-close'){
         if(uniformDialog.open)uniformDialog.close();clearInput();
@@ -216,8 +220,10 @@
     if($('trompo-message').textContent!==game.message)$('trompo-message').textContent=game.message;
     $('trompo-meter').style.visibility=game.stage==='aim'?'visible':'hidden';
     $('trompo-needle').style.left=(game.power*100)+'%';
+    const wasDisabled=$('trompo-action').disabled;
     $('trompo-action').disabled=game.stage==='spin';
-    $('trompo-action').textContent=game.stage==='aim'?'A · Lanzar trompo':game.stage==='spin'?'Girando…':game.stage==='complete'?'A · Volver al patio':game.round===3?'A · Ver resultado':'A · Siguiente ronda';
+    if(wasDisabled&&!$('trompo-action').disabled&&document.activeElement!==$('trompo-close'))keyboard.focus($('trompo-action'),false);
+    $('trompo-action').textContent=game.stage==='aim'?'Enter / A · Lanzar trompo':game.stage==='spin'?'Girando…':game.stage==='complete'?'Enter / A · Volver al patio':game.round===3?'Enter / A · Ver resultado':'Enter / A · Siguiente ronda';
     topCtx.imageSmoothingEnabled=false;
     topCtx.drawImage(images.map,327,699,630,194,0,0,720,280);
     topCtx.strokeStyle='#fff2c3';topCtx.lineWidth=4;topCtx.beginPath();topCtx.ellipse(360,142,98,89,0,0,Math.PI*2);topCtx.stroke();
@@ -246,11 +252,14 @@
       button.append(key,label);button.disabled=quiz.correct;
       if(index===selectedAnswer&&!quiz.correct)button.classList.add('controller-choice');
       if(quiz.correct&&index===question.answer)button.classList.add('correct');
+      button.addEventListener('focus',()=>{
+        selectedAnswer=index;
+        Array.from($('answers').children).forEach((choice,n)=>choice.classList.toggle('controller-choice',!quiz.correct&&n===index));
+      });
       button.addEventListener('click',()=>submitAnswer(index));$('answers').append(button);
     });
     currentFeedback=quiz.feedback;
-    if(quiz.correct)$('next-question').focus({preventScroll:true});
-    else $('answers').firstElementChild?.focus({preventScroll:true});
+    keyboard.focus(quiz.correct?$('next-question'):$('answers').children[selectedAnswer],false);
   }
   function submitAnswer(index) {
     if(!state.quiz||state.quiz.correct)return false;
@@ -270,6 +279,7 @@
     const p=state.scene==='classroom'?G.CLASSROOM_DOOR:state.player;
     $('map-player').style.left=(p.x/1215*100)+'%';$('map-player').style.top=(p.y/1295*100)+'%';
     if(!mapDialog.open)mapDialog.showModal();
+    keyboard.focus($('close-map'),false);
   }
   function closeMap(){mapDialog.close();mapOpen=false;clearInput();canvas.focus({preventScroll:true});}
   function classroomLabel(){return G.classroomLabel();}
@@ -445,7 +455,8 @@
   }
   function chooseAnswer(direction) {
     if(!state.quiz||state.quiz.correct)return;
-    selectedAnswer=(selectedAnswer+direction+3)%3;
+    const count=$('answers').children.length;
+    selectedAnswer=(selectedAnswer+direction+count)%count;
     Array.from($('answers').children).forEach((button,index)=>{
       if(index===selectedAnswer){button.classList.add('controller-choice');button.focus({preventScroll:true});}
       else button.classList.remove('controller-choice');
@@ -528,7 +539,7 @@
   function initControllerHints() {
     const titleControls=document.querySelector('.title-controls');
     if(titleControls){
-      titleControls.innerHTML='Enter / START · Comenzar<br>Xbox One / 360: joystick · Caminar &nbsp; | &nbsp; A · Acción<br>';
+      titleControls.innerHTML='Flechas · Elegir &nbsp; | &nbsp; Enter · Confirmar<br>Xbox One / 360: joystick · Caminar &nbsp; | &nbsp; A · Acción<br>';
       controllerTitleStatus=document.createElement('span');titleControls.append(controllerTitleStatus);
     }
     const mapHelp=document.querySelector('.controller-help');
@@ -579,7 +590,7 @@
     let y=(held.has('arrowdown')||held.has('s')?1:0)-(held.has('arrowup')||held.has('w')?1:0);
     for(const direction of touch.values()){if(direction==='right')x++;if(direction==='left')x--;if(direction==='down')y++;if(direction==='up')y--;}
     if(controller.x)x=controller.x;if(controller.y)y=controller.y;
-    return{x,y,run:held.has('shift')||controller.run};
+    return{x,y,run:keyboardRun||held.has('shift')||controller.run};
   }
   function frame(timestamp) {
     const dt=Math.min(.05,lastTime?(timestamp-lastTime)/1000:1/60);lastTime=timestamp;
@@ -618,16 +629,31 @@
   $('continue-button').addEventListener('click',()=>{victoryDialog.close();state.phase='play';clearInput();canvas.focus({preventScroll:true});});
   $('restart-button').addEventListener('click',restart);
   $('sound-button').addEventListener('click',()=>setSound(!soundOn));
+  $('map-sound').addEventListener('click',()=>setSound(!soundOn));
+  $('map-run').addEventListener('click',()=>{
+    keyboardRun=!keyboardRun;$('map-run').setAttribute('aria-pressed',String(keyboardRun));
+    $('map-run').textContent=keyboardRun?'Paso: correr':'Paso: caminar';
+    $('movement-hint').textContent=keyboardRun?'Flechas · Correr':'Flechas · Caminar';
+  });
   for(const button of document.querySelectorAll('[data-direction]')){
     button.addEventListener('pointerdown',event=>{event.preventDefault();button.setPointerCapture(event.pointerId);touch.set(event.pointerId,button.dataset.direction);button.classList.add('pressed');});
     for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,event=>{touch.delete(event.pointerId);button.classList.remove('pressed');});
   }
   window.addEventListener('keydown',event=>{
+    if(event.defaultPrevented)return;
     if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
-    if(schoolEditorOpen)return;
     const key=event.key.toLowerCase();
+    if(schoolEditorOpen){
+      if(key==='escape'){event.preventDefault();if(!event.repeat)window.SchoolEditor.close();}
+      else if(keyboard.key(event,$('school-editor')))event.preventDefault();
+      return;
+    }
+    const menu=mapOpen?mapDialog:state.phase==='title'?$('start-screen'):state.phase==='uniform'?uniformDialog:state.phase==='welcome'?welcomeDialog:state.phase==='trompo'?trompoDialog:state.quiz?quizDialog:state.phase==='victory'?victoryDialog:null;
+    if(state.phase==='trompo'&&state.trompo.stage==='spin'&&['enter',' '].includes(key)&&document.activeElement!==$('trompo-close')){event.preventDefault();return;}
+    if(menu&&keyboard.key(event,menu,{defaultTarget:state.phase==='title'?$('start-button'):null})){event.preventDefault();return;}
+    if(menu&&document.activeElement?.matches('input,select,textarea,[contenteditable="true"]'))return;
     const gameKeys=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','e','m','shift'];
-    if(state.phase==='title'){if((key==='enter'||key===' ')&&!event.repeat){event.preventDefault();startGame();}return;}
+    if(state.phase==='title')return;
     if(state.phase==='uniform'){
       if(['enter',' ','a','e','escape','u','x'].includes(key)){event.preventDefault();if(!event.repeat)closeUniformGuide();}return;
     }
@@ -644,12 +670,26 @@
       return;
     }
     if(state.phase!=='play')return;
+    if(key==='enter'){
+      event.preventDefault();
+      if(!event.repeat&&!enterDown){
+        enterDown=true;
+        enterTimer=setTimeout(()=>{if(enterDown&&state.phase==='play'&&!state.quiz&&!schoolEditorOpen&&!mapOpen)openMap();},650);
+      }
+      return;
+    }
     if(gameKeys.includes(key))event.preventDefault();
     if(key==='m'&&!event.repeat){openMap();return;}
     if((key==='e'||key===' ')&&!event.repeat){interact();return;}
     held.add(key);
   });
-  window.addEventListener('keyup',event=>held.delete(event.key.toLowerCase()));
+  window.addEventListener('keyup',event=>{
+    const key=event.key.toLowerCase();held.delete(key);
+    if(key==='enter'&&enterDown){
+      event.preventDefault();clearTimeout(enterTimer);enterTimer=0;enterDown=false;
+      if(state.phase==='play'&&!mapOpen&&!schoolEditorOpen&&!state.quiz)interact();
+    }
+  });
   window.addEventListener('school-editor-visibility',event=>{
     schoolEditorOpen=!!event.detail.open;clearInput();
     enableWorldControls(state.phase==='play'&&!schoolEditorOpen);syncMusic();
@@ -675,9 +715,9 @@
   }
   const teacherAssets=new Map(G.TEACHERS.filter(teacher=>teacher.assetKey&&teacher.assetPath).map(teacher=>[teacher.assetKey,teacher.assetPath]));
   Promise.all([...Object.entries(G.ASSET_PATHS).map(([key,path])=>loadImage(key,path)),...Array.from(teacherAssets,([key,path])=>loadImage(key,path))]).then(()=>{
-    loaded=true;$('start-button').disabled=false;$('start-button').textContent='PULSA START PARA JUGAR';$('load-status').textContent='Tu escuela. Tu gran aventura.';
+    loaded=true;$('start-button').disabled=false;$('start-button').textContent='PULSA ENTER / START PARA JUGAR';$('load-status').textContent='Tu escuela. Tu gran aventura.';
     for(const [id,key] of [['title-school','introBg'],['welcome-school','introBg'],['director-portrait','directorPortrait'],['uniform-director-portrait','directorPortrait'],['uniform-poster','uniformGuide'],['overview-image','map']])$(id).src=images[key].src;
-    $('start-button').focus({preventScroll:true});resize();
+    if(!schoolEditorOpen)keyboard.focus($('start-button'),false);resize();
     if(window.INSURGENTES_ASSETS){$('overview-image').src=window.INSURGENTES_ASSETS.map;document.querySelector('.download-link').hidden=true;}
   }).catch(error=>{
     console.error(error);$('start-button').textContent='Intentar de nuevo';$('start-button').disabled=false;$('load-status').textContent='No se pudo cargar el terreno. Revisa tu conexión y vuelve a intentarlo.';
