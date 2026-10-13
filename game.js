@@ -57,11 +57,12 @@
   }
   function setSound(enabled) {
     soundOn=enabled;music.setEnabled(enabled);
+    window.TheaterRehearsal.setEnabled(enabled);
     try{localStorage.setItem('insurgentes-sound',enabled?'yes':'no');}catch(_){}
     updateSoundButton();if(enabled)void activateSound();
   }
   function syncMusic() {
-    music.setMusicPaused(window.PacmanArcade.isOpen());
+    music.setMusicPaused(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen());
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(['title','welcome','trompo'].includes(scene)?scene:state.scene);
     music.setPaused(document.hidden||!windowActive||schoolEditorOpen);
@@ -131,7 +132,17 @@
         showToast(report.score?'Pac-Man · '+report.score+' puntos · '+report.correct+' '+(report.correct===1?'suma resuelta':'sumas resueltas'):'Volviste al salón. ¡La aventura continúa!');}
     });syncMusic();syncUI();
   }
+  function openTheater(){
+    if(window.TheaterRehearsal.isOpen())return;
+    clearInput();state.phase='theater';enableWorldControls(false);
+    window.TheaterRehearsal.open({player:state.player,group:classroomLabel(),students:G.STUDENTS,teachers:G.TEACHERS,images,enabled:soundOn,
+      studentFrame:(student,row)=>G.STUDENT_FRAMES[row][G.studentUniformColumn(student,state.schoolDay)],sound:playTone,onSoundChange:setSound,
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);syncMusic();syncUI();canvas.focus({preventScroll:true});
+        showToast(report.completed?'¡Ensayo completo! '+report.score+' puntos · '+report.accuracy+'% de precisión.':'Volviste a la explanada. Puedes ensayar cuando quieras.');}
+    });syncMusic();syncUI();
+  }
   function restart() {
+    if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.close();
     if(window.PacmanArcade.isOpen())window.PacmanArcade.close();
     if(victoryDialog.open) victoryDialog.close();
     if(quizDialog.open) quizDialog.close();
@@ -162,6 +173,7 @@
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
       if(event.type==='arcade')openPacman();
+      if(event.type==='theater-open')openTheater();
       if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
       if(event.type==='trompo-open'){
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
@@ -437,6 +449,10 @@
       marker(998,1016,'Sumas',state.completed.fountain,time);
       marker(G.CLASSROOM_DOOR.x,G.CLASSROOM_DOOR.y-2,classroomLabel(),state.completed.classroom,time);
       marker(643,413,'Números',state.completed.field,time);
+      const theater=G.THEATER,bob=media.matches?0:Math.sin(time*2.5)*3;
+      ctx.save();ctx.translate(theater.x,theater.y-46+bob);ctx.fillStyle='#173f3ce8';ctx.strokeStyle='#ffe09a';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect(-24,-26,48,40,9);ctx.fill();ctx.stroke();ctx.font='bold 27px Trebuchet MS';ctx.textAlign='center';ctx.fillStyle='#ffdf83';ctx.fillText('♫',0,4);
+      ctx.font='bold 12px Trebuchet MS';ctx.strokeStyle='#173f3c';ctx.lineWidth=4;ctx.strokeText('Ensayo',0,31);ctx.fillText('Ensayo',0,31);ctx.restore();
       const b=state.ball;ctx.save();ctx.font='25px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#153b3140';ctx.beginPath();ctx.ellipse(b.x,b.y+7,11,4,0,0,Math.PI*2);ctx.fill();ctx.fillText('⚽',b.x,b.y);ctx.restore();
     }else{
       marker(640,166,'Lectura',state.completed.classroom,time);
@@ -558,7 +574,11 @@
       if(edge(1))window.SchoolEditor?.close();
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
     }
-    if(edge(3))setSound(!(soundOn&&music.ready));
+    if(edge(3))setSound(window.TheaterRehearsal.isOpen()?!soundOn:!(soundOn&&music.ready));
+    if(window.TheaterRehearsal.isOpen()){
+      window.TheaterRehearsal.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1),timestamp});
+      gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
+    }
     if(window.PacmanArcade.isOpen()){
       window.PacmanArcade.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
@@ -598,7 +618,8 @@
     if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
-      if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
+      if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
+      else if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
       else if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
     }
     drainEvents();syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
@@ -641,6 +662,7 @@
   }
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented)return;
+    if(window.TheaterRehearsal.isOpen()){if(window.TheaterRehearsal.key(event))event.preventDefault();return;}
     if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
     const key=event.key.toLowerCase();
     if(schoolEditorOpen){
@@ -703,10 +725,10 @@
     if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
     readController();
   });
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();music.setPaused(true);});
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();music.setPaused(true);});
   window.addEventListener('focus',()=>{windowActive=true;lastTime=0;syncMusic();});
-  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden)window.PacmanArcade.suspend();G.refreshSchoolDay(state);syncUI();syncMusic();});
-  window.addEventListener('pagehide',()=>{clearInput();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
+  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();}G.refreshSchoolDay(state);syncUI();syncMusic();});
+  window.addEventListener('pagehide',()=>{clearInput();window.TheaterRehearsal.destroy();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
     return new Promise((resolve,reject)=>{
@@ -726,7 +748,7 @@
   function installAgentTools(){
     const model=document.modelContext;if(!model?.registerTool)return;
     const lifecycle=new AbortController();
-    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot()};}};
+    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot()};}};
     const startTool={name:'start_school_adventure',title:'Pulsar START',description:'Pulsa START en la portada y abre la bienvenida del director. No reinicia una partida en curso.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta acción no acepta parámetros.');if(state.phase!=='title')throw new Error('La aventura ya está en curso.');return startGame();}};
     for(const item of [tool,startTool]){try{void Promise.resolve(model.registerTool(item,{signal:lifecycle.signal})).catch(error=>console.warn('No se pudo registrar la herramienta del juego',error));}catch(error){console.warn('Herramientas del juego no disponibles',error);}}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});

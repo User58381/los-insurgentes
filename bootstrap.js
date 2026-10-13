@@ -17,7 +17,7 @@
     });
   }
   (async()=>{
-    for(const path of ['engine.js','audio.js','school-settings.js','keyboard.js','pacman-engine.js','pacman-ui.js','game.js','school-editor.js'])await load(path);
+    for(const path of ['engine.js','audio.js','school-settings.js','keyboard.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js'])await load(path);
   })().catch(error=>{
     console.error(error);
     document.getElementById('load-status').textContent='La actualización está incompleta. Sube todos los archivos del paquete a GitHub y vuelve a cargar el juego.';

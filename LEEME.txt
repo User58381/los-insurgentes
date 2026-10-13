@@ -1,21 +1,44 @@
-LOS INSURGENTES: FLECHAS Y ENTER EN TODO EL JUEGO
-Versión 20261012-teclado-completo-1
+LOS INSURGENTES: ENSAYO MUSICAL EN EL TEATRO
+Versión 20261012-ensayo-teatro-1
 
 ACTUALIZAR TU JUEGO EN GITHUB
 1. Descomprime el ZIP.
 2. En User58381/los-insurgentes, abre Add file > Upload files.
-3. Sube estos once archivos a la raíz, donde ya está index.html:
+3. Sube estos catorce archivos a la raíz, donde ya está index.html:
    index.html, style.css, engine.js, audio.js, game.js,
    bootstrap.js, school-settings.js, school-editor.js, keyboard.js, pacman-engine.js
-   y pacman-ui.js.
-4. Añade maquinita-pacman.png dentro de la carpeta assets del repositorio.
-   Su ruta final debe ser assets/maquinita-pacman.png.
+   y pacman-ui.js, theater-song.js, theater-engine.js y theater-ui.js.
+4. Añade los recursos nuevos respetando estas rutas:
+   assets/angel-guitarra.png
+   assets/teatro-ensayo.png
+   assets/audio/ensayo-teatro.mp3
+   El ZIP de actualización también incluye assets/maquinita-pacman.png.
+   Conserva las demás imágenes y canciones.
 5. Guarda en main y espera a que termine la publicación de GitHub Pages.
 6. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
    También puedes usar Editar escuela > Borrar caché y actualizar.
 El paquete completo incluye las imágenes y canciones en assets. Conserva sus rutas.
-El ZIP de actualización incluye los once archivos, la imagen de la máquina y
+El ZIP de actualización incluye los catorce archivos, la imagen de la máquina y
 una edición independiente del minijuego: Pacman_Educativo_Web.html.
+
+ENSAYO EN EL TEATRO
+En la explanada, ve a las escaleras del teatro y pulsa Enter o A.
+Acepta ensayar con el maestro Ángel, que toca la guitarra. Tu alumno forma
+parte de un coro de seis niños; los otros 21 niños y el personal observan.
+El director José Guadalupe está en el público. Todos conservan sus sprites.
+
+Pulsa la flecha cuando la flecha móvil coincida con la marca de arriba.
+La canción enviada dura 2:36 y se reproduce completa. No pierdes la partida
+al fallar. Hay un ensayo tranquilo con 168 flechas y un reto con 335.
+Enter abre la pausa; flechas y Enter permiten continuar o volver al patio.
+Xbox: cruceta/joystick para flechas, A para confirmar, START para pausa y B
+para salir. En teléfono, usa las cuatro flechas y los botones del ensayo.
+Ajuste del ritmo: izquierda/derecha adelanta o retrasa las flechas para audio
+Bluetooth, sin cambiar la velocidad de la canción.
+
+Los récords por modo y el ajuste se guardan en este navegador, aparte de
+las etiquetas y maestros. Tus estrellas y puntos se conservan. La música
+del patio vuelve al salir. Consulta ENSAYO_TEATRO.md para el arte y detalles.
 
 PAC-MAN EN EL SALÓN
 Acércate a la maquinita a la derecha del pizarrón y pulsa Enter, E o A.

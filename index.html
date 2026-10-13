@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-version="20261012-teclado-completo-1">
+<html lang="es" data-version="20261012-ensayo-teatro-1">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,8 +7,8 @@
   <meta name="description" content="La aventura del saber: explora Los Insurgentes, resuelve retos y juega al trompo con Oliver.">
   <title>Los Insurgentes · La aventura del saber</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
-  <link id="game-style" rel="stylesheet" href="style.css?v=20261012-teclado-completo-1">
-  <script defer src="bootstrap.js?v=20261012-teclado-completo-1"></script>
+  <link id="game-style" rel="stylesheet" href="style.css?v=20261012-ensayo-teatro-1">
+  <script defer src="bootstrap.js?v=20261012-ensayo-teatro-1"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
@@ -79,6 +79,23 @@
       <button id="trompo-action" class="primary-button" type="button">Enter / A · Lanzar trompo</button>
       <p class="trompo-help">Enter · Lanzar o continuar &nbsp; Flechas · Elegir. Gana el trompo que gira más tiempo.</p>
     </dialog>
+    <dialog id="theater-dialog" aria-labelledby="theater-title">
+      <header class="theater-header"><div><p id="theater-player" class="theater-player"></p><h2 id="theater-title">El teatro de Los Insurgentes</h2></div><div class="theater-top-buttons"><button id="theater-sound" type="button" aria-label="Silenciar ensayo" aria-pressed="true">♫</button><button id="theater-pause" type="button">Ⅱ Pausa</button><button id="theater-close" type="button">✕ Explanada</button></div></header>
+      <div class="theater-stats"><div><small>PUNTOS</small><strong id="theater-score">0</strong></div><div><small>RÉCORD</small><strong id="theater-record">0</strong></div><div><small>RACHA</small><strong id="theater-combo">0</strong></div><div><small>PRECISIÓN</small><strong id="theater-accuracy">—</strong></div></div>
+      <div class="theater-timeline"><progress id="theater-progress" value="0" max="156" aria-label="Avance de la canción"></progress><span id="theater-time">0:00 / 2:36</span></div>
+      <div class="theater-layout">
+        <figure class="theater-stage-panel"><div class="theater-scene-wrap"><canvas id="theater-scene" width="960" height="640" aria-label="Maestro Ángel toca la guitarra, seis alumnos cantan con notas musicales y el resto de los alumnos, los profes y el director observan desde la explanada"></canvas></div><figcaption><strong>Tu escuela, haciendo música</strong><span>Maestro Ángel en la guitarra · Coro de compañeros · Profes y director en el público</span></figcaption></figure>
+        <section class="theater-rhythm-panel" aria-label="Sigue las flechas al ritmo de la canción">
+          <div class="theater-board"><canvas id="theater-lanes" tabindex="0" width="360" height="420" aria-label="Juego de ritmo: pulsa izquierda, abajo, arriba o derecha cuando la flecha llegue a la marca superior; Enter para pausar"></canvas>
+            <div id="theater-overlay" class="theater-overlay"><div><p class="theater-kicker">ENSAYO CON EL MAESTRO ÁNGEL</p><h3 id="theater-overlay-title">¡La escuela hace música!</h3><p id="theater-overlay-copy"></p><label id="theater-mode-row" class="theater-select">Cómo quieres ensayar<select id="theater-mode"><option value="easy">Ensayo tranquilo · menos flechas</option><option value="hard">Reto del ritmo · más flechas</option></select></label><label id="theater-offset-row" class="theater-select">Ajuste del ritmo<select id="theater-offset"><option value="-250">Antes · 250 ms</option><option value="-200">Antes · 200 ms</option><option value="-150">Antes · 150 ms</option><option value="-100">Antes · 100 ms</option><option value="-50">Antes · 50 ms</option><option value="0">Al ritmo · normal</option><option value="50">Después · 50 ms</option><option value="100">Después · 100 ms</option><option value="150">Después · 150 ms</option><option value="200">Después · 200 ms</option><option value="250">Después · 250 ms</option></select></label><button id="theater-play" class="theater-play" type="button">Enter / A · Sí, ensayar</button><p class="theater-menu-help">↑ ↓ · Elegir &nbsp; ← → · Cambiar &nbsp; Enter · Confirmar<br>Si usas audio Bluetooth, puedes ajustar el ritmo.</p></div></div>
+          </div>
+          <p id="theater-now" class="theater-now" role="status" aria-live="polite">Pulsa la flecha cuando llegue a la marca</p>
+          <div class="theater-dpad" aria-label="Flechas del ensayo"><button type="button" data-theater-direction="0" aria-label="Tocar flecha izquierda">←</button><button type="button" data-theater-direction="1" aria-label="Tocar flecha abajo">↓</button><button type="button" data-theater-direction="2" aria-label="Tocar flecha arriba">↑</button><button type="button" data-theater-direction="3" aria-label="Tocar flecha derecha">→</button></div>
+          <p id="theater-mode-info" class="theater-mode-info"></p>
+        </section>
+      </div>
+      <footer class="theater-help">Flechas · Tocar al ritmo &nbsp; Enter · Pausa y opciones &nbsp; Xbox: cruceta · Flechas, A · Confirmar, START · Pausa, B · Explanada</footer>
+    </dialog>
     <dialog id="quiz-dialog" aria-labelledby="quiz-title">
       <div class="dialog-top"><p id="quiz-subject" class="eyebrow"></p><span id="quiz-progress"></span></div>
       <h2 id="quiz-title"></h2>
@@ -94,7 +111,7 @@
       <p class="menu-keyboard-help">Flechas · Elegir &nbsp; Enter · Confirmar &nbsp; ← → · Cambiar el día</p>
       <div class="map-layout">
         <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte, 4.º A entre 6.º B y 2.º B, 2.º A con puerta azul entre 1.º B y 3.º A, teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
-        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con Enter o A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p class="fine-print">Flechas para moverte y Enter para actuar. Mantén Enter un momento para abrir este menú. En teléfono: cruceta y A.</p><div class="keyboard-options"><button id="map-run" class="uniform-button" type="button" aria-pressed="false">Paso: caminar</button><button id="map-sound" class="uniform-button" type="button" aria-pressed="true">♫ Sonido activado</button></div><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="https://github.com/User58381/los-insurgentes/archive/refs/heads/main.zip">Descargar para jugar sin internet</a></div>
+        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con Enter o A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p>En el teatro, a la izquierda de la explanada, puedes ensayar una canción con el maestro Ángel. Acércate a las escaleras y pulsa Enter o A.</p><p class="fine-print">Flechas para moverte y Enter para actuar. Mantén Enter un momento para abrir este menú. En teléfono: cruceta y A.</p><div class="keyboard-options"><button id="map-run" class="uniform-button" type="button" aria-pressed="false">Paso: caminar</button><button id="map-sound" class="uniform-button" type="button" aria-pressed="true">♫ Sonido activado</button></div><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="https://github.com/User58381/los-insurgentes/archive/refs/heads/main.zip">Descargar para jugar sin internet</a></div>
         <section class="school-tools"><button class="uniform-button" type="button" data-open-school-editor>⚙ Editar escuela</button><p>Cambia las etiquetas de los edificios y los grupos de los profes. Guarda una copia o actualiza los archivos del juego.</p></section>
         <section class="uniform-settings" aria-labelledby="uniform-title">
           <div class="uniform-control"><label id="uniform-title" for="school-day">Uniforme de 3.º A</label><select id="school-day"><option value="auto">Hoy · automático</option><option value="1">Lunes · gala</option><option value="2">Martes · deportivo</option><option value="3">Miércoles · polo rojo</option><option value="4">Jueves · blanco y cuadros</option><option value="5">Viernes · polo rojo</option></select></div>

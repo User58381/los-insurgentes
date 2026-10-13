@@ -1,6 +1,6 @@
 # Los Insurgentes · La aventura del saber
 
-Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-teclado-completo-1`.
+Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-ensayo-teatro-1`.
 
 Contiene el mapa, alumnos, uniformes por día, personal, bienvenida del director,
 retos, trompos con Oliver y las canciones proporcionadas.
@@ -11,13 +11,31 @@ retos, trompos con Oliver y las canciones proporcionadas.
 2. En [User58381/los-insurgentes](https://github.com/User58381/los-insurgentes), abre **Add file → Upload files**.
 3. Reemplaza juntos `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`,
    `bootstrap.js`, `school-settings.js`, `school-editor.js`, `keyboard.js`, `pacman-engine.js`
-   y `pacman-ui.js` en la raíz.
-4. Añade `assets/maquinita-pacman.png` dentro de la carpeta `assets`. Conserva las otras imágenes y canciones; el paquete completo también las incluye.
+   `pacman-ui.js`, `theater-song.js`, `theater-engine.js` y `theater-ui.js` en la raíz.
+4. Conserva las otras imágenes y canciones y añade los recursos del ZIP: `assets/angel-guitarra.png`, `assets/teatro-ensayo.png` y `assets/audio/ensayo-teatro.mp3`. El paquete de actualización también incluye la maquinita; el paquete completo contiene todos los recursos.
 5. Guarda en `main`, espera la publicación y abre [el juego](https://user58381.github.io/los-insurgentes/).
 6. Recarga con Ctrl + F5 o usa **Editar escuela → Borrar caché y actualizar**.
 
 Sube los archivos descomprimidos. Las rutas deben quedar al mismo nivel que
 `index.html`. Consulta `LEEME.txt` para las instrucciones de edición y guardados.
+
+## Ensayo musical en el teatro
+
+Acércate a las escaleras del teatro a la izquierda de la explanada y pulsa
+**Enter o A**. El maestro Ángel toca la guitarra, seis alumnos cantan y los
+otros 21 alumnos, profesores y director observan desde la explanada.
+
+Toca **izquierda, abajo, arriba o derecha** cuando la flecha llegue a la marca.
+La canción enviada suena completa: **2:36**. Hay un ensayo tranquilo, un reto
+con más flechas, precisión, rachas y récords por modo. Fallar permite seguir
+hasta el final. **Enter** abre la pausa; elige continuar o volver con flechas y
+Enter. En Xbox usa cruceta o joystick, A, START y B; en teléfono, los cuatro
+botones de flechas. El ajuste del ritmo permite compensar el audio Bluetooth.
+
+Las flechas siguen los pulsos analizados del MP3 y su reloj de reproducción.
+La música del patio espera durante el ensayo y se reanuda al salir. Los puntos
+y guardados de la escuela se conservan. Consulta `ENSAYO_TEATRO.md` para los
+controles, sincronización, archivos nuevos y prompts del arte.
 
 ## Pac-Man educativo
 
