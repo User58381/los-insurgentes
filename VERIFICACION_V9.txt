@@ -1,0 +1,27 @@
+LOS INSURGENTES V9 — MISIÓN DE CRISS
+15 de octubre de 2026
+
+44 pruebas automatizadas aprobadas: lógica, actualizaciones, integración y audio.
+
+Cambios comprobados:
+- Para empezar la misión se habla con Criss y se acepta su invitación.
+- Posponer no desbloquea; aceptar desbloquea y el estado se guarda.
+- El mapa respeta el desbloqueo y admite partidas anteriores de v8.
+- Cuenta regresiva de 90 segundos; cero termina el reto sin recompensa.
+- WAV recibido cada segundo; avisos cada medio segundo en los últimos 10.
+- El cambio de cadencia no produce un doble aviso al cruzar los 10 segundos.
+- El MP3 recibido se usa en limpieza; al salir vuelve la música del patio.
+- Pausa, silencio, salida del reto y recuperación de la partida.
+- Alternativa con elemento de audio para WAV en copias locales.
+- Los controles de teclado y mando simulado aceptan o rechazan la invitación.
+- Selector, fútbol, cuerda, trompo, Pac-Man, teatro y editor siguen disponibles.
+- Actualización diferida y conservación de guardados.
+
+Los dos audios recibidos se incluyeron sin recortar ni recodificar.
+Se decodificó el MP3 completo sin errores. Se validaron la sintaxis JavaScript,
+los identificadores HTML, el manifiesto de versiones y la integridad del ZIP.
+
+Pruebas: node --test tests/*.cjs
+Alcance: DOM, mando y audio simulados; no se ejecutó una prueba visual ni de
+escucha en navegador real, teléfono o mando físico durante esta sesión.
+Música de fútbol y de cuerda: pendiente de recibir.

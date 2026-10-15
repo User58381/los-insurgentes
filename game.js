@@ -1,17 +1,20 @@
 (function () {
   'use strict';
   const G=window.SchoolGame;
-  const keyboard=window.SchoolKeyboard;
+  const keyboard=window.SchoolKeyboard,C=window.SchoolCharacters,P=window.SchoolPlayground,Save=window.SchoolAdventureSave;
   const $=id=>document.getElementById(id);
   const schoolStore=window.SchoolSettings.createStore(G,{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
   window.InsurgentesSchool=schoolStore;
   const canvas=$('world'), ctx=canvas.getContext('2d',{alpha:false});
   let state=G.createState(), loaded=false, width=innerWidth, height=innerHeight, scale=1, lastTime=0;
+  const progressStore=Save.createStore(G,C,{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
+  const recovered=progressStore.load();if(recovered)Save.restore(G,C,state,recovered);
+  let characterConfirmed=!!recovered,lastAutosave=0,saveNotice=false;
   let camera={x:1034,y:1080}, mapOpen=false, toastTimer=0, animationHandle=0;
   const held=new Set(), touch=new Map(), images={};
   const quizDialog=$('quiz-dialog'), mapDialog=$('map-dialog'), victoryDialog=$('victory-dialog');
   const welcomeDialog=$('welcome-dialog'), trompoDialog=$('trompo-dialog');
-  const uniformDialog=$('uniform-dialog');
+  const uniformDialog=$('uniform-dialog'),crissDialog=$('criss-dialog');
   const trompoCanvas=$('trompo-canvas'), topCtx=trompoCanvas.getContext('2d');
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');
   const audioSources=Object.fromEntries(Object.entries({...window.SchoolAudio.AUDIO_PATHS,...window.INSURGENTES_AUDIO}).map(([key,path])=>[key,window.SchoolAssets?.url(path)||path]));
@@ -49,10 +52,10 @@
   function snapCamera(){camera=clampCamera(state.player.x,state.player.y-70);}
   function playTone(kind) {music.effect(kind);}
   async function activateSound(effect) {
-    if(!soundOn)return;
-    music.setPaused(false);
+    if(!soundOn||document.hidden)return;
+    syncMusic();
     const ready=await music.activate();
-    if(ready&&effect)playTone(effect);
+    syncMusic();if(ready&&effect)playTone(effect);
     updateSoundButton();
   }
   function setSound(enabled) {
@@ -62,12 +65,15 @@
     updateSoundButton();if(enabled)void activateSound();
   }
   function syncMusic() {
-    music.setMusicPaused(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen());
+    const playground=window.PlaygroundGames.isOpen()?window.PlaygroundGames.snapshot():null;
+    const miniMusic=playground?({football:'football',rope:'rope',cleanup:'cleanup'}[playground.type]||null):null;
+    music.setMusicPaused(!!(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen()||(miniMusic&&playground.phase!=='playing')));
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
-    music.setScene(['title','welcome','trompo'].includes(scene)?scene:state.scene);
-    music.setPaused(document.hidden||!windowActive||schoolEditorOpen);
+    music.setScene(miniMusic||(['title','welcome','trompo'].includes(scene)?scene:state.scene));
+    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||(miniMusic&&playground.phase==='paused')));
     music.update();
   }
+  function resumeWorldMusic(){syncMusic();if(soundOn)void activateSound();}
   function updateSoundButton() {
     $('sound-button').setAttribute('aria-pressed',String(soundOn));
     $('sound-button').setAttribute('aria-label',soundOn?'Silenciar sonido':'Activar sonido');
@@ -95,8 +101,61 @@
     clearInput();snapCamera();$('fade').classList.add('flash');
     setTimeout(()=>$('fade').classList.remove('flash'),150);
   }
+  function saveProgress(){
+    if(!state.started&&!characterConfirmed)return true;
+    const result=progressStore.save(state);
+    $('adventure-save-status').textContent=progressStore.status()||'Se guarda automáticamente en este navegador.';
+    $('adventure-save-status').classList.toggle('save-error',!result);
+    if(!result&&!saveNotice){saveNotice=true;showToast(progressStore.status());}
+    return result;
+  }
+  function openCharacters(begin=false){
+    if(!loaded||window.CharacterSelect.isOpen())return;
+    if(mapOpen)closeMap();clearInput();enableWorldControls(false);
+    window.CharacterSelect.open({game:G,images,day:state.schoolDay,playerId:state.player.id,
+      onClose(){clearInput();enableWorldControls(state.phase==='play');},
+      onPick(id){C.select(G,state,id);characterConfirmed=true;saveProgress();syncUI();if(begin)startGame();else if(state.started)showToast('Ahora juegas como '+state.player.name+'. Tus estrellas se conservan.');}
+    });
+  }
+  function openCrissDialogue(){
+    if(!loaded||state.quiz||crissDialog.open||window.PlaygroundGames.isOpen())return;
+    const criss=G.TEACHERS.find(actor=>actor.id==='criss').positions.outside;
+    if(mapOpen)closeMap();
+    if(state.scene!=='outside'||Math.hypot(state.player.x-criss.x,state.player.y-criss.y)>=62){showToast('Busca a Criss a la derecha de la explanada. Acércate y pulsa Enter / A para hablar con ella.');return;}
+    clearInput();state.phase='criss-dialogue';enableWorldControls(false);
+    $('criss-message').textContent='¡Hola, '+state.player.name+'! ¿Me ayudas a dejar limpia la explanada? Recoge los nueve residuos y sepáralos en Papel, Envases y Otros. Tienes 90 segundos. ¡Hagamos que nuestra escuela brille!';
+    const portrait=$('criss-portrait'),context=portrait.getContext('2d');context.clearRect(0,0,portrait.width,portrait.height);C.draw(context,G,images,C.find(G,'criss'),state.schoolDay,100,220,190);
+    crissDialog.showModal();keyboard.focus($('criss-accept'),false);syncUI();
+  }
+  function closeCrissDialogue(){
+    if(!crissDialog.open)return;crissDialog.close();state.phase='play';clearInput();enableWorldControls(true);syncUI();syncMusic();canvas.focus({preventScroll:true});
+  }
+  function acceptCrissDialogue(){
+    if(!crissDialog.open)return;state.unlocks.cleanup=true;saveProgress();closeCrissDialogue();syncChallengeList();openPlayground('criss',{autoStart:true});
+  }
+  function openPlayground(id,options={}){
+    if(!loaded||!P.TASKS[id]||window.PlaygroundGames.isOpen()||state.quiz)return;
+    if(id==='criss'&&!state.unlocks.cleanup){openCrissDialogue();return;}
+    if(mapOpen)closeMap();clearInput();state.phase='playground';enableWorldControls(false);
+    window.PlaygroundGames.open({id,game:G,images,day:state.schoolDay,player:state.player,record:state.challenges[id],sound:playTone,autoStart:options.autoStart,isSoundEnabled:()=>soundOn,onSoundChange:setSound,
+      onAward(taskId,score){const old=state.challenges[taskId]||{won:false,best:0,wins:0};state.challenges[taskId]={won:true,best:Math.max(old.best,score),wins:old.wins+1};if(!old.won)state.points+=80;saveProgress();particles();},
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();saveProgress();syncChallengeList();canvas.focus({preventScroll:true});showToast(report.won?'¡Reto conseguido! Puedes seguir explorando.':'Volviste al patio. El reto te espera cuando quieras.');}
+    });syncMusic();syncUI();void activateSound();
+  }
+  function syncChallengeList(){
+    $('challenge-list').replaceChildren();
+    for(const [id,task] of Object.entries(P.TASKS)){
+      const button=document.createElement('button'),icon=document.createElement('span'),copy=document.createElement('span'),where=document.createElement('small');
+      const won=state.challenges[id]?.won;button.type='button';button.classList.toggle('won',!!won);icon.textContent=won?'✓':task.type==='football'?'⚽':task.type==='rope'?'↻':'♻';copy.textContent=task.title;
+      const locked=id==='criss'&&!state.unlocks.cleanup;if(locked){icon.textContent='🔒';button.setAttribute('aria-label','Habla con Criss para desbloquear la limpieza');}
+      where.textContent=locked?'Habla con Criss · Explanada':(task.type==='football'?'Cancha':'Explanada')+(won?' · Conseguido':' · Jugar');copy.append(where);button.append(icon,copy);button.addEventListener('click',()=>openPlayground(id));$('challenge-list').append(button);
+    }
+  }
   function startGame() {
     if(!loaded) return {error:'El terreno sigue cargando.'};
+    if(state.phase!=='title')return G.snapshot(state);
+    if(!state.started&&!characterConfirmed){openCharacters(true);return G.snapshot(state);}
+    if(state.started){state.phase='play';$('start-screen').hidden=true;clearInput();enableWorldControls(true);if(state.quiz){renderQuestion();quizDialog.showModal();}else canvas.focus({preventScroll:true});syncMusic();syncUI();void activateSound();return G.snapshot(state);}
     if(!G.start(state))return G.snapshot(state);
     $('start-screen').hidden=true;clearInput();
     $('director-message').textContent=G.WELCOME_TEXT;
@@ -108,7 +167,7 @@
   function finishWelcome() {
     if(!G.finishWelcome(state))return null;
     welcomeDialog.close();enableWorldControls(true);clearInput();canvas.focus({preventScroll:true});
-    syncMusic();syncUI();
+    syncMusic();syncUI();saveProgress();
     showToast('Juegas como '+state.player.name+'. Usa Enter para actuar; mantenlo pulsado para ver las opciones.');
     return G.snapshot(state);
   }
@@ -128,7 +187,7 @@
     if(window.PacmanArcade.isOpen())return;
     clearInput();state.phase='pacman';enableWorldControls(false);
     window.PacmanArcade.open({playerName:state.player.name,group:classroomLabel(),sound:playTone,
-      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);syncMusic();syncUI();canvas.focus({preventScroll:true});
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();canvas.focus({preventScroll:true});
         showToast(report.score?'Pac-Man · '+report.score+' puntos · '+report.correct+' '+(report.correct===1?'suma resuelta':'sumas resueltas'):'Volviste al salón. ¡La aventura continúa!');}
     });syncMusic();syncUI();
   }
@@ -137,11 +196,14 @@
     clearInput();state.phase='theater';enableWorldControls(false);
     window.TheaterRehearsal.open({player:state.player,group:classroomLabel(),students:G.STUDENTS,teachers:G.TEACHERS,images,enabled:soundOn,
       studentFrame:(student,row)=>G.STUDENT_FRAMES[row][G.studentUniformColumn(student,state.schoolDay)],sound:playTone,onSoundChange:setSound,
-      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);syncMusic();syncUI();canvas.focus({preventScroll:true});
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();canvas.focus({preventScroll:true});
         showToast(report.completed?'¡Ensayo completo! '+report.score+' puntos · '+report.accuracy+'% de precisión.':'Volviste a la explanada. Puedes ensayar cuando quieras.');}
     });syncMusic();syncUI();
   }
   function restart() {
+    if(crissDialog.open)closeCrissDialogue();
+    if(window.PlaygroundGames.isOpen())window.PlaygroundGames.close();
+    if(window.CharacterSelect.isOpen())window.CharacterSelect.close();
     if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.close();
     if(window.PacmanArcade.isOpen())window.PacmanArcade.close();
     if(victoryDialog.open) victoryDialog.close();
@@ -150,7 +212,7 @@
     if(welcomeDialog.open)welcomeDialog.close();
     if(trompoDialog.open)trompoDialog.close();
     if(uniformDialog.open)uniformDialog.close();
-    mapOpen=false;state=G.createState();G.start(state);G.finishWelcome(state);enableWorldControls(true);clearInput();snapCamera();syncMusic();syncUI();
+    const previous=state.player.id;mapOpen=false;state=G.createState();C.select(G,state,previous);G.start(state);G.finishWelcome(state);saveProgress();syncChallengeList();enableWorldControls(true);clearInput();snapCamera();syncMusic();syncUI();
     showToast('Ahora juegas como '+state.player.name+'. ¡Vamos por las tres estrellas!');
   }
   function particles() {
@@ -172,6 +234,8 @@
       }
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
+      if(event.type==='criss-talk')openCrissDialogue();
+      if(event.type==='playground-open')openPlayground(event.id);
       if(event.type==='arcade')openPacman();
       if(event.type==='theater-open')openTheater();
       if(['correct','try','kick'].includes(event.type))playTone(event.type==='correct'?'start':event.type);
@@ -179,7 +243,7 @@
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
         keyboard.focus($('trompo-action'),false);
       }
-      if(event.type==='trompo-close'){if(trompoDialog.open)trompoDialog.close();clearInput();canvas.focus({preventScroll:true});}
+      if(event.type==='trompo-close'){if(trompoDialog.open)trompoDialog.close();clearInput();resumeWorldMusic();canvas.focus({preventScroll:true});}
       if(event.type==='trompo-throw')playTone('throw');
       if(event.type==='trompo-win')playTone('correct');
       if(event.type==='uniform-open'){
@@ -202,7 +266,7 @@
     if(state.phase==='uniform')return closeUniformGuide();
     if(mapOpen)return null;
     if(state.quiz){if(state.quiz.correct)nextQuestion();return null;}
-    const action=G.interact(state);drainEvents();syncUI();return action;
+    const action=G.interact(state);drainEvents();syncUI();saveProgress();return action;
   }
   function drawTop(owner,x,y,energy,angle,age) {
     const frame=energy<=10?3:media.matches?0:Math.floor(angle*3)%3;
@@ -212,9 +276,7 @@
     topCtx.drawImage(images.tops,sx,sy,sw,sh,x-ax*factor,y-ay*factor-lift,sw*factor,sh*factor);
   }
   function drawTrompoActors() {
-    const playerColumn=G.studentUniformColumn(state.player,state.schoolDay);
-    const [px,py,pw,ph,pax,pay]=G.STUDENT_FRAMES[2][playerColumn],playerFactor=64/G.STUDENT_FRAMES[0][playerColumn][3];
-    topCtx.drawImage(images.students,px,py,pw,ph,184-pax*playerFactor,246-pay*playerFactor,pw*playerFactor,ph*playerFactor);
+    C.draw(topCtx,G,images,state.player,state.schoolDay,184,246,64,'right');
     const oliver=state.classmates.find(actor=>actor.id==='oliver'),column=G.studentUniformColumn(oliver,state.schoolDay);
     const [sx,sy,sw,sh,ax,ay]=G.STUDENT_FRAMES[1][column],factor=54/G.STUDENT_FRAMES[0][column][3];
     topCtx.drawImage(images.students,sx,sy,sw,sh,538-ax*factor,246-ay*factor,sw*factor,sh*factor);
@@ -278,16 +340,16 @@
     selectedAnswer=index;
     const correct=G.answer(state,index);drainEvents();renderQuestion();
     if(!correct){const button=$('answers').children[index];if(button)button.classList.add('wrong');}
-    syncUI();return correct;
+    syncUI();saveProgress();return correct;
   }
   function nextQuestion() {
-    G.nextQuestion(state);drainEvents();
+    G.nextQuestion(state);drainEvents();saveProgress();
     if(state.quiz)renderQuestion();else if(!victoryDialog.open)canvas.focus({preventScroll:true});
     syncUI();
   }
   function openMap() {
     if(!loaded||state.phase!=='play'||state.quiz)return;
-    mapOpen=true;clearInput();
+    mapOpen=true;clearInput();syncChallengeList();saveProgress();
     const p=state.scene==='classroom'?G.CLASSROOM_DOOR:state.player;
     $('map-player').style.left=(p.x/1215*100)+'%';$('map-player').style.top=(p.y/1295*100)+'%';
     if(!mapDialog.open)mapDialog.showModal();
@@ -308,7 +370,7 @@
     }
   }
   function syncUI() {
-    $('player-name').textContent=state.player.name+' · '+classroomLabel();
+    $('player-name').textContent=state.player.name+' · '+(state.player.kind==='staff'?(C.find(G,state.player.id)?.group||'Personal'):classroomLabel());
     $('player-name').title='Juegas como '+state.player.name;
     $('objective').textContent=G.objective(state);
     $('stars').textContent='★'.repeat(Object.values(state.completed).filter(Boolean).length)+'☆'.repeat(3-Object.values(state.completed).filter(Boolean).length);
@@ -373,7 +435,7 @@
   function drawPlayer() {
     const p=state.player;
     ctx.save();ctx.fillStyle='#142f2945';ctx.beginPath();ctx.ellipse(p.x,p.y-1,12,4.2,0,0,Math.PI*2);ctx.fill();
-    drawStudentSprite(ctx,p,45);ctx.restore();
+    if(p.kind==='staff'){const bob=p.walking&&!media.matches?Math.sin(p.time*13)*1.2:0;C.draw(ctx,G,images,p,state.schoolDay,p.x,p.y+bob,53,p.facing);}else drawStudentSprite(ctx,p,45);ctx.restore();
   }
   function placeOliverInvitation() {
     const bubble=$('oliver-invitation'),oliver=state.classmates.find(actor=>actor.id==='oliver');
@@ -384,6 +446,14 @@
     if(x<0||x>width||y<150||y>height-100){bubble.hidden=true;return;}
     bubble.style.left=Math.max(126,Math.min(width-126,x))+'px';
     bubble.style.top=y+'px';
+  }
+  function placeCrissInvitation(){
+    const bubble=$('criss-invitation'),criss=G.TEACHERS.find(actor=>actor.id==='criss').positions.outside;
+    bubble.hidden=state.scene!=='outside'||state.phase!=='play'||!!state.quiz||mapOpen||schoolEditorOpen||Math.hypot(criss.x-state.player.x,criss.y-state.player.y)>=180;
+    if(bubble.hidden)return;
+    const x=width/2+(criss.x-camera.x)*scale,y=height/2+(criss.y-camera.y-61)*scale;
+    if(x<0||x>width||y<150||y>height-100){bubble.hidden=true;return;}
+    bubble.style.left=Math.max(126,Math.min(width-126,x))+'px';bubble.style.top=y+'px';
   }
   function drawClassmate(student) {
     ctx.save();ctx.fillStyle='#142f293b';ctx.beginPath();ctx.ellipse(student.x,student.y-1,8,3,0,0,Math.PI*2);ctx.fill();
@@ -440,12 +510,13 @@
     if(!loaded)return;
     const target=clampCamera(state.player.x,state.player.y-70),blend=media.matches?1:1-Math.exp(-9*dt);
     camera.x+=(target.x-camera.x)*blend;camera.y+=(target.y-camera.y)*blend;
-    placeOliverInvitation();
+    placeOliverInvitation();placeCrissInvitation();
     ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);
     ctx.imageSmoothingEnabled=false;
     const world=G.WORLD[state.scene];ctx.drawImage(state.scene==='outside'?images.map:images.room,0,0,world.width,world.height);
     if(state.scene==='outside'){
       drawMapLabels();
+      for(const actor of G.challengeActors(state)){const task=P.TASKS[actor.id],complete=state.challenges[actor.id]?.won;ctx.save();ctx.font='bold 19px Trebuchet MS';ctx.textAlign='center';ctx.fillStyle=complete?'#bce9a9':'#ffdd84';ctx.strokeStyle='#173c35';ctx.lineWidth=5;const icon=complete?'✓':task.type==='football'?'⚽':task.type==='rope'?'↻':'♻';ctx.strokeText(icon,actor.x,actor.y-48);ctx.fillText(icon,actor.x,actor.y-48);ctx.restore();}
       marker(998,1016,'Sumas',state.completed.fountain,time);
       marker(G.CLASSROOM_DOOR.x,G.CLASSROOM_DOOR.y-2,classroomLabel(),state.completed.classroom,time);
       marker(643,413,'Números',state.completed.field,time);
@@ -565,16 +636,23 @@
       mapHelp.parentElement.append(controllerMapStatus);
     }
   }
+  function controllerMenu(root,x,y,confirm,timestamp,defaultTarget){
+    const direction=Math.abs(x)>Math.abs(y)?(x<-.55?'ArrowLeft':x>.55?'ArrowRight':''):(y<-.55?'ArrowUp':y>.55?'ArrowDown':'');
+    if(direction&&(direction!==menuDirection||timestamp>=menuRepeatAt)){keyboard.key({key:direction},root,{defaultTarget});menuRepeatAt=timestamp+(direction===menuDirection?170:350);}
+    menuDirection=direction;if(confirm)keyboard.key({key:'Enter'},root,{defaultTarget});
+  }
   function controllerInput(timestamp) {
     const controller=readController();
-    if(!controller)return {x:0,y:0,run:false};
+    if(!controller){if(window.PlaygroundGames.isOpen())window.PlaygroundGames.pad({x:0,y:0});return {x:0,y:0,run:false};}
     const pressed=controller.pressed,{x,y}=controller;
     const edge=index=>!!pressed[index]&&!gamepadButtons[index];
     if(schoolEditorOpen){
-      if(edge(1))window.SchoolEditor?.close();
+      if(edge(1))window.SchoolEditor?.close();else controllerMenu($('school-editor'),x,y,edge(0),timestamp);
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
     }
     if(edge(3))setSound(window.TheaterRehearsal.isOpen()?!soundOn:!(soundOn&&music.ready));
+    if(window.CharacterSelect.isOpen()){window.CharacterSelect.pad({x,y,confirm:edge(0),back:edge(1),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
+    if(window.PlaygroundGames.isOpen()){window.PlaygroundGames.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(window.TheaterRehearsal.isOpen()){
       window.TheaterRehearsal.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1),timestamp});
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
@@ -583,10 +661,11 @@
       window.PacmanArcade.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
     }
-    if(state.phase==='title'){if(edge(0)||edge(9))startGame();}
-    else if(state.phase==='welcome'){if(edge(2))showUniformGuide();else if(edge(0)||edge(9))finishWelcome();}
-    else if(state.phase==='uniform'){if(edge(0)||edge(1)||edge(2)||edge(9))closeUniformGuide();}
-    else if(mapOpen){if(edge(0)||edge(1)||edge(2)||edge(8)||edge(9))closeMap();}
+    if(state.phase==='title'){if(edge(9))startGame();else controllerMenu($('start-screen'),x,y,edge(0),timestamp,$('start-button'));}
+    else if(state.phase==='welcome'){if(edge(2))showUniformGuide();else if(edge(9))finishWelcome();else controllerMenu(welcomeDialog,x,y,edge(0),timestamp,$('welcome-continue'));}
+    else if(state.phase==='criss-dialogue'){if(edge(1))closeCrissDialogue();else if(edge(9))acceptCrissDialogue();else controllerMenu(crissDialog,x,y,edge(0),timestamp,$('criss-accept'));}
+    else if(state.phase==='uniform'){if(edge(1)||edge(2)||edge(9))closeUniformGuide();else controllerMenu(uniformDialog,x,y,edge(0),timestamp,$('uniform-return'));}
+    else if(mapOpen){if(edge(1)||edge(2)||edge(8)||edge(9))closeMap();else controllerMenu(mapDialog,x,y,edge(0),timestamp,$('close-map'));}
     else if(state.quiz){
       const direction=y<-.55||x<-.55?-1:y>.55||x>.55?1:0;
       if(direction&&(direction!==menuDirection||timestamp>=menuRepeatAt)){chooseAnswer(direction);menuRepeatAt=timestamp+(direction===menuDirection?180:350);}
@@ -594,7 +673,7 @@
       if(edge(0)){if(state.quiz.correct)nextQuestion();else submitAnswer(selectedAnswer);}
       else if(edge(9)&&state.quiz.correct)nextQuestion();
     }
-    else if(state.phase==='trompo'){if(edge(1))closeTrompo();else if(edge(0)||edge(9))interact();}
+    else if(state.phase==='trompo'){if(edge(1))closeTrompo();else if(edge(9))interact();else controllerMenu(trompoDialog,x,y,edge(0),timestamp,$('trompo-action'));}
     else if(state.phase==='victory'){
       if(edge(0)||edge(1)||edge(9)){victoryDialog.close();state.phase='play';clearInput();canvas.focus({preventScroll:true});}
     }
@@ -618,13 +697,20 @@
     if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
-      if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
+      if(window.CharacterSelect.isOpen()){}
+      else if(window.PlaygroundGames.isOpen())window.PlaygroundGames.tick(dt);
+      else if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
       else if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
       else if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
     }
-    drainEvents();syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
+    drainEvents();if(state.started&&timestamp-lastAutosave>2000){saveProgress();lastAutosave=timestamp;}syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
   }
+  $('criss-accept').addEventListener('click',acceptCrissDialogue);
+  $('criss-later').addEventListener('click',closeCrissDialogue);$('criss-close').addEventListener('click',closeCrissDialogue);
+  crissDialog.addEventListener('cancel',event=>{event.preventDefault();closeCrissDialogue();});
   $('start-button').addEventListener('click',startGame);
+  $('title-character').addEventListener('click',()=>openCharacters(false));
+  $('map-character').addEventListener('click',()=>openCharacters(false));
   $('welcome-continue').addEventListener('click',finishWelcome);
   $('welcome-uniform').addEventListener('click',showUniformGuide);
   $('map-uniform').addEventListener('click',showUniformGuide);
@@ -640,7 +726,7 @@
   $('next-question').addEventListener('click',nextQuestion);
   $('map-button').addEventListener('click',openMap);
   $('school-day').addEventListener('change',()=>{
-    const value=$('school-day').value;G.setSchoolDay(state,value==='auto'?'auto':Number(value));clearInput();syncUI();
+    const value=$('school-day').value;G.setSchoolDay(state,value==='auto'?'auto':Number(value));clearInput();syncUI();saveProgress();
   });
   $('close-map').addEventListener('click',closeMap);
   mapDialog.addEventListener('close',()=>{mapOpen=false;clearInput();});
@@ -662,6 +748,8 @@
   }
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented)return;
+    if(window.CharacterSelect.isOpen()){if(window.CharacterSelect.key(event))event.preventDefault();return;}
+    if(window.PlaygroundGames.isOpen()){if(window.PlaygroundGames.key(event))event.preventDefault();return;}
     if(window.TheaterRehearsal.isOpen()){if(window.TheaterRehearsal.key(event))event.preventDefault();return;}
     if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
     const key=event.key.toLowerCase();
@@ -670,7 +758,8 @@
       else if(keyboard.key(event,$('school-editor')))event.preventDefault();
       return;
     }
-    const menu=mapOpen?mapDialog:state.phase==='title'?$('start-screen'):state.phase==='uniform'?uniformDialog:state.phase==='welcome'?welcomeDialog:state.phase==='trompo'?trompoDialog:state.quiz?quizDialog:state.phase==='victory'?victoryDialog:null;
+    if(state.phase==='criss-dialogue'&&key==='escape'){event.preventDefault();if(!event.repeat)closeCrissDialogue();return;}
+    const menu=state.phase==='criss-dialogue'?crissDialog:mapOpen?mapDialog:state.phase==='title'?$('start-screen'):state.phase==='uniform'?uniformDialog:state.phase==='welcome'?welcomeDialog:state.phase==='trompo'?trompoDialog:state.quiz?quizDialog:state.phase==='victory'?victoryDialog:null;
     if(state.phase==='trompo'&&state.trompo.stage==='spin'&&['enter',' '].includes(key)&&document.activeElement!==$('trompo-close')){event.preventDefault();return;}
     if(menu&&keyboard.key(event,menu,{defaultTarget:state.phase==='title'?$('start-button'):null})){event.preventDefault();return;}
     if(menu&&document.activeElement?.matches('input,select,textarea,[contenteditable="true"]'))return;
@@ -716,7 +805,7 @@
     schoolEditorOpen=!!event.detail.open;clearInput();
     enableWorldControls(state.phase==='play'&&!schoolEditorOpen);syncMusic();
   });
-  window.addEventListener('pointerdown',()=>{if(soundOn&&!music.ready)void activateSound();});
+  window.addEventListener('pointerdown',()=>{if(soundOn&&(!music.ready||music.blocked||music.context?.state==='suspended'))void activateSound();});
   window.addEventListener('gamepadconnected',event=>{
     if(event.gamepad)gamepadSamples.delete(gamepadKey(event.gamepad));
     readController();if(document.hasFocus?.())windowActive=true;
@@ -725,10 +814,10 @@
     if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
     readController();
   });
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();music.setPaused(true);});
-  window.addEventListener('focus',()=>{windowActive=true;lastTime=0;syncMusic();});
-  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();}G.refreshSchoolDay(state);syncUI();syncMusic();});
-  window.addEventListener('pagehide',()=>{clearInput();window.TheaterRehearsal.destroy();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();saveProgress();music.setPaused(true);});
+  window.addEventListener('focus',()=>{windowActive=true;lastTime=0;resumeWorldMusic();});
+  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();saveProgress();}G.refreshSchoolDay(state);syncUI();syncMusic();});
+  window.addEventListener('pagehide',()=>{saveProgress();clearInput();window.TheaterRehearsal.destroy();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
     return new Promise((resolve,reject)=>{
@@ -737,7 +826,7 @@
   }
   const teacherAssets=new Map(G.TEACHERS.filter(teacher=>teacher.assetKey&&teacher.assetPath).map(teacher=>[teacher.assetKey,teacher.assetPath]));
   Promise.all([...Object.entries(G.ASSET_PATHS).map(([key,path])=>loadImage(key,path)),...Array.from(teacherAssets,([key,path])=>loadImage(key,path))]).then(()=>{
-    loaded=true;$('start-button').disabled=false;$('start-button').textContent='PULSA ENTER / START PARA JUGAR';$('load-status').textContent='Tu escuela. Tu gran aventura.';
+    loaded=true;$('start-button').disabled=false;$('title-character').disabled=false;$('start-button').textContent=state.started?'CONTINUAR AVENTURA':'PULSA ENTER / START PARA JUGAR';$('load-status').textContent=state.started?'Tu partida está lista. '+state.player.name+' te espera.':'Tu escuela. Tu gran aventura.';
     for(const [id,key] of [['title-school','introBg'],['welcome-school','introBg'],['director-portrait','directorPortrait'],['uniform-director-portrait','directorPortrait'],['uniform-poster','uniformGuide'],['overview-image','map']])$(id).src=images[key].src;
     if(!schoolEditorOpen)keyboard.focus($('start-button'),false);resize();
     if(window.INSURGENTES_ASSETS){$('overview-image').src=window.INSURGENTES_ASSETS.map;document.querySelector('.download-link').hidden=true;}
@@ -745,17 +834,38 @@
     console.error(error);$('start-button').textContent='Intentar de nuevo';$('start-button').disabled=false;$('load-status').textContent='No se pudo cargar el terreno. Revisa tu conexión y vuelve a intentarlo.';
     $('start-button').addEventListener('click',()=>location.reload(),{once:true});
   });
+  function downloadBackup(){
+    const value=progressStore.bundle(state,schoolStore),url=URL.createObjectURL(new Blob([value],{type:'application/json;charset=utf-8'})),link=document.createElement('a');
+    link.href=url;link.download='Los_Insurgentes_Partida.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);showToast('Copia completa exportada.');
+  }
+  $('adventure-export').addEventListener('click',downloadBackup);
+  $('adventure-import').addEventListener('click',()=>$('adventure-import-file').click());
+  $('adventure-import-file').addEventListener('change',async event=>{
+    const file=event.target.files[0];if(!file)return;
+    try{
+      if(file.size>262144)throw new Error('La copia debe pesar menos de 256 KB.');
+      const data=progressStore.parseBundle(await file.text(),schoolStore.getConfig(),window.SchoolSettings);
+      progressStore.restoreRecords(data.records);schoolStore.importSave(JSON.stringify(data.school));
+      const next=G.createState();Save.restore(G,C,next,data.progress);next.phase='play';next.started=true;state=next;characterConfirmed=true;progressStore.allowSaving();saveProgress();
+      if(data.records['insurgentes-sound'])setSound(data.records['insurgentes-sound']==='yes');
+      closeMap();snapCamera();syncChallengeList();syncUI();
+      if(state.quiz){renderQuestion();quizDialog.showModal();}
+      showToast('Copia restaurada: personaje, avances, escuela y récords.');
+    }catch(error){$('adventure-save-status').textContent=error.message;$('adventure-save-status').classList.add('save-error');}
+    finally{event.target.value='';}
+  });
+  window.SchoolUpdater?.configure({canReload:()=>loaded&&!schoolEditorOpen&&!window.CharacterSelect.isOpen()&&!mapOpen&&!state.quiz&&['title','play'].includes(state.phase),save:saveProgress});
   function installAgentTools(){
     const model=document.modelContext;if(!model?.registerTool)return;
     const lifecycle=new AbortController();
-    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot()};}};
+    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot(),playground:window.PlaygroundGames.snapshot(),challenges:{...state.challenges}};}};
     const startTool={name:'start_school_adventure',title:'Pulsar START',description:'Pulsa START en la portada y abre la bienvenida del director. No reinicia una partida en curso.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta acción no acepta parámetros.');if(state.phase!=='title')throw new Error('La aventura ya está en curso.');return startGame();}};
     for(const item of [tool,startTool]){try{void Promise.resolve(model.registerTool(item,{signal:lifecycle.signal})).catch(error=>console.warn('No se pudo registrar la herramienta del juego',error));}catch(error){console.warn('Herramientas del juego no disponibles',error);}}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
   }
   for(const student of [...G.STUDENTS].sort((a,b)=>a.name.localeCompare(b.name,'es'))){const item=document.createElement('li');item.textContent=student.name;$('class-list').append(item);}
   schoolStore.subscribe(()=>{syncSchoolNames();syncUI();});
-  syncSchoolNames();
+  syncSchoolNames();syncChallengeList();
   for(const [day,uniform] of Object.entries(G.UNIFORM_DAYS)){
     const term=document.createElement('dt'),description=document.createElement('dd');term.textContent=uniform.name+' · '+uniform.uniform;
     description.textContent=uniform.description+(day==='2'?' También se permite camisa blanca con pantalón o blusa blanca con uniforme de cuadros.':'');

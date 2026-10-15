@@ -1,0 +1,32 @@
+LOS INSURGENTES V10 — CANCIONES, MÚSICA Y LIMPIEZA
+15 de octubre de 2026
+
+52 pruebas automatizadas aprobadas: lógica, actualizaciones, integración y audio.
+
+Cambios comprobados:
+- La primera canción recibida se asigna a fútbol y la segunda a la cuerda.
+- Las pistas de estos retos se repiten durante la partida.
+- Al salir del teatro, Pac-Man, fútbol y cuerda vuelve la música del lugar.
+- El silencio elegido por el usuario se conserva al entrar y salir de los retos.
+- Un fallo simulado de reproducción no bloquea permanentemente la música.
+- Un rechazo atrasado de una escena anterior no bloquea la pista nueva.
+- Los nueve depósitos correctos reproducen exactamente nueve efectos START.
+- Recoger y depositar en el bote equivocado no reproducen START.
+- El último depósito conserva su animación y la recompensa original de 80 puntos.
+- Los seis recortes de sprites están dentro del PNG transparente.
+- Diálogo de Criss, desbloqueo, cuenta de 90 segundos, WAV y pausa conservados.
+- Selector, teclado, mando simulado, editor, trompo, Pac-Man y teatro conservados.
+- Actualización diferida, compatibilidad de guardados y copia completa conservadas.
+
+Se renderizaron y revisaron en lienzo las escenas de limpieza, recogida y depósito
+con los recursos reales del juego. Los dos MP3 nuevos se compararon byte a byte
+con los recibidos y se decodificaron completos. Se verificaron la sintaxis JS,
+los identificadores HTML, los hashes de version.json y la integridad del ZIP.
+
+Ejecutar pruebas: node --test tests/*.cjs
+Preparar archivos para publicar: python3 preparar_version.py
+
+Alcance: DOM, mando y dispositivos de audio simulados; reproductor de producción
+con fallos de reproducción simulados; renderizado de lienzo con sprites reales.
+No se realizó una prueba de escucha o interacción en navegador, teléfono o mando
+físico durante esta sesión.

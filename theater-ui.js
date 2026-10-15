@@ -24,12 +24,13 @@
   }
   function resetState(mode=record.mode){state=R.createState(song,{mode,offsetMs:record.offsetMs,highScore:record[mode],finishAtDuration:false});if(Number.isFinite(audio.duration)&&audio.duration>song.beats.at(-1)+.3)state.duration=audio.duration;uiPhase='';}
   function buildCast(){
-    const students=callbacks.students||[],player=students.find(actor=>actor.id===callbacks.player?.id)||students[0];
+    const students=callbacks.students||[],player=callbacks.player||students[0];
     const choir=player?[player,...students.filter(actor=>actor.id!==player.id).slice(0,5)]:[];
     const choirIds=new Set(choir.map(actor=>actor.id));
-    return {choir,audience:students.filter(actor=>!choirIds.has(actor.id)),staff:(callbacks.teachers||[]).filter(actor=>actor.id!=='angel'&&actor.assetKey&&actor.frames)};
+    return {choir,audience:students.filter(actor=>!choirIds.has(actor.id)),staff:(callbacks.teachers||[]).filter(actor=>actor.id!=='angel'&&actor.id!==player?.id&&actor.assetKey&&actor.frames)};
   }
   function drawStudent(student,row,x,y,height){
+    if(student.kind==='staff'&&student.frames&&student.assetKey){drawStaff(student,row,x,y,height);return;}
     const frame=callbacks.studentFrame?.(student,row);if(!frame||!callbacks.images?.students)return;
     const [sx,sy,sw,sh,ax,ay]=frame,scale=height/sh;stageCtx.drawImage(callbacks.images.students,sx,sy,sw,sh,x-ax*scale,y-ay*scale,sw*scale,sh*scale);
   }

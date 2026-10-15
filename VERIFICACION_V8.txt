@@ -1,0 +1,32 @@
+LOS INSURGENTES V8 — VERIFICACIÓN
+15 de octubre de 2026
+
+32 pruebas automatizadas de lógica, actualizaciones e integración:
+- 45 personajes: selección, posición, puntuación y marcos de uniforme.
+- Acceso a los cinco personajes y eventos de interacción en el mapa.
+- Daniel y Alexis: victoria por atajadas y derrota por goles.
+- Joaquín: victoria por goles y derrota por atajadas.
+- Dalila: diez saltos, tres tropiezos y bloqueo de salto repetido en el aire.
+- Criss: separación, corrección de errores y misión completa.
+- Pausa y límites de los cinco retos.
+- Guardado, recuperación de copia anterior, datos dañados y cuota agotada.
+- Copia completa con configuración y récords; rechazo de importaciones inválidas.
+- Versiones por recurso, GitHub Pages en subcarpeta y conservación de datos ajenos.
+- Actualización diferida, publicación parcial, falla de guardado y desconexión.
+- Flujo de selector/director, teclado, mando sintético y mapa.
+- Editor y apertura de Pac-Man, teatro y trompo.
+- Continuación de una pregunta guardada y devolución de los controles táctiles.
+
+Comando:
+node --test tests/logica.cjs tests/actualizaciones.cjs tests/integracion.cjs
+
+Otras comprobaciones:
+- Sintaxis de todos los módulos JavaScript.
+- Identificadores HTML únicos y referencias de interfaz existentes.
+- Integridad de todos los recursos del manifiesto y versión determinista.
+- Todas las imágenes y canciones originales conservadas byte por byte.
+- Motores de Pac-Man y teatro, controles base, audio y Pac-Man independiente
+  conservados byte por byte frente a v7.
+
+Alcance: integración con DOM y mando simulados, sin navegador visual ni equipo
+físico Android/Xbox en esta sesión. El ZIP no publica por sí solo en GitHub.

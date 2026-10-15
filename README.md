@@ -1,29 +1,133 @@
-# Los Insurgentes · La aventura del saber
+# Los Insurgentes · La aventura del saber — v10
 
-Juego HTML de la Escuela Primaria Los Insurgentes. Versión `20261012-ensayo-teatro-1`.
+Paquete completo basado en **Los_Insurgentes_GitHub_v9.zip**, con el mismo mapa,
+arte, canciones, controles, editor, trompo con Oliver, Pac-Man y ensayo musical.
 
-Contiene el mapa, alumnos, uniformes por día, personal, bienvenida del director,
-retos, trompos con Oliver y las canciones proporcionadas.
+## Canciones, regreso de la música y nuevos botes
 
-## Actualizar el repositorio actual
+- La primera canción recibida suena en los tres retos de fútbol de Daniel,
+  Alexis y Joaquín: `assets/audio/futbol.mp3` ← `星のオルガン.mp3`.
+- La segunda suena en la cuerda de Dalila:
+  `assets/audio/cuerda-dalila.mp3` ← `27245625y4.mp3`.
+  Ambas se repiten durante su partida y conservan los archivos originales.
+- Al salir del teatro, Pac-Man, trompo o los retos del patio se recupera la
+  música del lugar. Si el navegador interrumpe un intento de reproducción,
+  el reproductor vuelve a intentarlo automáticamente. Se respeta el botón
+  de silencio y las pausas al cambiar de pestaña o abrir el editor.
+- Limpieza incluye botes abiertos azules, amarillos y verdes, papel, botellas
+  y envolturas con fondo transparente. Ves el residuo mientras lo llevas y
+  cómo entra al bote al acertar. Cada depósito correcto usa el WAV original
+  de START de Los Insurgentes, `assets/audio/start-106.wav`.
+  Recoger o equivocarse no dispara ese sonido. Detalles del arte en
+  `ARTE_LIMPIEZA.md`.
 
-1. Descomprime el paquete y abre la carpeta que contiene `index.html`.
-2. En [User58381/los-insurgentes](https://github.com/User58381/los-insurgentes), abre **Add file → Upload files**.
-3. Reemplaza juntos `index.html`, `style.css`, `engine.js`, `audio.js`, `game.js`,
-   `bootstrap.js`, `school-settings.js`, `school-editor.js`, `keyboard.js`, `pacman-engine.js`
-   `pacman-ui.js`, `theater-song.js`, `theater-engine.js` y `theater-ui.js` en la raíz.
-4. Conserva las otras imágenes y canciones y añade los recursos del ZIP: `assets/angel-guitarra.png`, `assets/teatro-ensayo.png` y `assets/audio/ensayo-teatro.mp3`. El paquete de actualización también incluye la maquinita; el paquete completo contiene todos los recursos.
-5. Guarda en `main`, espera la publicación y abre [el juego](https://user58381.github.io/los-insurgentes/).
-6. Recarga con Ctrl + F5 o usa **Editar escuela → Borrar caché y actualizar**.
+## Limpieza con Criss: diálogo, música y cuenta regresiva
 
-Sube los archivos descomprimidos. Las rutas deben quedar al mismo nivel que
-`index.html`. Consulta `LEEME.txt` para las instrucciones de edición y guardados.
+1. Busca a **Criss a la derecha de la explanada**. Su globo dice:
+   «¿Me ayudas a limpiar la explanada?». Pulsa Enter / A para hablar con ella.
+2. Criss explica la misión. **¡Sí, te ayudo!** desbloquea el reto y lo inicia.
+   **Después**, Escape o B te devuelven al patio sin desbloquearlo.
+3. Hay **90 segundos** para separar los 9 residuos. El contador muestra minutos
+   y segundos. Suena el WAV recibido cada segundo; durante los últimos **10**,
+   el reloj cambia de color y el aviso suena cada medio segundo, más agudo.
+4. Suena el MP3 recibido durante la partida de limpieza. La pausa o salir de la
+   pestaña detienen el juego y la música. Al continuar retomas la cuenta; al
+   volver al patio regresa su música. El botón ♫ del reto respeta el sonido global.
+5. Al llegar a **0:00**, el reto termina sin dar la recompensa. Puedes intentarlo
+   otra vez. Una victoria conserva los **80 puntos de la primera vez**.
+6. Tras hablar y aceptar, el mapa permite abrir la limpieza directamente. El
+   desbloqueo se conserva en el guardado automático y en la copia completa.
+   Si ya habías ganado este reto en v8, continúa desbloqueado al actualizar.
+
+Se incluyeron los archivos recibidos, sin recortar ni recodificar:
+`assets/audio/limpieza-criss.mp3` ← `3645646435643.mp3`, y
+`assets/audio/contador-criss.wav` ← `OOT_Countdown2.wav`.
+Las músicas de fútbol, cuerda y limpieza ya están incluidas.
+
+## Novedades
+
+- Selector con **45 personajes**: 27 alumnos y 18 miembros del personal, incluido
+  el director. Fondo de la escuela, vista grande, giro, filtros y búsqueda.
+  Se abre al comenzar; también puedes cambiar de personaje desde el mapa sin
+  perder estrellas. El personal sin retrato propio usa una figura genérica.
+- Daniel y Alexis tiran; tú eres portero. Cada atajada suma para ti y cada gol
+  suma para el compañero. Gana quien llegue primero a 3. Alexis tira más rápido.
+- Joaquín es el portero; apunta y marca 3 goles antes de que él consiga 3 atajadas.
+- Dalila: consigue 10 saltos de cuerda, con 3 oportunidades y una señal dorada.
+- Criss: recoge 9 residuos de la explanada y llévalos a Papel, Envases u Otros.
+  Hay 90 segundos. Una clasificación equivocada permite corregirla.
+- Cada reto nuevo da **80 puntos la primera vez**. Puedes repetirlo para practicar.
+- Progreso automático: personaje, posición, estrellas, puntos, goles, día, pregunta
+  pendiente y retos conseguidos. Los ajustes y récords de la v7 siguen usando sus
+  claves originales. Hay una copia anterior para recuperar una partida dañada.
+
+## Subir a tu GitHub Pages
+
+1. Descomprime el ZIP y abre `Los_Insurgentes_GitHub`.
+2. Reemplaza **todo su contenido** en la raíz de `User58381/los-insurgentes`,
+   donde está `index.html`. Incluye **version.json y todos los archivos nuevos**.
+   Conserva `assets/` con su estructura. Sube los archivos descomprimidos.
+3. Guarda en `main` y espera a que termine la publicación de GitHub Pages.
+4. Abre la dirección habitual: https://user58381.github.io/los-insurgentes/
+
+Desde esta versión, el juego comprueba actualizaciones al abrir, al recuperar
+la conexión, al volver a la pestaña y aproximadamente cada minuto. Cambia la URL
+solo de los recursos modificados: las imágenes y canciones iguales reutilizan
+su caché. Si estás en un reto, pregunta, menú o editor, espera a que vuelvas al
+juego. Primero guarda la partida; si no puede guardarla, pospone la recarga.
+No elimina datos del navegador, ajustes, récords ni cachés de otros juegos.
+La primera instalación de v8 requiere que el navegador reciba esta versión;
+una copia antigua de v7 que ya estaba abierta no tiene este comprobador.
+
+Para futuras ediciones del código, ejecuta `python3 preparar_version.py` antes
+de subir el paquete completo. Esto calcula las versiones sin dependencias.
+**Buscar actualización** en el editor permite comprobarla de inmediato.
+Una carga parcial no se aplica si `index.html` y `version.json` no coinciden.
+
+## Dónde jugar y cómo guardar una copia
+
+Los tres retos de fútbol están con sus personajes en la cancha. Dalila y Criss
+están en la explanada. Acércate y pulsa **Enter / A**. También puedes abrir los
+retos desde **Mapa → Juega con tus compañeros**; la limpieza requiere hablar
+primero con Criss.
+
+En **Mapa → Tu partida → Guardar copia completa** se descarga un JSON con todos
+los avances, ajustes y récords. **Restaurar copia** sirve para llevarlo a otro
+navegador o equipo. El editor conserva su exportación anterior de solo ajustes.
+Los guardados son de cada navegador; no se sincronizan entre teléfonos.
+Recargar manualmente durante un minijuego permite retomarlo desde su entrada;
+los retos completados y puntos ya concedidos sí se conservan. La actualización
+automática espera a que salgas del minijuego.
+
+Para jugar con una copia descargada, descomprime todo y abre `index.html`.
+Las actualizaciones automáticas funcionan en el juego publicado por HTTP/HTTPS.
+
+## Controles de los retos nuevos
+
+| Acción | Teclado | Xbox | Teléfono |
+| --- | --- | --- | --- |
+| Mover / apuntar | Flechas o WASD | Joystick / cruceta | Flechas del reto |
+| Tirar, estirarte, saltar, recoger | Enter, Espacio o E | A | Botón A del reto |
+| Pausa / seguir | P / Enter en el botón | START | Pausa / Seguir |
+| Volver al patio | Escape | B | Patio |
+
+El selector acepta flechas o cruceta y Enter / A. En el patio se conservan
+Enter corto para acción, Enter sostenido para menú, Shift / B para correr,
+M / X / START para mapa y Y para sonido. Los menús también aceptan la cruceta.
+
+## Verificación de v9
+
+Las pruebas de lógica e integración están en `tests/`. Ejecuta:
+`node --test tests/*.cjs`.
+La integración usa un DOM simulado y mando sintético. No sustituye una prueba
+visual en navegador ni una prueba física en Android o Xbox.
 
 ## Ensayo musical en el teatro
 
 Acércate a las escaleras del teatro a la izquierda de la explanada y pulsa
 **Enter o A**. El maestro Ángel toca la guitarra, seis alumnos cantan y los
-otros 21 alumnos, profesores y director observan desde la explanada.
+demás alumnos, profesores y director observan desde la explanada.
+Si eliges a un miembro del personal, también puede formar parte del coro.
 
 Toca **izquierda, abajo, arriba o derecha** cuando la flecha llegue a la marca.
 La canción enviada suena completa: **2:36**. Hay un ensayo tranquilo, un reto

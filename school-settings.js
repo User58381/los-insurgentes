@@ -133,16 +133,7 @@
   }
   async function freshGameUrl(environment){
     const base=new URL('.',environment.href),url=new URL(environment.href);
-    // Remove only cached requests and workers belonging to this game path.
-    if(environment.caches){try{
-      for(const name of await environment.caches.keys()){
-        const cache=await environment.caches.open(name);
-        for(const request of await cache.keys())if(request.url.startsWith(base.href))await cache.delete(request);
-      }
-    }catch(_){/* A new URL still bypasses the browser's old asset entries. */}}
-    if(environment.serviceWorker){try{
-      for(const registration of await environment.serviceWorker.getRegistrations())if(registration.scope.startsWith(base.href))await registration.unregister();
-    }catch(_){}}
+    // A distinct asset URL bypasses stale HTTP entries without deleting saves or unrelated caches.
     url.searchParams.set('_refresh',String(environment.now===undefined?Date.now():environment.now));
     return url.href;
   }

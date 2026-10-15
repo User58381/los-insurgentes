@@ -1,30 +1,60 @@
-LOS INSURGENTES: ENSAYO MUSICAL EN EL TEATRO
-Versión 20261012-ensayo-teatro-1
+LOS INSURGENTES — V10: CANCIONES, MÚSICA CONTINUA Y BOTES DE LIMPIEZA
+
+CAMBIOS DE ESTA VERSIÓN
+La primera canción recibida suena en fútbol con Daniel, Alexis y Joaquín;
+la segunda, en la cuerda de Dalila. Se conservan los MP3 originales completos.
+Se corrige el silencio al salir de los minijuegos, incluido el teatro.
+Si se interrumpe la reproducción, vuelve a intentarse automáticamente.
+El silencio elegido por ti y las pausas siguen funcionando.
+La limpieza tiene botes abiertos y residuos en pixel art: recoges el residuo,
+lo llevas y ves cómo entra al bote correcto. Cada acierto usa el sonido START
+original de Los Insurgentes. Se conserva la música y el contador de Criss.
 
 ACTUALIZAR TU JUEGO EN GITHUB
 1. Descomprime el ZIP.
-2. En User58381/los-insurgentes, abre Add file > Upload files.
-3. Sube estos catorce archivos a la raíz, donde ya está index.html:
-   index.html, style.css, engine.js, audio.js, game.js,
-   bootstrap.js, school-settings.js, school-editor.js, keyboard.js, pacman-engine.js
-   y pacman-ui.js, theater-song.js, theater-engine.js y theater-ui.js.
-4. Añade los recursos nuevos respetando estas rutas:
-   assets/angel-guitarra.png
-   assets/teatro-ensayo.png
-   assets/audio/ensayo-teatro.mp3
-   El ZIP de actualización también incluye assets/maquinita-pacman.png.
-   Conserva las demás imágenes y canciones.
-5. Guarda en main y espera a que termine la publicación de GitHub Pages.
-6. Abre https://user58381.github.io/los-insurgentes/ y recarga con Ctrl + F5.
-   También puedes usar Editar escuela > Borrar caché y actualizar.
-El paquete completo incluye las imágenes y canciones en assets. Conserva sus rutas.
-El ZIP de actualización incluye los catorce archivos, la imagen de la máquina y
-una edición independiente del minijuego: Pacman_Educativo_Web.html.
+2. Abre la carpeta Los_Insurgentes_GitHub.
+3. Sube TODO su contenido donde ya está index.html en User58381/los-insurgentes.
+   Incluye version.json, los módulos nuevos y la carpeta assets con sus rutas.
+4. Guarda en main y espera a que termine la publicación de GitHub Pages.
+5. Abre la dirección habitual. Desde v8, las próximas versiones se comprueban
+   automáticamente; la recarga espera a que cierres los retos y el editor.
+   Los datos guardados no se borran. Lee README.md para los detalles.
+
+PERSONAJES
+Al comenzar, elige entre 45 personajes. Puedes buscarlos por nombre, filtrar
+alumnos/personal y girar la vista. Incluye a los maestros y al director.
+Desde el mapa puedes cambiar de personaje sin perder estrellas ni puntos.
+
+RETOS NUEVOS
+Daniel y Alexis: ellos tiran y tú atajas. Gana quien llegue primero a 3:
+3 atajadas tuyas o 3 goles del compañero.
+Joaquín: él es portero y tú tiras. Tú necesitas 3 goles, él 3 atajadas.
+Dalila: salta la cuerda 10 veces. Pulsa A/Enter en la señal dorada. Hay 3 intentos.
+Criss: habla con ella en la explanada y acepta su invitación para desbloquear
+la misión. Recoge 9 residuos y sepáralos en Papel, Envases u Otros antes de
+90 segundos. El contador usa el WAV recibido; acelera los avisos en los últimos
+10 segundos. Suena tu MP3 durante el reto y vuelve la música del patio al salir.
+La pausa detiene el contador y la música. Al llegar a cero puedes reintentarlo.
+El desbloqueo queda guardado. Fútbol y cuerda tienen las canciones recibidas.
+Puedes encontrarlos en la escuela o abrir los retos desde el mapa. La limpieza
+se habilita en el mapa después de aceptar la invitación de Criss.
+Cada reto da 80 puntos la primera vez que lo consigues.
+Flechas/joystick: mover; Enter/A: acción; P/START: pausa; Escape/B: patio.
+En teléfono cada reto tiene sus propios botones.
+
+GUARDADOS
+La partida se guarda automáticamente en este navegador. Mantiene tus ajustes
+de escuela y récords anteriores. Mapa > Guardar copia completa exporta avances,
+personaje, ajustes y récords; Restaurar copia los recupera en otro equipo.
+Los guardados no se comparten automáticamente entre teléfonos.
+Una recarga manual durante un reto lo reinicia; una actualización automática
+espera a que salgas de él. Las preguntas pendientes sí se conservan.
+Para próximas ediciones del código: python3 preparar_version.py y subir todo.
 
 ENSAYO EN EL TEATRO
 En la explanada, ve a las escaleras del teatro y pulsa Enter o A.
 Acepta ensayar con el maestro Ángel, que toca la guitarra. Tu alumno forma
-parte de un coro de seis niños; los otros 21 niños y el personal observan.
+parte del coro con sus compañeros; el resto de la escuela observa.
 El director José Guadalupe está en el público. Todos conservan sus sprites.
 
 Pulsa la flecha cuando la flecha móvil coincida con la marca de arriba.
@@ -109,7 +139,7 @@ Los guardados anteriores son compatibles. En la primera carga se corrigen las
 asignaciones antiguas de fábrica y se conservan las etiquetas y grupos personales.
 Aplicar lista de maestros restablece las asignaciones de esta foto y conserva
 las etiquetas que hayas editado. Una copia importada respeta los grupos del archivo.
-Borrar caché y actualizar solicita los archivos nuevos y conserva tus ajustes.
+Buscar actualización comprueba los archivos nuevos y conserva tus ajustes. La actualización se aplica al salir del editor.
 
 JUEGO Y CONTROLES
 Se conservan los alumnos, música, uniformes, retos, trompos y animación de pies.

@@ -112,12 +112,10 @@
     }catch(error){status(error.message,true);}finally{event.target.value='';}
   });
   $('school-clear-cache').addEventListener('click',async()=>{
-    const button=$('school-clear-cache');button.disabled=true;button.textContent='Actualizando…';status('Cargando la versión más reciente del juego…');
-    try{
-      let caches=null,serviceWorker=null;try{caches=window.caches;serviceWorker=navigator.serviceWorker;}catch(_){}
-      const fresh=await S.freshGameUrl({href:location.href,caches,serviceWorker});
-      location.replace(fresh);
-    }catch(_){button.disabled=false;button.textContent='↻ Borrar caché y actualizar';status('No se pudo recargar. Vuelve a intentarlo.',true);}
+    const button=$('school-clear-cache');button.disabled=true;button.textContent='Comprobando…';
+    await window.SchoolUpdater.check(true);
+    button.disabled=false;button.textContent='↻ Buscar actualización';
+    status(window.SchoolUpdater.isPending()?'Actualización lista. Cierra el editor y vuelve al patio para aplicarla sin perder tus guardados.':window.SchoolUpdater.status());
   });
   store.subscribe(()=>{if(dialog.open){showStoredStatus();redrawMap();updateRoomHints();}});
   window.addEventListener('storage',event=>{if(event.key===S.STORAGE_KEY){store.receive(event.newValue);if(dialog.open)renderRows();}});
