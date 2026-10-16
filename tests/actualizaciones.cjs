@@ -11,7 +11,7 @@ async function boot({documentVersion='v8-a',manifestVersion='v8-a',htmlVersion=m
  context.window=context;vm.runInNewContext(source,context,{filename:'bootstrap.js'});await new Promise(setImmediate);return {context,state,nodes,loads,replacements,requests,intervals,store};
 }
 test('arranque usa hashes por archivo y conserva claves de v7 y de otros juegos',async()=>{
- const r=await boot();assert.equal(r.loads.length,17);assert(r.loads.some(s=>s.includes('engine.js?v=engine-hash')));assert.equal(r.store.get('insurgentes-school-settings-v1'),'escuela-original');assert.equal(r.store.get('otro-juego'),'otro');assert(r.requests.every(r=>r.options.cache==='no-store'));assert.equal(r.replacements.length,0);
+ const r=await boot();assert.equal(r.loads.length,19);assert(r.loads.some(s=>s.includes('engine.js?v=engine-hash')));assert.equal(r.store.get('insurgentes-school-settings-v1'),'escuela-original');assert.equal(r.store.get('otro-juego'),'otro');assert(r.requests.every(r=>r.options.cache==='no-store'));assert.equal(r.replacements.length,0);
 });
 test('una página HTML anterior se actualiza antes de mezclar scripts de versiones distintas',async()=>{
  const r=await boot({manifestVersion:'v8-b'});assert.equal(r.loads.length,0);assert.equal(r.replacements.length,1);const url=new URL(r.replacements[0]);assert.equal(url.pathname,'/los-insurgentes/');assert.equal(url.searchParams.get('_build'),'v8-b');assert.equal(url.searchParams.get('opcion'),'si');assert.equal(r.store.get('insurgentes-adventure-v1'),'partida-original');
@@ -25,5 +25,5 @@ test('actualización espera al terminar el minijuego y guarda antes de recargar'
 });
 test('si no puede guardar, no recarga; sin conexión permite usar los archivos ya disponibles',async()=>{
  const r=await boot();r.state.manifestVersion='v8-b';r.state.htmlVersion='v8-b';r.context.SchoolUpdater.configure({canReload:()=>true,save:()=>false});await r.context.SchoolUpdater.check();assert.equal(r.replacements.length,0);assert.match(r.nodes.get('update-status').textContent,/copia/);
- const offline=await boot({offline:true});assert.equal(offline.loads.length,17);assert.equal(offline.replacements.length,0);
+ const offline=await boot({offline:true});assert.equal(offline.loads.length,19);assert.equal(offline.replacements.length,0);
 });

@@ -62,9 +62,10 @@ async function runtime(seed=[],options={}){
  Object.assign(window,{document,console,Image,Audio,innerWidth:1100,innerHeight:800,devicePixelRatio:1,matchMedia:()=>({matches:false}),performance:{now:()=>1000},navigator:{getGamepads:()=>pads},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v))},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},requestAnimationFrame:()=>1,cancelAnimationFrame(){},getComputedStyle:n=>({display:n.hidden?'none':'block',visibility:'visible',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr'}),CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},Event:class{constructor(type,options){this.type=type;Object.assign(this,options);}},AbortController,URL,Blob,SchoolAudio:{Player:Music,AUDIO_PATHS:{}},SchoolAssets:{url:p=>p},SchoolUpdater:{configure(value){this.hooks=value;},check:async()=>false,status:()=>'',isPending:()=>false}});
  window.window=window;document.modelContext={registerTool(item){tools.set(item.name,item);}};
  const ctx=vm.createContext(window);
- for(const file of ['engine.js','characters.js','adventure-save.js','school-settings.js','keyboard.js','character-ui.js','playground-engine.js','playground-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js']){
+ for(const file of ['engine.js','characters.js','adventure-save.js','school-settings.js','keyboard.js','character-ui.js','playground-engine.js','playground-ui.js','missions-engine.js','missions-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js']){
   if(file==='game.js'&&options.realAudio)vm.runInContext(fs.readFileSync(path.join(ROOT,'audio.js'),'utf8'),ctx,{filename:'audio.js'});
-  let source=fs.readFileSync(path.join(ROOT,file),'utf8');if(file==='game.js')source=source.replace(/\}\)\(\);\s*$/,"window.__test={getState:()=>state,getMusic:()=>music,startGame,finishWelcome,openMap,closeMap,openPlayground,openCharacters,interact,controllerInput,frame,saveProgress,openPacman,openTheater,closeTrompo};})();");
+  let source=fs.readFileSync(path.join(ROOT,file),'utf8');if(file==='game.js')source=source.replace(/\}\)\(\);\s*$/,"window.__test={getState:()=>state,getMusic:()=>music,startGame,finishWelcome,openMap,closeMap,openPlayground,openCharacters,interact,controllerInput,frame,saveProgress,openPacman,openTheater,closeTrompo,openMission};})();");
+  if(file==='missions-ui.js')source=source.replace(/\}\)\(\);\s*$/,'window.__missionTest={getState:()=>state};})();');
   if(file==='playground-ui.js')source=source.replace(/\}\)\(\);\s*$/,'window.__playgroundTest={getState:()=>state};})();');
   vm.runInContext(source,ctx,{filename:file});
  }
@@ -227,4 +228,66 @@ test('Criss enseña orgánica e inorgánica, mantiene nueve aciertos y conserva 
  assert.match(d.getElementById('criss-message').textContent,/cáscaras.*orgánicas/);assert.match(d.getElementById('criss-message').textContent,/botellas.*inorgánicas/);d.getElementById('criss-accept').click();
  const s=w.__playgroundTest.getState();for(const item of s.litter){Object.assign(s.player,{x:item.x,y:item.y});tap(r,'Enter');assert(s.message.includes(w.SchoolPlayground.WASTE[item.type].lesson));const bin=w.SchoolPlayground.BINS.find(b=>b.type===item.type);Object.assign(s.player,{x:bin.x,y:bin.y+33});tap(r,'Enter');for(let i=0;i<14;i++)w.PlaygroundGames.tick(.05);}
  assert.equal(s.collected,9);assert(s.won);assert.equal(T.getState().points,80);tap(r,' ');const next=await runtime([...r.storage]);next.window.__test.startGame();assert.equal(next.window.__test.getState().challenges.criss.won,true);assert.equal(next.window.__test.getState().points,80);assert(next.window.__test.getState().unlocks.cleanup);
+});
+function visitTeacher(r,id){const w=r.window,s=w.__test.getState(),spec=w.SchoolGame.TEACHER_MISSIONS[id];s.scene=spec.scene||'outside';s.phase='play';const teacher=w.SchoolGame.TEACHERS.find(t=>t.id===id).positions[s.scene];Object.assign(s.player,{x:teacher.x,y:teacher.y});tap(r,'Enter');}
+function fillDrawing(r){const w=r.window,s=w.__missionTest.getState();for(const region of s.regions){w.SchoolMissions.color(s,region.key-1);w.SchoolMissions.setCursor(s,...region.label);tap(r,'Enter');}}
+function solveMissionQuiz(r){const w=r.window;while(w.__missionTest.getState().phase==='playing'){const s=w.__missionTest.getState(),answer=s.cards[s.index].answer;r.document.getElementById('missions-answers').children[answer].click();tap(r,'Enter');}}
+test('misiones: los siete maestros ofrecen su comisión y se conserva el regreso a la escuela',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);
+ for(const [hostId,spec] of Object.entries(w.SchoolGame.TEACHER_MISSIONS)){
+  visitTeacher(r,hostId);assert.equal(w.SchoolUpdater.hooks.canReload(),false,hostId);
+  if(w.SchoolPlayground.TASKS[spec.id]){assert(w.PlaygroundGames.isOpen());assert.equal(w.PlaygroundGames.snapshot().id,spec.id);assert.match(d.getElementById('playground-message').textContent,/recreo/);w.PlaygroundGames.close();}
+  else{assert(w.MissionActivities.isOpen(),hostId);assert.equal(w.MissionActivities.snapshot().id,spec.id);assert.equal(w.MissionActivities.snapshot().hostId,hostId);w.MissionActivities.close();}
+  assert.equal(T.getState().phase,'play');
+ }
+ T.openMap();assert.equal(d.getElementById('challenge-list').children.length,5);assert.equal(d.getElementById('teacher-mission-list').children.length,6);
+});
+test('dibujo: solo se abre en el salón, mueve la cubeta y pausa el contador con E',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);assert.equal(T.openMission('dibujo'),false);assert.equal(w.MissionActivities.isOpen(),false);
+ visitTeacher(r,'angel');tap(r,'Enter');assert.equal(w.MissionActivities.snapshot().phase,'playing');assert.equal(d.getElementById('missions-time').textContent,'1:30');
+ const x=w.MissionActivities.snapshot().cursor.x;keydown(r,'ArrowRight');T.frame(1000);T.frame(1050);keyup(r,'ArrowRight');assert(w.MissionActivities.snapshot().cursor.x>x);
+ for(let i=1;i<=22;i++)T.frame(1050+i*50);assert.equal(d.getElementById('missions-time').textContent,'1:29');assert.equal(w.__music.scene,'cleanup');assert(w.__music.effects.includes('cleanup-tick'));
+ tap(r,'E');const remaining=w.MissionActivities.snapshot().remaining;T.frame(3000);assert.equal(w.MissionActivities.snapshot().remaining,remaining);assert.equal(w.__music.paused,true);tap(r,'e');T.frame(3050);assert(w.MissionActivities.snapshot().remaining<remaining);
+ tap(r,' ');assert.equal(w.MissionActivities.isOpen(),false);assert.equal(T.getState().scene,'classroom');assert.equal(w.__music.scene,'classroom');
+});
+test('dibujo: Xbox mueve la cubeta, LB/RB eligen color, A rellena y B vuelve',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);visitTeacher(r,'angel');tap(r,'Enter');const buttons=Array(17).fill(0);let axes=[0,0];
+ const pad=()=>{r.setPads([{index:0,id:'Xbox One',mapping:'standard',connected:true,axes,buttons:buttons.map(v=>({pressed:!!v,value:v}))}]);T.controllerInput(10000);};
+ const initial=w.MissionActivities.snapshot().cursor.x;axes=[1,0];pad();T.frame(1000);T.frame(1050);assert(w.MissionActivities.snapshot().cursor.x>initial);axes=[0,0];pad();
+ buttons[5]=1;pad();assert.equal(w.MissionActivities.snapshot().selectedColor,2);buttons[5]=0;pad();buttons[4]=1;pad();assert.equal(w.MissionActivities.snapshot().selectedColor,1);buttons[4]=0;pad();
+ const s=w.__missionTest.getState();w.SchoolMissions.setCursor(s,360,121);buttons[0]=1;pad();assert.equal(w.MissionActivities.snapshot().score,1);buttons[0]=0;pad();buttons[9]=1;pad();assert.equal(w.MissionActivities.snapshot().phase,'paused');buttons[9]=0;pad();buttons[1]=1;pad();assert.equal(w.MissionActivities.isOpen(),false);assert.equal(T.getState().phase,'play');
+});
+test('dibujo: tocar la paleta y una figura usa la cubeta; perder foco pausa el tiempo',async()=>{
+ const r=await runtime(),w=r.window,d=r.document;beginAdventure(r);visitTeacher(r,'angel');tap(r,'Enter');d.getElementById('missions-palette').children[1].click();assert.equal(w.MissionActivities.snapshot().selectedColor,2);
+ d.getElementById('missions-canvas').dispatchEvent({type:'pointerdown',clientX:360,clientY:185});assert.equal(w.MissionActivities.snapshot().score,1);
+ const before=w.MissionActivities.snapshot().remaining;w.dispatchEvent({type:'blur'});assert.equal(w.MissionActivities.snapshot().phase,'paused');w.MissionActivities.tick(.05);assert.equal(w.MissionActivities.snapshot().remaining,before);tap(r,'e');assert.equal(w.MissionActivities.snapshot().phase,'playing');
+});
+test('dibujo: completar guarda el logro, da 80 puntos una vez y conserva las estrellas',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);T.getState().completed.fountain=true;visitTeacher(r,'angel');tap(r,'Enter');fillDrawing(r);
+ assert.equal(w.MissionActivities.snapshot().won,true);assert.equal(T.getState().points,80);assert(T.getState().completed.fountain);assert.equal(w.SchoolUpdater.hooks.canReload(),false);tap(r,' ');assert.equal(w.SchoolUpdater.hooks.canReload(),true);
+ const next=await runtime([...r.storage]);next.window.__test.startGame();assert(next.window.__test.getState().challenges.dibujo.won);assert.equal(next.window.__test.getState().points,80);
+ visitTeacher(next,'angel');tap(next,'Enter');fillDrawing(next);assert.equal(next.window.__test.getState().points,80);assert.equal(next.window.__test.getState().challenges.dibujo.wins,2);
+});
+test('misiones de preguntas: inglés, uniforme y puntualidad permiten corregir y guardan sus logros',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);
+ for(const id of ['ingles','uniforme','puntualidad']){
+  T.openMission(id,id==='puntualidad'?'norma':undefined);tap(r,'Enter');assert.equal(w.MissionActivities.snapshot().phase,'playing');const state=w.__missionTest.getState(),card=state.cards[0];
+  d.getElementById('missions-answers').children[(card.answer+1)%card.options.length].click();assert.equal(state.score,0);assert.equal(state.index,0);assert.match(d.getElementById('missions-message').textContent,/Inténtalo/);
+  solveMissionQuiz(r);assert(w.MissionActivities.snapshot().won);tap(r,' ');assert(T.getState().challenges[id].won,id);
+ }
+ assert.equal(T.getState().points,240);const next=await runtime([...r.storage]);next.window.__test.startGame();for(const id of ['ingles','uniforme','puntualidad'])assert(next.window.__test.getState().challenges[id].won,id);
+});
+test('limpieza de salón: Cesia y Diana enseñan el hábito después del recreo y conservan los premios',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);
+ for(const id of ['cesia','diana']){
+  visitTeacher(r,id);tap(r,'Enter');const game=w.__playgroundTest.getState();assert.equal(game.remaining,90);assert.equal(T.getState().unlocks.cleanup,false);
+  for(const item of game.litter){Object.assign(game.player,{x:item.x,y:item.y});tap(r,'Enter');const bin=w.SchoolPlayground.BINS.find(b=>b.type===item.type);Object.assign(game.player,{x:bin.x,y:bin.y+33});tap(r,'Enter');for(let i=0;i<14;i++)w.PlaygroundGames.tick(.05);}
+  assert(game.won);assert.match(game.message,/Salón limpio después de comer/);tap(r,' ');assert(T.getState().challenges[id].won);
+ }
+ assert.equal(T.getState().points,160);const next=await runtime([...r.storage]);next.window.__test.startGame();assert(next.window.__test.getState().challenges.cesia.won);assert(next.window.__test.getState().challenges.diana.won);assert.equal(next.window.__test.getState().points,160);
+});
+test('dibujo con audio real: usa la canción de Criss, pausa y recupera la música del salón',async()=>{
+ const r=await runtime([],{realAudio:true}),w=r.window,T=w.__test;beginAdventure(r);visitTeacher(r,'angel');tap(r,'Enter');T.frame(1000);await new Promise(setImmediate);const music=T.getMusic();
+ assert.equal(music.scene,'cleanup');assert.equal(music.music.src,'assets/audio/limpieza-criss.mp3');assert.equal(music.music.paused,false);tap(r,'e');T.frame(1050);assert(music.music.paused);tap(r,'e');T.frame(1100);await new Promise(setImmediate);assert.equal(music.music.paused,false);
+ tap(r,' ');await new Promise(setImmediate);assert.equal(music.scene,'classroom');assert.equal(music.music.paused,false);assert.equal(music.enabled,true);assert.notEqual(r.storage.get('insurgentes-sound'),'no');
 });
