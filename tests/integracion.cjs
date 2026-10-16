@@ -155,3 +155,59 @@ test('integración: los nueve depósitos usan START; recoger o equivocarse no lo
  }
  assert.equal(effects.filter(e=>e==='start').length,initial+9);assert.equal(game.won,true);assert.equal(T.getState().points,80);assert.equal(T.getState().challenges.criss.won,true);
 });
+function keydown(r,key,extra={}){const event={type:'keydown',key,repeat:false,...extra};r.window.dispatchEvent(event);return event;}
+function keyup(r,key){r.window.dispatchEvent({type:'keyup',key});}
+function tap(r,key){const event=keydown(r,key);keyup(r,key);return event;}
+function beginAdventure(r){r.window.__test.startGame();r.document.getElementById('character-confirm').click();r.window.__test.finishWelcome();}
+test('teclado: Enter es A inmediato; mantenerlo no confirma otro diálogo; espacio es B',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;
+ tap(r,'Enter');assert(w.CharacterSelect.isOpen());tap(r,' ');assert.equal(w.CharacterSelect.isOpen(),false);assert.equal(T.getState().phase,'title');
+ beginAdventure(r);const criss=w.SchoolGame.TEACHERS.find(t=>t.id==='criss').positions.outside;Object.assign(T.getState().player,{x:criss.x,y:criss.y});
+ keydown(r,'Enter');assert(d.getElementById('criss-dialog').open);keydown(r,'Enter',{repeat:true});assert.equal(T.getState().unlocks.cleanup,false);keyup(r,'Enter');assert(d.getElementById('criss-dialog').open);
+ tap(r,' ');assert.equal(d.getElementById('criss-dialog').open,false);assert.equal(T.getState().unlocks.cleanup,false);assert.equal(T.getState().phase,'play');
+});
+test('teclado: flechas mueven, espacio acelera y E pausa sin movimiento residual',async()=>{
+ const r=await runtime(),T=r.window.__test,d=r.document;beginAdventure(r);const s=T.getState();T.frame(1000);
+ keydown(r,'ArrowLeft');T.frame(1050);keyup(r,'ArrowLeft');const walked=1034-s.player.x;assert(walked>0);
+ s.player.x=1034;keydown(r,' ');keydown(r,'ArrowLeft');T.frame(1100);keyup(r,' ');keyup(r,'ArrowLeft');assert(1034-s.player.x>walked*1.3);assert.equal(s.phase,'play');
+ keydown(r,'ArrowLeft');tap(r,'E');assert(d.getElementById('map-dialog').open);const stopped=JSON.stringify({player:s.player,ball:s.ball,classmates:s.classmates});
+ T.frame(1150);T.frame(1200);assert.equal(JSON.stringify({player:s.player,ball:s.ball,classmates:s.classmates}),stopped);
+ keydown(r,'e',{repeat:true});assert(d.getElementById('map-dialog').open);tap(r,'e');assert.equal(d.getElementById('map-dialog').open,false);const x=s.player.x;T.frame(1250);assert.equal(s.player.x,x);
+ tap(r,'e');tap(r,' ');assert.equal(d.getElementById('map-dialog').open,false);
+});
+test('teclado: espacio y E permiten escribir en la búsqueda y en el editor',async()=>{
+ const r=await runtime(),w=r.window,d=r.document;w.__test.startGame();d.getElementById('character-search').focus();
+ assert.equal(tap(r,' ').defaultPrevented,undefined);assert(w.CharacterSelect.isOpen());assert.equal(tap(r,'e').defaultPrevented,undefined);assert(w.CharacterSelect.isOpen());
+ d.getElementById('character-confirm').focus();tap(r,' ');assert.equal(w.CharacterSelect.isOpen(),false);
+ w.SchoolEditor.open();const field=d.getElementById('school-label-rows').querySelector('input');field.focus();
+ assert.equal(tap(r,' ').defaultPrevented,undefined);assert.equal(tap(r,'E').defaultPrevented,undefined);assert(d.getElementById('school-editor').open);
+ d.getElementById('school-editor-close').focus();tap(r,' ');assert.equal(d.getElementById('school-editor').open,false);
+});
+test('teclado: los cinco retos usan Enter/A, E/START y espacio/B sin disparar acciones cruzadas',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);
+ for(const id of Object.keys(w.SchoolPlayground.TASKS)){
+  if(id==='criss')talkToCriss(r);else{T.openPlayground(id);tap(r,'Enter');}
+  assert.equal(w.PlaygroundGames.snapshot().phase,'playing',id);tap(r,'E');assert.equal(w.PlaygroundGames.snapshot().phase,'paused',id);
+  const paused=JSON.stringify(w.PlaygroundGames.snapshot());w.PlaygroundGames.tick(.05);assert.equal(JSON.stringify(w.PlaygroundGames.snapshot()),paused,id);
+  keydown(r,'e',{repeat:true});assert.equal(w.PlaygroundGames.snapshot().phase,'paused',id);tap(r,'e');assert.equal(w.PlaygroundGames.snapshot().phase,'playing',id);
+  tap(r,' ');assert.equal(w.PlaygroundGames.isOpen(),false,id);assert.equal(T.getState().phase,'play');assert.equal(w.__music.scene,'outside');
+ }
+});
+test('teclado: E pausa Pac-Man y teatro; espacio sale y recupera la música',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);
+ T.openPacman();tap(r,'Enter');assert.notEqual(w.PacmanArcade.snapshot().phase,'intro');tap(r,'E');assert.equal(w.PacmanArcade.snapshot().phase,'paused');tap(r,'e');assert.notEqual(w.PacmanArcade.snapshot().phase,'paused');tap(r,' ');assert.equal(w.PacmanArcade.isOpen(),false);
+ T.openTheater();tap(r,'Enter');assert.equal(w.TheaterRehearsal.snapshot().phase,'playing');tap(r,'E');assert.equal(w.TheaterRehearsal.snapshot().phase,'paused');tap(r,'e');assert.equal(w.TheaterRehearsal.snapshot().phase,'playing');tap(r,' ');assert.equal(w.TheaterRehearsal.isOpen(),false);assert.equal(w.__music.scene,'outside');assert.equal(w.__music.musicOnlyPaused,false);
+});
+test('teclado y Xbox: E y START detienen el trompo; Enter continúa y espacio vuelve',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);const s=T.getState(),oliver=s.classmates.find(t=>t.id==='oliver');Object.assign(s.player,{x:oliver.x,y:oliver.y});tap(r,'Enter');assert(d.getElementById('trompo-dialog').open);
+ tap(r,'e');const before=JSON.stringify(s.trompo);T.frame(1000);T.frame(1050);assert.equal(JSON.stringify(s.trompo),before);assert.match(d.getElementById('trompo-message').textContent,/Pausa/);
+ tap(r,'Enter');T.frame(1100);assert.notEqual(JSON.stringify(s.trompo),before);
+ d.getElementById('trompo-action').focus();tap(r,'Enter');assert.equal(s.trompo.stage,'spin');tap(r,'E');const spin=JSON.stringify(s.trompo);T.frame(1150);assert.equal(JSON.stringify(s.trompo),spin);tap(r,'Enter');assert.equal(s.trompo.stage,'spin');T.frame(1200);assert.notEqual(JSON.stringify(s.trompo),spin);
+ const buttons=Array(17).fill(0),pad=()=>{r.setPads([{index:0,id:'Xbox One',mapping:'standard',connected:true,axes:[0,0],buttons:buttons.map(v=>({pressed:!!v,value:v}))}]);T.controllerInput(10000);};buttons[9]=1;pad();assert.match(d.getElementById('trompo-message').textContent,/Pausa/);buttons[9]=0;pad();buttons[9]=1;pad();assert.doesNotMatch(d.getElementById('trompo-message').textContent,/Pausa/);
+ tap(r,' ');assert.equal(d.getElementById('trompo-dialog').open,false);assert.equal(s.phase,'play');assert.equal(w.__music.paused,false);
+});
+test('editor: usar los salones nuevos conserva las asignaciones y las estrellas',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);T.getState().points=160;T.getState().completed.fountain=true;
+ w.InsurgentesSchool.setLabel('edificio-01','Biblioteca');w.InsurgentesSchool.setTeacher('raul','Inglés');w.SchoolEditor.open();d.getElementById('school-apply-layout').click();
+ assert.equal(w.SchoolGame.MAP_LABELS[0].text,'4.º A');assert.equal(w.SchoolGame.TEACHERS.find(t=>t.id==='raul').group,'Inglés');assert.equal(T.getState().points,160);assert(T.getState().completed.fountain);
+});
