@@ -211,3 +211,20 @@ test('editor: usar los salones nuevos conserva las asignaciones y las estrellas'
  w.InsurgentesSchool.setLabel('edificio-01','Biblioteca');w.InsurgentesSchool.setTeacher('raul','Inglés');w.SchoolEditor.open();d.getElementById('school-apply-layout').click();
  assert.equal(w.SchoolGame.MAP_LABELS[0].text,'4.º A');assert.equal(w.SchoolGame.TEACHERS.find(t=>t.id==='raul').group,'Inglés');assert.equal(T.getState().points,160);assert(T.getState().completed.fountain);
 });
+test('selector: el velador no aparece en Todos, Personal ni en la búsqueda',async()=>{
+ const r=await runtime(),w=r.window,d=r.document;w.__test.startGame();
+ assert.equal(d.getElementById('character-count').textContent,'44 personajes');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
+ d.querySelector('[data-character-filter="staff"]').click();assert.equal(d.getElementById('character-count').textContent,'17 personajes');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
+ const search=d.getElementById('character-search');search.value='María Alejandra';search.dispatchEvent({type:'input'});assert.equal(d.getElementById('character-grid').children.length,0);assert(d.getElementById('character-empty').hidden===false);
+});
+test('selector: una partida anterior del velador abre una selección válida y conserva el avance',async()=>{
+ const initial=await runtime(),w=initial.window;beginAdventure(initial);w.SchoolCharacters.select(w.SchoolGame,w.__test.getState(),'maria_alejandra');w.__test.getState().points=240;w.__test.saveProgress();
+ const r=await runtime([...initial.storage]),T=r.window.__test;T.startGame();assert.equal(T.getState().player.id,'maria_alejandra');T.openCharacters();
+ assert.equal(r.document.querySelector('[data-character="maria_alejandra"]'),null);assert.doesNotMatch(r.document.getElementById('character-confirm').textContent,/María Alejandra/);r.document.getElementById('character-confirm').click();assert.notEqual(T.getState().player.id,'maria_alejandra');assert.equal(T.getState().points,240);
+});
+test('Criss enseña orgánica e inorgánica, mantiene nueve aciertos y conserva el logro al recargar',async()=>{
+ const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);talkToCriss(r,false);
+ assert.match(d.getElementById('criss-message').textContent,/cáscaras.*orgánicas/);assert.match(d.getElementById('criss-message').textContent,/botellas.*inorgánicas/);d.getElementById('criss-accept').click();
+ const s=w.__playgroundTest.getState();for(const item of s.litter){Object.assign(s.player,{x:item.x,y:item.y});tap(r,'Enter');assert(s.message.includes(w.SchoolPlayground.WASTE[item.type].lesson));const bin=w.SchoolPlayground.BINS.find(b=>b.type===item.type);Object.assign(s.player,{x:bin.x,y:bin.y+33});tap(r,'Enter');for(let i=0;i<14;i++)w.PlaygroundGames.tick(.05);}
+ assert.equal(s.collected,9);assert(s.won);assert.equal(T.getState().points,80);tap(r,' ');const next=await runtime([...r.storage]);next.window.__test.startGame();assert.equal(next.window.__test.getState().challenges.criss.won,true);assert.equal(next.window.__test.getState().points,80);assert(next.window.__test.getState().unlocks.cleanup);
+});

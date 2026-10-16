@@ -7,13 +7,36 @@ function roundKeeper(s,win){
  if(s.stage==='result')P.action(s);tick(s,2,{},()=>.5);
  s.keeperX=win?360:170;tick(s,1,{},()=>.5);
 }
-test('45 personajes: se pueden elegir todos sin cambiar posición ni estrellas',()=>{
+test('directorio compatible: los 45 identificadores anteriores conservan posición y estrellas',()=>{
  const s=G.createState();s.points=80;s.completed.fountain=true;
  for(const actor of C.list(G)){
   const previous={x:s.player.x,y:s.player.y};assert(C.select(G,s,actor.id));assert.equal(s.player.id,actor.id);assert.deepEqual({x:s.player.x,y:s.player.y},previous);assert.equal(s.points,80);assert(s.completed.fountain);
   for(const day of [1,2,3,4,5])for(const facing of ['up','down','left','right']){const frame=C.frame(G,s.player,day,facing);assert.equal(frame.rect.length,6);assert(frame.rect.every(Number.isFinite));}
  }
  assert.equal(C.select(G,s,'inventado'),false);
+});
+test('selector: 44 personajes disponibles; el velador conserva compatibilidad con guardados',()=>{
+ const shown=C.selectable(G);assert.equal(shown.length,44);assert.equal(shown.filter(a=>a.kind==='student').length,27);assert.equal(shown.filter(a=>a.kind==='staff').length,17);
+ assert.equal(shown.some(a=>a.id==='maria_alejandra'),false);assert(C.find(G,'maria_alejandra'));
+ const s=G.createState();s.started=true;s.points=240;s.completed.fountain=true;C.select(G,s,'maria_alejandra');
+ const saved=Save.capture(s),restored=G.createState();Save.restore(G,C,restored,saved);
+ assert.equal(restored.player.id,'maria_alejandra');assert.equal(restored.points,240);assert(restored.completed.fountain);assert.equal(restored.started,true);
+});
+test('limpieza educativa: tres botes, nueve residuos, dos categorías y las mismas posiciones',()=>{
+ assert.equal(P.BINS.length,3);assert.deepEqual(P.BINS.map(b=>[b.x,b.y]),[[170,155],[360,155],[550,155]]);
+ assert.deepEqual([...new Set(P.BINS.map(b=>b.category))].sort(),['inorganic','organic']);
+ const s=P.createState('criss');assert.equal(s.remaining,90);assert.equal(s.litter.length,9);assert.deepEqual([s.player.x,s.player.y],[360,363]);
+ assert.deepEqual(s.litter.map(i=>[i.x,i.y]),[[145,233],[335,233],[525,233],[188,290],[378,290],[568,290],[145,347],[335,347],[525,347]]);
+ for(const bin of P.BINS){assert.equal(s.litter.filter(i=>i.type===bin.type).length,3);assert.equal(P.WASTE[bin.type].category,bin.category);}
+ assert.equal(P.WASTE.organic.category,'organic');assert.equal(P.WASTE.bottle.category,'inorganic');assert.equal(P.WASTE.wrapper.category,'inorganic');
+});
+test('limpieza educativa: las pistas explican el material y se puede corregir sin perder el residuo',()=>{
+ for(const type of ['organic','bottle','wrapper']){
+  const s=P.createState('criss');P.action(s);const item=s.litter.find(i=>i.type===type),bin=P.BINS.find(b=>b.type===type),wrong=P.BINS.find(b=>b.type!==type);
+  Object.assign(s.player,{x:item.x,y:item.y});assert(P.action(s));assert(s.message.includes(P.WASTE[type].lesson));
+  Object.assign(s.player,{x:wrong.x,y:wrong.y+33});assert.equal(P.action(s),false);assert.equal(s.carrying.type,type);assert.equal(s.collected,0);assert(s.message.includes(bin.name));
+  Object.assign(s.player,{x:bin.x,y:bin.y+33});assert(P.action(s));assert.equal(s.collected,1);assert.equal(s.carrying,null);assert.equal(s.events.filter(e=>e.type==='success').length,1);
+ }
 });
 test('los cinco personajes tienen posiciones accesibles y acciones correctas',()=>{
  const s=G.createState();G.start(s);G.finishWelcome(s);
