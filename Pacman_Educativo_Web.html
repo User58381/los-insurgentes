@@ -15,14 +15,14 @@
 /* End Pac-Man styles. */
 .keyboard-choice{outline:3px solid #fff09f!important;outline-offset:3px!important}
 </style></head><body>
-<main id="standalone-home" hidden><div><h1>PAC-MAN EDUCATIVO</h1><p>Resuelve sumas persiguiendo al fantasma que lleva la respuesta correcta.</p><button id="standalone-play" type="button">Volver a jugar</button><p>Flechas o WASD · Movimiento<br>A / Enter · Comenzar<br>P / START · Pausa<br>B / Esc · Salir</p></div></main>
+<main id="standalone-home" hidden><div><h1>PAC-MAN EDUCATIVO</h1><p>Resuelve sumas persiguiendo al fantasma que lleva la respuesta correcta.</p><button id="standalone-play" type="button">Volver a jugar</button><p>Flechas o WASD · Movimiento<br>A / Enter · Comenzar<br>E / START · Pausa<br>Espacio / B · Salir</p></div></main>
     <dialog id="pacman-dialog" aria-labelledby="pacman-title">
       <header class="pac-header"><div><p id="pacman-player" class="pac-player"></p><h2 id="pacman-title">PAC-MAN <span>EDUCATIVO</span></h2></div><div class="pac-top-buttons"><button id="pacman-pause" type="button">Ⅱ Pausa</button><button id="pacman-close" type="button" aria-label="Volver al salón">✕ Salón</button></div></header>
       <div class="pac-stats"><div><small>PUNTOS</small><strong id="pacman-score">0</strong></div><div><small>RÉCORD</small><strong id="pacman-record">0</strong></div><div><small>NIVEL</small><strong id="pacman-level">1</strong></div><div><small>VIDAS</small><strong id="pacman-lives" aria-label="Vidas restantes">♥♥♥</strong></div></div>
       <div class="pac-lesson"><p id="pacman-operation">Busca una bolita grande</p><span id="pacman-power">SIN PODER</span><div id="pacman-answers" class="pac-answers" aria-label="Respuestas en los fantasmas" hidden><span id="pacman-answer-0"></span><span id="pacman-answer-1"></span><span id="pacman-answer-2"></span><span id="pacman-answer-3"></span></div></div>
-      <div class="pac-board"><canvas id="pacman-canvas" tabindex="0" width="420" height="460" aria-label="Laberinto de Pac-Man. Flechas para moverte y Enter para pausar. Come una bolita grande y alcanza al fantasma que lleva la respuesta correcta."></canvas><div id="pacman-overlay" class="pac-overlay"><div><p class="pac-kicker">LA MAQUINITA DEL SALÓN</p><h3 id="pacman-overlay-title">PAC-MAN EDUCATIVO</h3><p id="pacman-overlay-copy"></p><label id="pacman-range-row" class="pac-range">Tus sumas<select id="pacman-range"><option value="9">Sumas sencillas · 0 a 9</option><option value="49">Sumas de dos cifras · 0 a 49</option></select></label><button id="pacman-start" class="pac-start" type="button">A / Enter · Jugar</button></div></div></div>
+      <div class="pac-board"><canvas id="pacman-canvas" tabindex="0" width="420" height="460" aria-label="Laberinto de Pac-Man. Flechas para moverte, Enter para jugar, E para pausar y espacio para volver. Come una bolita grande y alcanza al fantasma que lleva la respuesta correcta."></canvas><div id="pacman-overlay" class="pac-overlay"><div><p class="pac-kicker">LA MAQUINITA DEL SALÓN</p><h3 id="pacman-overlay-title">PAC-MAN EDUCATIVO</h3><p id="pacman-overlay-copy"></p><label id="pacman-range-row" class="pac-range">Tus sumas<select id="pacman-range"><option value="9">Sumas sencillas · 0 a 9</option><option value="49">Sumas de dos cifras · 0 a 49</option></select></label><button id="pacman-start" class="pac-start" type="button">A / Enter · Jugar</button></div></div></div>
       <p id="pacman-message" class="pac-message" role="status" aria-live="polite"></p>
-      <footer class="pac-footer"><div class="pac-dpad" aria-label="Movimiento de Pac-Man"><button type="button" data-pac-direction="up" aria-label="Pac-Man hacia arriba">▲</button><button type="button" data-pac-direction="left" aria-label="Pac-Man hacia la izquierda">◀</button><span></span><button type="button" data-pac-direction="right" aria-label="Pac-Man hacia la derecha">▶</button><button type="button" data-pac-direction="down" aria-label="Pac-Man hacia abajo">▼</button></div><p>Flechas · Mover o elegir<br>Enter · Jugar, pausar o confirmar<br>En el menú: ← → cambia las sumas<br>START · Pausa &nbsp; B / Esc · Salón</p></footer>
+      <footer class="pac-footer"><div class="pac-dpad" aria-label="Movimiento de Pac-Man"><button type="button" data-pac-direction="up" aria-label="Pac-Man hacia arriba">▲</button><button type="button" data-pac-direction="left" aria-label="Pac-Man hacia la izquierda">◀</button><span></span><button type="button" data-pac-direction="right" aria-label="Pac-Man hacia la derecha">▶</button><button type="button" data-pac-direction="down" aria-label="Pac-Man hacia abajo">▼</button></div><p>Flechas · Mover o elegir<br>Enter / A · Jugar o confirmar<br>En el menú: ← → cambia las sumas<br>E / START · Pausa &nbsp; Espacio / B · Salón</p></footer>
     </dialog>
 <script>
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.PacmanGame=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
@@ -296,12 +296,16 @@
     node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));
     focus(node);
   }
+  function isEditing(event){
+    const target=event?.target?.matches?.('input,textarea,[contenteditable="true"]')?event.target:document.activeElement;
+    return !!target?.matches('input,textarea,[contenteditable="true"]');
+  }
+  function isBack(event){return event.key.toLowerCase()==='escape'||event.key===' '&&!isEditing(event);}
   function key(event,root,options={}){
     const key=event.key.toLowerCase();
-    if(event.altKey||event.ctrlKey||event.metaKey||!['arrowup','arrowdown','arrowleft','arrowright','enter',' '].includes(key))return false;
+    if(event.altKey||event.ctrlKey||event.metaKey||!['arrowup','arrowdown','arrowleft','arrowright','enter'].includes(key))return false;
     const controls=items(root,options.filter),active=root.contains(document.activeElement)?document.activeElement:null;
     const editable=active?.matches('input,textarea,[contenteditable="true"]');
-    if(key===' '&&editable)return false;
     if(active?.hasAttribute('data-keyboard-scroll')&&key.startsWith('arrow')){
       const vertical=key==='arrowup'||key==='arrowdown',delta=(key==='arrowup'||key==='arrowleft'?-1:1)*80;
       if(vertical)active.scrollTop+=delta;else active.scrollLeft+=delta;
@@ -323,7 +327,7 @@
     return true;
   }
   document.addEventListener('pointerdown',clear);
-  window.SchoolKeyboard={items,focus,move,key,clear};
+  window.SchoolKeyboard={items,focus,move,key,clear,isEditing,isBack};
 })();
 </script>
 <script>
@@ -390,16 +394,16 @@
   function key(event){
     if(!opened)return false;
     const key=event.key.toLowerCase(),directions={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down'};
-    if(key==='escape'){if(!event.repeat)close();return true;}
-    if(key==='p'){if(!event.repeat)togglePause();return true;}
+    if(keyboard.isBack(event)){if(!event.repeat)close();return true;}
+    if(key==='e'||key==='p'){if(!event.repeat)togglePause();return true;}
     if(['intro','paused','gameover'].includes(state.phase)){
       return keyboard.key(event,dialog,{filter:node=>!node.hasAttribute('data-pac-direction'),defaultTarget:$('pacman-start')});
     }
     if(directions[key]){direction(directions[key]);return true;}
-    if(key==='enter'||key===' '){
+    if(key==='enter'){
       if(!event.repeat){
         const active=document.activeElement;
-        if(active===$('pacman-close'))close();else togglePause();
+        if(active===$('pacman-close'))close();else confirm();
       }
       return true;
     }
@@ -451,7 +455,7 @@ function controller(){
  if(arcade.isOpen())arcade.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});else if(edge(0)||edge(9))open();buttons=pressed.slice();
 }
 function frame(time){const dt=Math.min(.05,last?(time-last)/1000:1/60);last=time;if(!document.hidden){controller();arcade.tick(dt);}requestAnimationFrame(frame);}
-window.addEventListener('pointerdown',activate);window.addEventListener('keydown',event=>{activate();if(arcade.isOpen()){if(arcade.key(event))event.preventDefault();}else if(window.SchoolKeyboard.key(event,home))event.preventDefault();});
+window.addEventListener('pointerdown',activate);window.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;activate();if(arcade.isOpen()){if(arcade.key(event))event.preventDefault();}else if(window.SchoolKeyboard.key(event,home))event.preventDefault();});
 window.addEventListener('blur',()=>{buttons=[];arcade.suspend();});document.addEventListener('visibilitychange',()=>{last=0;if(document.hidden)arcade.suspend();});
 document.getElementById('standalone-play').addEventListener('click',open);open();requestAnimationFrame(frame);
 })();

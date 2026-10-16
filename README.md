@@ -1,7 +1,31 @@
-# Los Insurgentes · La aventura del saber — v11
+# Los Insurgentes · La aventura del saber — v12
 
-Paquete completo basado en **Los_Insurgentes_GitHub_v10.zip**, con el mismo mapa,
-arte, canciones, controles, editor, trompo con Oliver, Pac-Man y ensayo musical.
+Versión normal completa basada en **Los_Insurgentes_GitHub_v11.zip**. Conserva
+los 27 alumnos con nombre, los 18 personajes del personal, sus animaciones,
+el arte, las canciones, el editor y todos los minijuegos.
+
+## Salones y teclado actualizados
+
+La distribución recibida en `Escuela_Los_Insurgentes.json` queda incorporada por
+defecto. Los 10 salones de la fila superior, de izquierda a derecha, son:
+**4.º A, 1.º B, 6.º B, 5.º A, 5.º B, 3.º B, 4.º B, 2.º A, 2.º B y 3.º A**.
+Los demás edificios mantienen las etiquetas del mismo JSON. Los 12 docentes
+de grupo se colocan frente a su salón; sus asignaciones y los cargos se conservan.
+
+**Enter es A**, **espacio es B** y **E es pausa**. Las flechas sirven para
+moverte y elegir opciones. Enter actúa al pulsarlo. Mantén espacio para correr
+en el patio; en los menús y minijuegos vuelve o sale, igual que B del mando.
+E abre/cierra la pausa y el mapa del patio, y pausa/reanuda cada minijuego,
+incluido el trompo. Se conservan las crucetas táctiles y los mandos Xbox.
+
+Al actualizar, la distribución anterior de fábrica se cambia automáticamente.
+Si habías personalizado los salones, se respetan: puedes aplicar esta distribución
+en **Editar escuela → Salones y edificios → Usar salones de esta versión**.
+Esto conserva las asignaciones de maestros, estrellas, puntos y récords.
+También puedes importar el JSON incluido. En los campos de texto, espacio y E
+siguen sirviendo para escribir.
+
+Verificación y alcance en `VERIFICACION_V12.txt`.
 
 ## Pasos animados para todo el personal
 
@@ -122,13 +146,13 @@ Las actualizaciones automáticas funcionan en el juego publicado por HTTP/HTTPS.
 | Acción | Teclado | Xbox | Teléfono |
 | --- | --- | --- | --- |
 | Mover / apuntar | Flechas o WASD | Joystick / cruceta | Flechas del reto |
-| Tirar, estirarte, saltar, recoger | Enter, Espacio o E | A | Botón A del reto |
-| Pausa / seguir | P / Enter en el botón | START | Pausa / Seguir |
-| Volver al patio | Escape | B | Patio |
+| Tirar, estirarte, saltar, recoger | Enter | A | Botón A del reto |
+| Pausa / seguir | E (también P) | START | Pausa / Seguir |
+| Volver al patio | Espacio (también Escape) | B | Patio |
 
-El selector acepta flechas o cruceta y Enter / A. En el patio se conservan
-Enter corto para acción, Enter sostenido para menú, Shift / B para correr,
-M / X / START para mapa y Y para sonido. Los menús también aceptan la cruceta.
+El selector acepta flechas o cruceta, Enter / A para confirmar y espacio / B
+para volver. En el patio: espacio / B para correr y E / START para pausa y mapa.
+También se conservan Shift para correr, M / X para mapa y Y del mando para sonido.
 
 ## Verificación de v9
 
@@ -147,7 +171,7 @@ Si eliges a un miembro del personal, también puede formar parte del coro.
 Toca **izquierda, abajo, arriba o derecha** cuando la flecha llegue a la marca.
 La canción enviada suena completa: **2:36**. Hay un ensayo tranquilo, un reto
 con más flechas, precisión, rachas y récords por modo. Fallar permite seguir
-hasta el final. **Enter** abre la pausa; elige continuar o volver con flechas y
+hasta el final. **E** abre la pausa; elige continuar o volver con flechas y
 Enter. En Xbox usa cruceta o joystick, A, START y B; en teléfono, los cuatro
 botones de flechas. El ajuste del ritmo permite compensar el audio Bluetooth.
 
@@ -158,7 +182,7 @@ controles, sincronización, archivos nuevos y prompts del arte.
 
 ## Pac-Man educativo
 
-Acércate a la maquinita a la derecha del pizarrón y pulsa **Enter, E o A**. Se abre
+Acércate a la maquinita a la derecha del pizarrón y pulsa **Enter o A**. Se abre
 un Pac-Man con pixel art, laberinto, cuatro fantasmas, bolitas de poder,
 tres vidas, récord y niveles.
 
@@ -171,10 +195,10 @@ se añade la opción de sumas de 0 a 49. El poder dura 22 segundos para dar tiem
 a resolver y alcanzar al fantasma. Una respuesta incorrecta mantiene el nivel;
 el fantasma vuelve a su casa y puedes seguir buscando.
 
-Teclado: **flechas** para moverte o elegir y **Enter** para iniciar o pausar.
+Teclado: **flechas** para moverte o elegir, **Enter** para iniciar y **E** para pausar.
 En pausa, elige **Continuar** o **Salón** con las flechas y confirma con Enter.
 En el selector de sumas, cambia la dificultad con **← →**. También siguen
-disponibles WASD, P para pausa y Esc para volver al salón. Mando Xbox: **joystick/cruceta**, **A** para iniciar
+disponibles WASD, P para pausa y espacio o Esc para volver al salón. Mando Xbox: **joystick/cruceta**, **A** para iniciar
 o continuar, **START** para pausa y **B** para volver. En teléfono, usa la cruceta
 y los botones del minijuego.
 
@@ -220,23 +244,24 @@ JSON para usarla con **Importar guardado** en otro navegador. **Aplicar lista de
 maestros** recupera las asignaciones de esta lista conservando las etiquetas.
 La actualización admite los guardados de la versión anterior.
 
-El mapa mantiene sus posiciones iniciales para que puedas ajustarlas: la lista
-de personal no determina dónde está físicamente cada salón.
+Los salones parten de la distribución del JSON recibido. **Usar salones de esta
+versión** restaura sus etiquetas y reubica a los profesores según sus grupos.
 
 ## Controles
 
 - Flechas para moverte por la escuela, elegir respuestas y recorrer todos los menús.
 - Enter para comenzar, hablar, entrar o salir, responder, continuar y lanzar el trompo.
-- Mantén Enter unos **0.65 segundos** para abrir el menú y mapa. Elige **Paso: correr**
+- **E** abre/cierra la pausa y el mapa. Elige **Paso: correr**
   o **Paso: caminar**, sonido, uniformes o edición; confirma con Enter.
 - En el editor y el selector del día: **↑ ↓** cambia de campo, **← →** cambia el
   grado o día y **Enter** activa botones o pasa al siguiente campo. Escribe nombres
   y grupos con el teclado; los cambios siguen guardándose automáticamente.
 - En la imagen de uniformes y listas: las flechas desplazan la lectura; Enter
   pasa a la siguiente opción. Los apartados se abren con Enter.
-- En Pac-Man: flechas para jugar y Enter para pausar; flechas y Enter para elegir
+- En Pac-Man: flechas para jugar y E para pausar; flechas y Enter para elegir
   entre continuar y volver al salón.
-- También funcionan WASD, E/Espacio para actuar, Shift para correr y M para mapa.
+- **Espacio es B**: mantenlo para correr en el patio o púlsalo para volver desde un menú/minijuego.
+- También funcionan WASD, Shift para correr, M para mapa y Escape para volver.
 - Teléfono: cruceta y A.
 - Xbox One Bluetooth, Xbox 360 y XInput: joystick/cruceta, A para actuar,
   B para correr/cerrar, X o START para mapa y Y para sonido.

@@ -1,0 +1,154 @@
+{
+  "format": "los-insurgentes-escuela",
+  "version": 1,
+  "organizationRevision": "20261009-lista-maestros",
+  "labels": [
+    {
+      "id": "edificio-01",
+      "name": "4.º A"
+    },
+    {
+      "id": "edificio-02",
+      "name": "1.º B"
+    },
+    {
+      "id": "edificio-03",
+      "name": "6.º B"
+    },
+    {
+      "id": "edificio-04",
+      "name": "5.º A"
+    },
+    {
+      "id": "edificio-05",
+      "name": "5.º B"
+    },
+    {
+      "id": "edificio-06",
+      "name": "3.º B"
+    },
+    {
+      "id": "edificio-07",
+      "name": "4.º B"
+    },
+    {
+      "id": "edificio-08",
+      "name": "2.º A"
+    },
+    {
+      "id": "edificio-09",
+      "name": "2.º B"
+    },
+    {
+      "id": "edificio-10",
+      "name": "3.º A"
+    },
+    {
+      "id": "edificio-11",
+      "name": "Dirección\ntarde"
+    },
+    {
+      "id": "edificio-12",
+      "name": "Cooperativa"
+    },
+    {
+      "id": "edificio-13",
+      "name": "Baños"
+    },
+    {
+      "id": "edificio-14",
+      "name": "1.º A"
+    },
+    {
+      "id": "edificio-15",
+      "name": "6.º A"
+    },
+    {
+      "id": "edificio-16",
+      "name": "Dirección"
+    },
+    {
+      "id": "edificio-17",
+      "name": "Usos\nmúltiples"
+    },
+    {
+      "id": "edificio-18",
+      "name": "Teatro"
+    }
+  ],
+  "teachers": [
+    {
+      "id": "angel",
+      "assignment": "3.º A"
+    },
+    {
+      "id": "raul",
+      "assignment": ""
+    },
+    {
+      "id": "claudia",
+      "assignment": "Intendente"
+    },
+    {
+      "id": "ema",
+      "assignment": "2.º B"
+    },
+    {
+      "id": "luis_miguel",
+      "assignment": "5.º A"
+    },
+    {
+      "id": "norma",
+      "assignment": "2.º A"
+    },
+    {
+      "id": "emilia",
+      "assignment": "4.º A"
+    },
+    {
+      "id": "angelica",
+      "assignment": "5.º B"
+    },
+    {
+      "id": "criss",
+      "assignment": "Intendente"
+    },
+    {
+      "id": "emilio",
+      "assignment": "6.º B"
+    },
+    {
+      "id": "cesia",
+      "assignment": "4.º B"
+    },
+    {
+      "id": "blanca",
+      "assignment": "1.º A"
+    },
+    {
+      "id": "diana",
+      "assignment": "1.º B"
+    },
+    {
+      "id": "laura",
+      "assignment": "3.º B"
+    },
+    {
+      "id": "lolo",
+      "assignment": "6.º A"
+    },
+    {
+      "id": "mauricio",
+      "assignment": "Administrativo · Dirección"
+    },
+    {
+      "id": "guadalupe",
+      "assignment": "Director"
+    },
+    {
+      "id": "maria_alejandra",
+      "assignment": "Velador"
+    }
+  ],
+  "exportedAt": "2026-10-16T02:22:11.253Z"
+}

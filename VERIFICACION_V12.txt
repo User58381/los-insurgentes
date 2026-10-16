@@ -1,0 +1,58 @@
+LOS INSURGENTES — VERIFICACIÓN V12
+
+BASE Y ALCANCE
+Versión normal v11, con los 27 alumnos con nombre y los 18 personajes del
+personal. Se conserva el selector de 45 personajes, las animaciones, las
+canciones, el editor, los guardados y todos los minijuegos.
+
+SALONES POR DEFECTO
+Se cotejaron los 18 edificios y las 18 asignaciones contra el archivo
+Escuela_Los_Insurgentes.json recibido. Queda incluido como copia de referencia.
+Los edificios 1 a 10, de izquierda a derecha en la fila superior:
+1: 4.º A / Emilia; 2: 1.º B / Diana; 3: 6.º B / Emilio;
+4: 5.º A / Luis Miguel; 5: 5.º B / Angélica; 6: 3.º B / Laura;
+7: 4.º B / Cesia; 8: 2.º A / Norma; 9: 2.º B / Ema; 10: 3.º A / Ángel.
+11: Dirección tarde; 12: Cooperativa; 13: Baños; 14: 1.º A / Blanca;
+15: 6.º A / Lolo; 16: Dirección; 17: Usos múltiples; 18: Teatro.
+Los 12 maestros de grupo tienen un único salón y un acceso transitable.
+Los cargos y los grupos del personal permanecen como en el JSON recibido.
+
+ACTUALIZACIÓN Y AJUSTES
+Se migra automáticamente la distribución anterior de fábrica si no fue editada.
+Las etiquetas personalizadas se conservan completas. El botón Usar salones de
+esta versión aplica los nuevos salones conservando asignaciones y progreso.
+Importar y exportar sigue funcionando. La puerta del salón jugable y el maestro
+Ángel siguen al grupo asignado cuando se modifica o se importa un mapa.
+Se comprueba el caso de almacenamiento lleno: aplica los salones y avisa que
+deben exportarse; no anuncia que los datos quedaron guardados.
+Se conservan las claves anteriores de partida, escuela, récords y sonido.
+No se borra el almacenamiento ni la caché de otras aplicaciones.
+
+TECLADO
+Flechas: movimiento y menús. Enter: A inmediato, sin esperar a soltar la tecla.
+Espacio: B; corre al mantenerlo en el patio y vuelve desde menús/minijuegos.
+E: pausa y mapa en el patio; pausa/reanuda los minijuegos.
+Enter mantenido no abre otro diálogo ni confirma opciones por repetición.
+E mantenida no alterna repetidamente la pausa. Al pausar se libera el movimiento.
+Los campos del editor y la búsqueda permiten escribir E y espacios normalmente.
+Trompo tiene pausa con E/START y botón visible, también durante el giro.
+El Pac-Man independiente incluye los mismos módulos de teclado actualizados.
+Se conservan los controles Xbox y táctiles y los atajos WASD, Shift, M, P y Esc
+en los contextos correspondientes. El teatro conserva A para sus opciones.
+
+PRUEBAS REALIZADAS
+node --test tests/*.cjs: 64 pruebas aprobadas, 0 fallidas.
+Incluyen lógica de retos, selección, guardado y recuperación, migración de
+salones, posiciones de maestros, controles nuevos, pausas, música de regreso,
+contador y depósitos de limpieza, editor y actualización sin perder avances.
+La integración emplea un DOM simulado y un mando sintético.
+Sintaxis de todos los JS y de los scripts incrustados: correcta.
+Referencias HTML a recursos locales e identificadores: correctos.
+Todos los mapas, sprites, MP3 y WAV originales coinciden byte por byte con v11.
+No se realizó una prueba interactiva en navegador ni en dispositivo físico.
+
+ENTREGA
+ZIP completo con la carpeta Los_Insurgentes_GitHub.
+Sustituye el contenido descomprimido en la raíz del repositorio normal.
+Incluye index.html, version.json, todos los JS/CSS y assets/ con sus rutas.
+No es necesario borrar los datos del navegador para ver esta actualización.

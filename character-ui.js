@@ -37,7 +37,7 @@
   function confirm(){const id=selected?.id;if(!id)return;const pick=options.onPick;close();pick?.(id);}
   function key(event){
     const key=event.key.toLowerCase(),active=document.activeElement;
-    if(key==='escape'){if(!event.repeat)close();return true;}
+    if(K.isBack(event)){if(!event.repeat)close();return true;}
     if(active?.matches('.character-card')&&key.startsWith('arrow')){
       const cards=Array.from($('character-grid').children),index=cards.indexOf(active),columns=getComputedStyle($('character-grid')).gridTemplateColumns.split(' ').length;
       const step=key==='arrowup'?-columns:key==='arrowdown'?columns:key==='arrowleft'?-1:1;

@@ -34,17 +34,18 @@
   const CLASSROOM_DOOR = { x: 1090, y: 702 };
   let classroomLabelIndex = 9;
   const MAP_LABELS = [
-    {text:'6.º B',x:245,y:602}, {text:'4.º A',x:338,y:602},
-    {text:'2.º B',x:431,y:602}, {text:'5.º A',x:524,y:602},
-    {text:'3.º B',x:617,y:602}, {text:'5.º B',x:710,y:602},
-    {text:'4.º B',x:803,y:602}, {text:'1.º B',x:916,y:602},
-    {text:'2.º A',x:996,y:602}, {text:'3.º A',x:1075,y:602},
+    {text:'4.º A',x:245,y:602}, {text:'1.º B',x:338,y:602},
+    {text:'6.º B',x:431,y:602}, {text:'5.º A',x:524,y:602},
+    {text:'5.º B',x:617,y:602}, {text:'3.º B',x:710,y:602},
+    {text:'4.º B',x:803,y:602}, {text:'2.º A',x:916,y:602},
+    {text:'2.º B',x:996,y:602}, {text:'3.º A',x:1075,y:602},
     {text:'Dirección\ntarde',x:133,y:579},
     {text:'Cooperativa',x:342,y:938}, {text:'Baños',x:499,y:938},
     {text:'1.º A',x:606,y:938}, {text:'6.º A',x:709,y:938},
     {text:'Dirección',x:811,y:938}, {text:'Usos\nmúltiples',x:1035,y:815},
     {text:'Teatro',x:241,y:800}
   ];
+  const LAYOUT_REVISION='20261016-salones';
   // Each numbered label stays attached to its physical building.
   function buildingEntrance(index) {
     const label=MAP_LABELS[index];
@@ -476,5 +477,5 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
   function snapshot(state) {
     return {phase:state.phase,scene:state.scene,player:{id:state.player.id,name:state.player.name,style:state.player.style},position:{x:Math.round(state.player.x),y:Math.round(state.player.y)},stars:Object.values(state.completed).filter(Boolean).length,points:state.points,goals:state.goals,completed:{...state.completed},objective:objective(state),nearby:nearby(state)?.label||null,question:state.quiz?{station:state.quiz.station,index:state.quiz.index,correct:state.quiz.correct,feedback:state.quiz.feedback}:null,trompo:state.trompo?{round:state.trompo.round,stage:state.trompo.stage,power:Math.round(state.trompo.power*100),wins:state.trompo.wins,oliverWins:state.trompo.oliverWins}:null,classmates:STUDENTS.length,schoolDay:UNIFORM_DAYS[state.schoolDay].name,uniform:UNIFORM_DAYS[state.schoolDay].uniform,automaticDay:state.dayMode==='auto',teachers:teachersInScene(state).map(teacher=>({name:teacher.name,group:teacher.group}))};
   }
-  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,buildingEntrance,setClassroomBuilding,classroomLabel,ORGANIZATION_REVISION,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,ARCADE,THEATER,CHALLENGE_ACTORS,challengeActors,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
+  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,buildingEntrance,setClassroomBuilding,classroomLabel,LAYOUT_REVISION,ORGANIZATION_REVISION,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,ARCADE,THEATER,CHALLENGE_ACTORS,challengeActors,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
 });

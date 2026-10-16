@@ -1,6 +1,25 @@
-LOS INSURGENTES — V11: PASOS ANIMADOS PARA TODO EL PERSONAL
+LOS INSURGENTES — V12: SALONES CORRECTOS Y TECLADO COMO XBOX
 
 CAMBIOS DE ESTA VERSIÓN
+Se incorpora por defecto el orden de Escuela_Los_Insurgentes.json.
+Fila superior de izquierda a derecha: 4.º A, 1.º B, 6.º B, 5.º A, 5.º B,
+3.º B, 4.º B, 2.º A, 2.º B y 3.º A. Se conservan los otros 8 edificios.
+Los maestros aparecen frente al salón de su grupo, con sus asignaciones actuales.
+
+Flechas: moverse y elegir. Enter: A (acción o confirmar al pulsarlo).
+Espacio: B (mantener para correr en el patio; volver en menús y minijuegos).
+E: pausa (en el patio abre/cierra pausa y mapa; en minijuegos pausa/continúa).
+Trompo también tiene pausa con E, START y botón visible. Enter/A continúa.
+En el editor y la búsqueda se puede escribir E y espacios normalmente.
+El Pac-Man independiente usa el mismo teclado actualizado.
+
+La distribución anterior de fábrica se actualiza sin borrar partidas ni récords.
+Si editaste salones, tus etiquetas se conservan. Para usar esta distribución:
+Editar escuela > Salones y edificios > Usar salones de esta versión.
+Ese botón conserva los grupos de los maestros y todo tu progreso.
+Se incluye el JSON que enviaste para importarlo si lo necesitas.
+
+CAMBIOS DE V11 CONSERVADOS
 Los 18 personajes del personal mueven los pies al jugar con ellos, incluidos
 los maestros, Criss, Claudia, Mauricio y el director. Hay pasos alternados en
 las cuatro direcciones, con ajustes para cada sprite y su ropa.
@@ -48,7 +67,7 @@ El desbloqueo queda guardado. Fútbol y cuerda tienen las canciones recibidas.
 Puedes encontrarlos en la escuela o abrir los retos desde el mapa. La limpieza
 se habilita en el mapa después de aceptar la invitación de Criss.
 Cada reto da 80 puntos la primera vez que lo consigues.
-Flechas/joystick: mover; Enter/A: acción; P/START: pausa; Escape/B: patio.
+Flechas/joystick: mover; Enter/A: acción; E/START: pausa; Espacio/B: patio.
 En teléfono cada reto tiene sus propios botones.
 
 GUARDADOS
@@ -69,7 +88,7 @@ El director José Guadalupe está en el público. Todos conservan sus sprites.
 Pulsa la flecha cuando la flecha móvil coincida con la marca de arriba.
 La canción enviada dura 2:36 y se reproduce completa. No pierdes la partida
 al fallar. Hay un ensayo tranquilo con 168 flechas y un reto con 335.
-Enter abre la pausa; flechas y Enter permiten continuar o volver al patio.
+E abre la pausa; flechas y Enter permiten continuar o volver al patio.
 Xbox: cruceta/joystick para flechas, A para confirmar, START para pausa y B
 para salir. En teléfono, usa las cuatro flechas y los botones del ensayo.
 Ajuste del ritmo: izquierda/derecha adelanta o retrasa las flechas para audio
@@ -80,7 +99,7 @@ las etiquetas y maestros. Tus estrellas y puntos se conservan. La música
 del patio vuelve al salir. Consulta ENSAYO_TEATRO.md para el arte y detalles.
 
 PAC-MAN EN EL SALÓN
-Acércate a la maquinita a la derecha del pizarrón y pulsa Enter, E o A.
+Acércate a la maquinita a la derecha del pizarrón y pulsa Enter o A.
 Pulsa Enter o A para iniciar. Come una bolita grande: los fantasmas se pondrán
 azules y mostrarán cuatro respuestas. Resuelve la suma y cómete al fantasma que
 lleve el resultado correcto. Ganas 500 puntos y pasas de nivel.
@@ -90,7 +109,7 @@ El poder dura 22 segundos. Cuando se agotan las bolitas grandes vuelven a
 aparecer, de modo que siempre puedes seguir intentando resolver la suma.
 
 CONTROLES DEL MINIJUEGO
-Teclado: flechas para mover y Enter para jugar o pausar.
+Teclado: flechas para mover, Enter para jugar y E para pausa.
 En pausa, elige Continuar o Salón con las flechas y confirma con Enter.
 Antes de empezar, elige el selector de sumas y usa izquierda/derecha para cambiarlo.
 También funcionan WASD, P para pausa y Esc para volver.
@@ -137,8 +156,8 @@ En Profes y grupos, puedes modificar la asignación de cada maestro.
 Ver salón te lleva a la etiqueta del edificio correspondiente.
 Si un grupo aparece en dos edificios o todavía no tiene etiqueta, el editor
 te avisa para que completes la ubicación.
-La foto establece quién imparte cada grupo; las posiciones iniciales de los
-salones se conservan como punto de partida hasta que las ajustes.
+El JSON recibido establece las posiciones iniciales de los salones.
+Puedes recuperarlas con Usar salones de esta versión sin perder avances.
 
 GUARDAR, EXPORTAR E IMPORTAR
 Los cambios válidos se guardan automáticamente en ese navegador.
@@ -153,14 +172,15 @@ Buscar actualización comprueba los archivos nuevos y conserva tus ajustes. La a
 JUEGO Y CONTROLES
 Se conservan los alumnos, música, uniformes, retos, trompos y animación de pies.
 Computadora: flechas para moverte o elegir; Enter para actuar y confirmar.
-Mantén Enter 0.65 segundos para abrir el menú y mapa, sin hacer una acción.
+E abre/cierra la pausa y el mapa. Enter hace la acción al pulsarlo.
 Desde ahí puedes elegir caminar/correr, sonido, uniformes y Editar escuela.
 En los menús y preguntas, usa las flechas y confirma con Enter.
 En el editor, arriba/abajo cambia de campo; izquierda/derecha cambia el grado;
 Enter activa un botón o pasa al siguiente campo. Escribe nombres y grupos.
 En las listas e imagen de uniformes, usa flechas para leer y Enter para seguir.
-En Pac-Man, Enter pausa. Las flechas eligen Continuar o Salón; Enter confirma.
-Siguen funcionando WASD, E/Espacio, Shift para correr y M para mapa.
+En Pac-Man, E pausa. Las flechas eligen Continuar o Salón; Enter confirma.
+Espacio equivale a B: correr en el patio o volver en menús y minijuegos.
+Siguen funcionando WASD, Shift para correr y M para mapa.
 Teléfono: cruceta y botón A.
 Xbox One Bluetooth / Xbox 360 / XInput: joystick o cruceta, A para actuar,
 B para correr o cerrar y START/X para mapa. B también cierra el editor.

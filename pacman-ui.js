@@ -61,16 +61,16 @@
   function key(event){
     if(!opened)return false;
     const key=event.key.toLowerCase(),directions={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down'};
-    if(key==='escape'){if(!event.repeat)close();return true;}
-    if(key==='p'){if(!event.repeat)togglePause();return true;}
+    if(keyboard.isBack(event)){if(!event.repeat)close();return true;}
+    if(key==='e'||key==='p'){if(!event.repeat)togglePause();return true;}
     if(['intro','paused','gameover'].includes(state.phase)){
       return keyboard.key(event,dialog,{filter:node=>!node.hasAttribute('data-pac-direction'),defaultTarget:$('pacman-start')});
     }
     if(directions[key]){direction(directions[key]);return true;}
-    if(key==='enter'||key===' '){
+    if(key==='enter'){
       if(!event.repeat){
         const active=document.activeElement;
-        if(active===$('pacman-close'))close();else togglePause();
+        if(active===$('pacman-close'))close();else confirm();
       }
       return true;
     }

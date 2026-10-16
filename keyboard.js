@@ -36,12 +36,16 @@
     node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));
     focus(node);
   }
+  function isEditing(event){
+    const target=event?.target?.matches?.('input,textarea,[contenteditable="true"]')?event.target:document.activeElement;
+    return !!target?.matches('input,textarea,[contenteditable="true"]');
+  }
+  function isBack(event){return event.key.toLowerCase()==='escape'||event.key===' '&&!isEditing(event);}
   function key(event,root,options={}){
     const key=event.key.toLowerCase();
-    if(event.altKey||event.ctrlKey||event.metaKey||!['arrowup','arrowdown','arrowleft','arrowright','enter',' '].includes(key))return false;
+    if(event.altKey||event.ctrlKey||event.metaKey||!['arrowup','arrowdown','arrowleft','arrowright','enter'].includes(key))return false;
     const controls=items(root,options.filter),active=root.contains(document.activeElement)?document.activeElement:null;
     const editable=active?.matches('input,textarea,[contenteditable="true"]');
-    if(key===' '&&editable)return false;
     if(active?.hasAttribute('data-keyboard-scroll')&&key.startsWith('arrow')){
       const vertical=key==='arrowup'||key==='arrowdown',delta=(key==='arrowup'||key==='arrowleft'?-1:1)*80;
       if(vertical)active.scrollTop+=delta;else active.scrollLeft+=delta;
@@ -63,5 +67,5 @@
     return true;
   }
   document.addEventListener('pointerdown',clear);
-  window.SchoolKeyboard={items,focus,move,key,clear};
+  window.SchoolKeyboard={items,focus,move,key,clear,isEditing,isBack};
 })();

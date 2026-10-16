@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-version="v11-f4c3e1530b30ae05">
+<html lang="es" data-version="v12-76c375929ac21304">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,17 +8,17 @@
   <meta name="description" content="La aventura del saber: explora Los Insurgentes, elige tu personaje, resuelve retos y juega con tus compañeros.">
   <title>Los Insurgentes · La aventura del saber</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
-  <link id="game-style" rel="stylesheet" href="style.css?v=v11-f4c3e1530b30ae05">
-  <script defer src="bootstrap.js?v=v11-f4c3e1530b30ae05"></script>
+  <link id="game-style" rel="stylesheet" href="style.css?v=v12-76c375929ac21304">
+  <script defer src="bootstrap.js?v=v12-76c375929ac21304"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
-    <canvas id="world" tabindex="0" aria-label="Terreno de la escuela. Muévete con las flechas y pulsa Enter para actuar. Mantén Enter para abrir el menú y mapa."></canvas>
+    <canvas id="world" tabindex="0" aria-label="Terreno de la escuela. Flechas para moverte, Enter para A, espacio para B y correr, E para pausa y mapa."></canvas>
     <header id="hud">
       <div class="hud-title"><span id="player-name" class="school-name player-name" aria-label="Personaje que controlas">LOS INSURGENTES</span><span id="objective">Entra por el portón azul</span></div>
       <div class="hud-actions">
         <span class="score" aria-label="Estrellas conseguidas"><span id="stars">☆☆☆</span><small id="points">0 puntos</small></span>
-        <button id="map-button" class="square-button" type="button" aria-label="Ver mapa y ayuda" title="Mapa y ayuda (M)">Mapa</button>
+        <button id="map-button" class="square-button" type="button" aria-label="Pausa, mapa y ayuda" title="Pausa y mapa (E)">Mapa</button>
         <button id="sound-button" class="square-button" type="button" aria-label="Activar sonido" aria-pressed="false" title="Activar sonido">♪</button>
       </div>
     </header>
@@ -37,7 +37,7 @@
       </div>
       <button id="action-button" type="button" aria-label="Interactuar"><strong>A</strong><span>Acción</span></button>
     </div>
-    <footer id="keyboard-hint"><span id="movement-hint">Flechas · Caminar</span><span>Enter · Acción</span><span>Mantén Enter · Menú y mapa</span></footer>
+    <footer id="keyboard-hint"><span id="movement-hint">Flechas · Caminar</span><span>Enter · A</span><span>Espacio · B</span><span>E · Pausa</span></footer>
     <div id="fade" aria-hidden="true"></div>
     <section id="start-screen" class="intro-screen" aria-labelledby="start-title">
       <img id="title-school" class="intro-background" alt="La Escuela Primaria Los Insurgentes en pixel art">
@@ -63,7 +63,7 @@
         <div class="character-layout">
           <section class="character-stage"><div class="character-platform"><canvas id="character-preview" width="280" height="260" aria-label="Vista del personaje elegido"></canvas></div><h3 id="character-name"></h3><p id="character-role"></p><p id="character-detail"></p><button id="character-turn" class="uniform-button" type="button">↻ Girar personaje</button><button id="character-confirm" class="primary-button" type="button">Jugar</button><p class="character-note">Puedes cambiar de personaje desde el mapa y conservar tus estrellas.</p></section>
           <section class="character-roster" aria-label="Personajes de la escuela"><nav class="character-filters" aria-label="Filtrar personajes"><button type="button" data-character-filter="all" aria-pressed="true">Todos</button><button type="button" data-character-filter="student" aria-pressed="false">Alumnos</button><button type="button" data-character-filter="staff" aria-pressed="false">Personal</button></nav><div class="character-search-row"><label for="character-search">Buscar</label><input id="character-search" type="search" placeholder="Nombre del personaje" autocomplete="off"><span id="character-count"></span></div><div id="character-grid" class="character-grid"></div><p id="character-empty" hidden>No hay personajes con ese nombre.</p></section>
-        </div><p class="character-help">Flechas / cruceta · Elegir &nbsp; Enter / A · Confirmar &nbsp; Escape / B · Volver</p>
+        </div><p class="character-help">Flechas / cruceta · Elegir &nbsp; Enter / A · Confirmar &nbsp; Espacio / B · Volver</p>
       </div>
     </dialog>
     <dialog id="welcome-dialog" class="welcome-scene" aria-labelledby="director-name">
@@ -82,16 +82,16 @@
       <div class="keyboard-reader" tabindex="0" data-keyboard-scroll aria-label="Guía de uniformes: flechas para recorrer la imagen, Enter para pasar a la siguiente opción"><img id="uniform-poster" class="uniform-poster" alt="Guía de uniformes de 3.º A en pixel art: lunes de gala, martes con opción de Educación Física, miércoles y viernes de polo roja y mezclilla, jueves de blanco y cuadros."></div>
       <details class="uniform-readable"><summary>Leer los detalles de cada día</summary><div class="keyboard-reader" tabindex="0" data-keyboard-scroll aria-label="Detalles de los uniformes: flechas para leer, Enter para seguir"><dl id="uniform-daily-details"></dl><p>Todos los días: uniforme fajado, cabello limpio y peinado. Zapatos negros o tenis blancos según corresponda.</p></div></details>
       <button id="uniform-return" class="primary-button" type="button">Enter / A · Volver con el director</button>
-      <p class="fine-print uniform-pad-help">Flechas · Elegir o leer &nbsp; Enter · Confirmar. También puedes volver con B o Escape.</p>
+      <p class="fine-print uniform-pad-help">Flechas · Elegir o leer &nbsp; Enter / A · Confirmar &nbsp; Espacio / B · Volver.</p>
     </dialog>
     <dialog id="trompo-dialog" aria-labelledby="trompo-title">
-      <div class="trompo-heading"><h2 id="trompo-title">El reto del trompo</h2><button id="trompo-close" class="close-button" type="button" aria-label="Volver a la explanada">✕</button></div>
+      <div class="trompo-heading"><h2 id="trompo-title">El reto del trompo</h2><div class="trompo-top-actions"><button id="trompo-pause" class="uniform-button" type="button" aria-pressed="false">Ⅱ Pausa</button><button id="trompo-close" class="close-button" type="button" aria-label="Volver a la explanada">✕</button></div></div>
       <div class="trompo-score"><span id="trompo-round">Ronda 1 de 3</span><b id="trompo-score">Tú 0 · Oliver 0</b></div>
       <canvas id="trompo-canvas" width="720" height="280" aria-label="Tú y Oliver lanzan sus trompos en la explanada"></canvas>
       <div id="trompo-meter" class="launch-meter" aria-label="Fuerza del lanzamiento"><span class="gold-zone"></span><span id="trompo-needle"></span></div>
       <p id="trompo-message" role="status" aria-live="polite"></p>
       <button id="trompo-action" class="primary-button" type="button">Enter / A · Lanzar trompo</button>
-      <p class="trompo-help">Enter · Lanzar o continuar &nbsp; Flechas · Elegir. Gana el trompo que gira más tiempo.</p>
+      <p class="trompo-help">Enter / A · Lanzar o continuar &nbsp; E / START · Pausa &nbsp; Espacio / B · Patio. Gana el trompo que gira más tiempo.</p>
     </dialog>
     <dialog id="theater-dialog" aria-labelledby="theater-title">
       <header class="theater-header"><div><p id="theater-player" class="theater-player"></p><h2 id="theater-title">El teatro de Los Insurgentes</h2></div><div class="theater-top-buttons"><button id="theater-sound" type="button" aria-label="Silenciar ensayo" aria-pressed="true">♫</button><button id="theater-pause" type="button">Ⅱ Pausa</button><button id="theater-close" type="button">✕ Explanada</button></div></header>
@@ -100,7 +100,7 @@
       <div class="theater-layout">
         <figure class="theater-stage-panel"><div class="theater-scene-wrap"><canvas id="theater-scene" width="960" height="640" aria-label="Maestro Ángel toca la guitarra, seis alumnos cantan con notas musicales y el resto de los alumnos, los profes y el director observan desde la explanada"></canvas></div><figcaption><strong>Tu escuela, haciendo música</strong><span>Maestro Ángel en la guitarra · Coro de compañeros · Profes y director en el público</span></figcaption></figure>
         <section class="theater-rhythm-panel" aria-label="Sigue las flechas al ritmo de la canción">
-          <div class="theater-board"><canvas id="theater-lanes" tabindex="0" width="360" height="420" aria-label="Juego de ritmo: pulsa izquierda, abajo, arriba o derecha cuando la flecha llegue a la marca superior; Enter para pausar"></canvas>
+          <div class="theater-board"><canvas id="theater-lanes" tabindex="0" width="360" height="420" aria-label="Juego de ritmo: pulsa izquierda, abajo, arriba o derecha cuando la flecha llegue a la marca superior; E para pausar"></canvas>
             <div id="theater-overlay" class="theater-overlay"><div><p class="theater-kicker">ENSAYO CON EL MAESTRO ÁNGEL</p><h3 id="theater-overlay-title">¡La escuela hace música!</h3><p id="theater-overlay-copy"></p><label id="theater-mode-row" class="theater-select">Cómo quieres ensayar<select id="theater-mode"><option value="easy">Ensayo tranquilo · menos flechas</option><option value="hard">Reto del ritmo · más flechas</option></select></label><label id="theater-offset-row" class="theater-select">Ajuste del ritmo<select id="theater-offset"><option value="-250">Antes · 250 ms</option><option value="-200">Antes · 200 ms</option><option value="-150">Antes · 150 ms</option><option value="-100">Antes · 100 ms</option><option value="-50">Antes · 50 ms</option><option value="0">Al ritmo · normal</option><option value="50">Después · 50 ms</option><option value="100">Después · 100 ms</option><option value="150">Después · 150 ms</option><option value="200">Después · 200 ms</option><option value="250">Después · 250 ms</option></select></label><button id="theater-play" class="theater-play" type="button">Enter / A · Sí, ensayar</button><p class="theater-menu-help">↑ ↓ · Elegir &nbsp; ← → · Cambiar &nbsp; Enter · Confirmar<br>Si usas audio Bluetooth, puedes ajustar el ritmo.</p></div></div>
           </div>
           <p id="theater-now" class="theater-now" role="status" aria-live="polite">Pulsa la flecha cuando llegue a la marca</p>
@@ -108,13 +108,13 @@
           <p id="theater-mode-info" class="theater-mode-info"></p>
         </section>
       </div>
-      <footer class="theater-help">Flechas · Tocar al ritmo &nbsp; Enter · Pausa y opciones &nbsp; Xbox: cruceta · Flechas, A · Confirmar, START · Pausa, B · Explanada</footer>
+      <footer class="theater-help">Flechas · Tocar al ritmo &nbsp; Enter / A · Confirmar &nbsp; E / START · Pausa &nbsp; Espacio / B · Explanada</footer>
     </dialog>
     <dialog id="criss-dialog" aria-labelledby="criss-name">
       <header class="criss-dialog-heading"><p class="eyebrow">UNA MISIÓN PARA CUIDAR TU ESCUELA</p><button id="criss-close" class="close-button" type="button" aria-label="Volver al patio">✕</button></header>
       <div class="criss-dialog-scene"><canvas id="criss-portrait" width="200" height="230" role="img" aria-label="Criss te invita a limpiar la explanada"></canvas><div><h2 id="criss-name">Criss</h2><p id="criss-message"></p><p class="criss-mission-note">9 residuos · 90 segundos · Papel, Envases y Otros</p></div></div>
       <div class="criss-dialog-actions"><button id="criss-accept" class="primary-button" type="button">Enter / A · ¡Sí, te ayudo!</button><button id="criss-later" class="uniform-button" type="button">Después</button></div>
-      <p class="menu-keyboard-help">Flechas / cruceta · Elegir &nbsp; Enter / A · Confirmar &nbsp; Escape / B · Volver</p>
+      <p class="menu-keyboard-help">Flechas / cruceta · Elegir &nbsp; Enter / A · Confirmar &nbsp; Espacio / B · Volver</p>
     </dialog>
     <dialog id="playground-dialog" aria-labelledby="playground-title">
       <header class="playground-heading"><div><p id="playground-subtitle" class="eyebrow"></p><h2 id="playground-title"></h2></div><div class="playground-top-actions"><button id="playground-sound" class="uniform-button" type="button" aria-label="Silenciar sonido" aria-pressed="true">♫</button><button id="playground-pause" class="uniform-button" type="button">Ⅱ Pausa</button><button id="playground-close" class="uniform-button" type="button">✕ Patio</button></div></header>
@@ -122,7 +122,7 @@
       <canvas id="playground-canvas" width="720" height="420" aria-label="Reto con tus compañeros"></canvas>
       <p id="playground-message" role="status" aria-live="polite"></p>
       <div class="playground-controls"><div id="playground-directions" aria-label="Movimiento"><button type="button" data-playground-direction="up" aria-label="Arriba">↑</button><button type="button" data-playground-direction="left" aria-label="Izquierda">←</button><button type="button" data-playground-direction="down" aria-label="Abajo">↓</button><button type="button" data-playground-direction="right" aria-label="Derecha">→</button></div><button id="playground-action" class="primary-button" type="button">Enter / A · ¡Vamos!</button></div>
-      <p class="playground-help">Flechas / joystick · Mover &nbsp; Enter / A · Acción &nbsp; P / START · Pausa &nbsp; Escape / B · Patio</p>
+      <p class="playground-help">Flechas / joystick · Mover &nbsp; Enter / A · Acción &nbsp; E / START · Pausa &nbsp; Espacio / B · Patio</p>
     </dialog>
     <dialog id="quiz-dialog" aria-labelledby="quiz-title">
       <div class="dialog-top"><p id="quiz-subject" class="eyebrow"></p><span id="quiz-progress"></span></div>
@@ -135,11 +135,11 @@
       <p class="fine-print">Flechas · Elegir respuesta &nbsp; Enter · Responder o continuar. Tómate tu tiempo.</p>
     </dialog>
     <dialog id="map-dialog" aria-labelledby="map-title">
-      <div class="dialog-top"><h2 id="map-title">Tu escuela, tu aventura</h2><button id="close-map" class="uniform-button" type="button" aria-label="Volver al juego">Volver al juego</button></div>
-      <p class="menu-keyboard-help">Flechas · Elegir &nbsp; Enter · Confirmar &nbsp; ← → · Cambiar el día</p>
+      <div class="dialog-top"><h2 id="map-title">Pausa · Tu escuela</h2><button id="close-map" class="uniform-button" type="button" aria-label="Volver al juego">Volver al juego</button></div>
+      <p class="menu-keyboard-help">Flechas · Elegir &nbsp; Enter / A · Confirmar &nbsp; E / START o Espacio / B · Volver</p>
       <div class="map-layout">
-        <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte, 4.º A entre 6.º B y 2.º B, 2.º A con puerta azul entre 1.º B y 3.º A, teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
-        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con Enter o A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p>En el teatro, a la izquierda de la explanada, puedes ensayar una canción con el maestro Ángel. Acércate a las escaleras y pulsa Enter o A.</p><p class="fine-print">Flechas para moverte y Enter para actuar. Mantén Enter un momento para abrir este menú. En teléfono: cruceta y A.</p><div class="keyboard-options"><button id="map-run" class="uniform-button" type="button" aria-pressed="false">Paso: caminar</button><button id="map-sound" class="uniform-button" type="button" aria-pressed="true">♫ Sonido activado</button></div><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="https://github.com/User58381/los-insurgentes/archive/refs/heads/main.zip">Descargar para jugar sin internet</a></div>
+        <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte; teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
+        <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con Enter o A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p>En el teatro, a la izquierda de la explanada, puedes ensayar una canción con el maestro Ángel. Acércate a las escaleras y pulsa Enter o A.</p><p class="fine-print">Flechas para moverte; Enter es A. Mantén espacio (B) para correr. E abre o cierra la pausa y el mapa. En teléfono: cruceta y A.</p><div class="keyboard-options"><button id="map-run" class="uniform-button" type="button" aria-pressed="false">Paso: caminar</button><button id="map-sound" class="uniform-button" type="button" aria-pressed="true">♫ Sonido activado</button></div><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="https://github.com/User58381/los-insurgentes/archive/refs/heads/main.zip">Descargar para jugar sin internet</a></div>
         <section class="adventure-tools"><h3>Juega con tus compañeros</h3><p>Encuéntralos en la escuela o elige un reto aquí. Habla con Criss para desbloquear su misión.</p><div id="challenge-list" class="challenge-list"></div><button id="map-character" class="uniform-button" type="button">Cambiar personaje</button></section>
         <section class="adventure-tools"><h3>Tu partida</h3><p id="adventure-save-status" role="status">Se guarda automáticamente en este navegador.</p><div class="backup-buttons"><button id="adventure-export" class="uniform-button" type="button">Guardar copia completa</button><button id="adventure-import" class="uniform-button" type="button">Restaurar copia</button></div><input id="adventure-import-file" type="file" accept=".json,application/json" hidden><p class="fine-print">Incluye estrellas, puntos, personaje, retos, ajustes de la escuela y récords de Pac-Man y teatro.</p><p id="update-status" class="fine-print" role="status">Las actualizaciones conservan tu partida.</p></section>
         <section class="school-tools"><button class="uniform-button" type="button" data-open-school-editor>⚙ Editar escuela</button><p>Cambia las etiquetas de los edificios y los grupos de los profes. Guarda una copia o actualiza los archivos del juego.</p></section>
@@ -158,9 +158,9 @@
       <header class="pac-header"><div><p id="pacman-player" class="pac-player"></p><h2 id="pacman-title">PAC-MAN <span>EDUCATIVO</span></h2></div><div class="pac-top-buttons"><button id="pacman-pause" type="button">Ⅱ Pausa</button><button id="pacman-close" type="button" aria-label="Volver al salón">✕ Salón</button></div></header>
       <div class="pac-stats"><div><small>PUNTOS</small><strong id="pacman-score">0</strong></div><div><small>RÉCORD</small><strong id="pacman-record">0</strong></div><div><small>NIVEL</small><strong id="pacman-level">1</strong></div><div><small>VIDAS</small><strong id="pacman-lives" aria-label="Vidas restantes">♥♥♥</strong></div></div>
       <div class="pac-lesson"><p id="pacman-operation">Busca una bolita grande</p><span id="pacman-power">SIN PODER</span><div id="pacman-answers" class="pac-answers" aria-label="Respuestas en los fantasmas" hidden><span id="pacman-answer-0"></span><span id="pacman-answer-1"></span><span id="pacman-answer-2"></span><span id="pacman-answer-3"></span></div></div>
-      <div class="pac-board"><canvas id="pacman-canvas" tabindex="0" width="420" height="460" aria-label="Laberinto de Pac-Man. Flechas para moverte y Enter para pausar. Come una bolita grande y alcanza al fantasma que lleva la respuesta correcta."></canvas><div id="pacman-overlay" class="pac-overlay"><div><p class="pac-kicker">LA MAQUINITA DEL SALÓN</p><h3 id="pacman-overlay-title">PAC-MAN EDUCATIVO</h3><p id="pacman-overlay-copy"></p><label id="pacman-range-row" class="pac-range">Tus sumas<select id="pacman-range"><option value="9">Sumas sencillas · 0 a 9</option><option value="49">Sumas de dos cifras · 0 a 49</option></select></label><button id="pacman-start" class="pac-start" type="button">A / Enter · Jugar</button></div></div></div>
+      <div class="pac-board"><canvas id="pacman-canvas" tabindex="0" width="420" height="460" aria-label="Laberinto de Pac-Man. Flechas para moverte, Enter para jugar, E para pausar y espacio para volver al salón. Come una bolita grande y alcanza al fantasma que lleva la respuesta correcta."></canvas><div id="pacman-overlay" class="pac-overlay"><div><p class="pac-kicker">LA MAQUINITA DEL SALÓN</p><h3 id="pacman-overlay-title">PAC-MAN EDUCATIVO</h3><p id="pacman-overlay-copy"></p><label id="pacman-range-row" class="pac-range">Tus sumas<select id="pacman-range"><option value="9">Sumas sencillas · 0 a 9</option><option value="49">Sumas de dos cifras · 0 a 49</option></select></label><button id="pacman-start" class="pac-start" type="button">A / Enter · Jugar</button></div></div></div>
       <p id="pacman-message" class="pac-message" role="status" aria-live="polite"></p>
-      <footer class="pac-footer"><div class="pac-dpad" aria-label="Movimiento de Pac-Man"><button type="button" data-pac-direction="up" aria-label="Pac-Man hacia arriba">▲</button><button type="button" data-pac-direction="left" aria-label="Pac-Man hacia la izquierda">◀</button><span></span><button type="button" data-pac-direction="right" aria-label="Pac-Man hacia la derecha">▶</button><button type="button" data-pac-direction="down" aria-label="Pac-Man hacia abajo">▼</button></div><p>Flechas · Mover o elegir<br>Enter · Jugar, pausar o confirmar<br>En el menú: ← → cambia las sumas<br>START · Pausa &nbsp; B / Esc · Salón</p></footer>
+      <footer class="pac-footer"><div class="pac-dpad" aria-label="Movimiento de Pac-Man"><button type="button" data-pac-direction="up" aria-label="Pac-Man hacia arriba">▲</button><button type="button" data-pac-direction="left" aria-label="Pac-Man hacia la izquierda">◀</button><span></span><button type="button" data-pac-direction="right" aria-label="Pac-Man hacia la derecha">▶</button><button type="button" data-pac-direction="down" aria-label="Pac-Man hacia abajo">▼</button></div><p>Flechas · Mover o elegir<br>Enter / A · Jugar o confirmar<br>En el menú: ← → cambia las sumas<br>E / START · Pausa &nbsp; Espacio / B · Salón</p></footer>
     </dialog>
     <dialog id="school-editor" aria-labelledby="school-editor-title">
       <div class="school-editor-heading"><div><p class="eyebrow">TU ESCUELA, A TU MANERA</p><h2 id="school-editor-title">Editar escuela</h2></div><button id="school-editor-close" class="close-button" type="button" aria-label="Cerrar editor de la escuela">✕</button></div>
@@ -169,7 +169,7 @@
       <div class="school-editor-tabs" aria-label="Qué quieres editar"><button type="button" data-school-tab="labels" aria-pressed="true">Salones y edificios</button><button type="button" data-school-tab="teachers" aria-pressed="false">Profes y grupos</button></div>
       <div id="school-label-panel" class="school-label-panel">
         <aside class="school-editor-map"><h3>Ubica cada edificio</h3><p>Toca un número del mapa para editar su etiqueta.</p><canvas id="school-map-canvas" width="1215" height="1295" aria-label="Mapa numerado de los edificios. También puedes elegirlos en la lista de etiquetas."></canvas><p id="school-selected-building" class="school-map-caption"></p></aside>
-        <section aria-labelledby="school-labels-title"><h3 id="school-labels-title">Etiquetas del mapa</h3><p class="school-editor-help">Cada número corresponde a un edificio. Cambia sus etiquetas para ubicar los salones. Los profes siguen la etiqueta de su grupo y la entrada jugable sigue al salón del maestro Ángel.</p><div id="school-label-rows"></div></section>
+        <section aria-labelledby="school-labels-title"><h3 id="school-labels-title">Etiquetas del mapa</h3><p class="school-editor-help">Cada número corresponde a un edificio. Cambia sus etiquetas para ubicar los salones. Los profes siguen la etiqueta de su grupo y la entrada jugable sigue al salón del maestro Ángel.</p><div class="school-official-tools"><button id="school-apply-layout" class="uniform-button" type="button">Usar salones de esta versión</button><p>Aplica la distribución enviada por el maestro Ángel. Los profesores siguen a su grupo y los avances se conservan.</p></div><div id="school-label-rows"></div></section>
       </div>
       <section id="school-teacher-panel" hidden aria-labelledby="school-teachers-title"><h3 id="school-teachers-title">Qué grupo imparte cada profe</h3><p class="school-editor-help">Los grupos están ajustados a tu lista. Puedes cambiarlos, escribir una materia o un cargo, y ver a qué edificio corresponde cada salón.</p><div class="school-official-tools"><button id="school-apply-list" class="uniform-button" type="button">Aplicar lista de maestros</button><p>Restablece los grupos de la lista. Las etiquetas y ubicaciones que editaste se conservan.</p></div><div id="school-teacher-rows"></div></section>
       <div class="school-save-tools"><div><h3>Llévate tus ajustes</h3><p>Exporta las etiquetas y los grupos. Importa ese archivo para usarlos en otro navegador.</p></div><div class="school-save-buttons"><button id="school-export" class="uniform-button" type="button">↓ Exportar guardado</button><button id="school-import" class="uniform-button" type="button">↑ Importar guardado</button><input id="school-import-file" type="file" accept=".json,application/json" hidden></div></div>

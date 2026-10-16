@@ -103,6 +103,10 @@
     const result=store.applyOfficialAssignments();renderRows();
     if(result.persisted)status('✓ Grupos de la lista aplicados. Tus etiquetas y ubicaciones se conservan.');
   });
+  $('school-apply-layout').addEventListener('click',()=>{
+    const result=store.applyDefaultLayout();renderRows();
+    if(result.persisted)status('✓ Salones de esta versión aplicados. Los profes siguen a su grupo; tus avances se conservan.');
+  });
   $('school-import-file').addEventListener('change',async event=>{
     const file=event.target.files[0];if(!file)return;
     try{

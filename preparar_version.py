@@ -20,7 +20,7 @@ for path in sorted(ROOT.rglob('*')):
     if path.suffix.lower() not in ('.js','.css','.png','.jpg','.webp','.svg','.mp3','.ogg','.wav','.m4a','.html'):continue
     assets[relative]=hashlib.sha256(path.read_bytes()).hexdigest()[:20]
 source=json.dumps(assets,sort_keys=True)+normalized
-version='v11-'+hashlib.sha256(source.encode()).hexdigest()[:16]
+version='v12-'+hashlib.sha256(source.encode()).hexdigest()[:16]
 html=re.sub(r'data-version="[^"]+"','data-version="'+version+'"',html)
 html=re.sub(r'\?v=[A-Za-z0-9._-]+','?v='+version,html)
 index.write_text(html,encoding='utf-8')

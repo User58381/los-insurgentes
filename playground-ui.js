@@ -119,11 +119,11 @@
     P.tick(state,dt,{x:padVector.x||x,y:padVector.y||y});events();render();
   }
   function key(event){
-    const key=event.key.toLowerCase();if(key==='escape'){if(!event.repeat)close();return true;}
-    if(key==='p'){if(!event.repeat)pause();return true;}
+    const key=event.key.toLowerCase();if(K.isBack(event)){if(!event.repeat)close();return true;}
+    if(key==='e'||key==='p'){if(!event.repeat)pause();return true;}
     if(state.phase!=='playing')return K.key(event,dialog,{defaultTarget:$('playground-action')});
     if(['arrowleft','arrowright','arrowup','arrowdown','a','d','w','s'].includes(key)){held.add(key);return true;}
-    if(['enter',' ','e'].includes(key)){if(!event.repeat)action();return true;}return false;
+    if(key==='enter'){if(!event.repeat)action();return true;}return false;
   }
   function pad({x,y,confirm:go,pause:stop,back}){padVector={x,y};if(back)close();else if(stop)pause();else if(go)action();}
   window.addEventListener('keyup',event=>held.delete(event.key.toLowerCase()));

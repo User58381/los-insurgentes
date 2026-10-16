@@ -2,6 +2,8 @@
   'use strict';
   const FORMAT='los-insurgentes-escuela',VERSION=1,STORAGE_KEY='insurgentes-school-settings-v1',MAX_FILE_SIZE=65536;
   const LEGACY_ASSIGNMENTS={norma:'1.º B',emilia:'6.º B',angelica:'4.º A',emilio:'5.º A',diana:'4.º A'};
+  // Only an untouched previous layout migrates automatically; edited maps remain exact.
+  const PREVIOUS_LAYOUT=['6.º B','4.º A','2.º B','5.º A','3.º B','5.º B','4.º B','1.º B','2.º A','3.º A','Dirección\ntarde','Cooperativa','Baños','1.º A','6.º A','Dirección','Usos\nmúltiples','Teatro'];
   const copy=value=>JSON.parse(JSON.stringify(value));
   const labelId=index=>'edificio-'+String(index+1).padStart(2,'0');
   function groupName(grade,group){return grade+'.º '+group.trim().toUpperCase();}
@@ -10,7 +12,7 @@
     return match?{grade:Number(match[1]),group:match[2].toUpperCase()}:null;
   }
   function defaultConfig(game){
-    return {format:FORMAT,version:VERSION,organizationRevision:game.ORGANIZATION_REVISION||null,
+    return {format:FORMAT,version:VERSION,organizationRevision:game.ORGANIZATION_REVISION||null,layoutRevision:game.LAYOUT_REVISION||null,
       labels:game.MAP_LABELS.map((label,index)=>({id:labelId(index),name:label.text})),
       teachers:game.TEACHERS.map(teacher=>({id:teacher.id,assignment:teacher.group}))};
   }
@@ -28,6 +30,8 @@
     const result=copy(defaults);
     if(input.organizationRevision!==undefined&&input.organizationRevision!==null&&(typeof input.organizationRevision!=='string'||input.organizationRevision.length>64))throw new Error('La información de la lista de maestros no es válida.');
     result.organizationRevision=input.organizationRevision||null;
+    if(input.layoutRevision!==undefined&&input.layoutRevision!==null&&(typeof input.layoutRevision!=='string'||input.layoutRevision.length>64))throw new Error('La información de la distribución de salones no es válida.');
+    result.layoutRevision=input.layoutRevision||null;
     for(const [key,field,empty,newlines] of [['labels','name',false,true],['teachers','assignment',true,false]]){
       const rows=input[key],known=new Map(result[key].map(row=>[row.id,row])),seen=new Set();
       if(!Array.isArray(rows)||!rows.length||rows.length>known.size)throw new Error('El guardado no contiene una lista válida de '+(key==='labels'?'edificios':'profesores')+'.');
@@ -86,14 +90,25 @@
     function load(raw){
       try{
         config=raw?parseSave(raw,defaults):copy(defaults);status={persisted:true,message:raw?'Ajustes recuperados de este navegador.':'Los cambios se guardan automáticamente en este navegador.'};
+        let migrated=false,layoutUpdated=false,assignmentsUpdated=false;
         if(raw&&!config.organizationRevision&&defaults.organizationRevision){
           for(const row of config.teachers){
             const legacy=parseGroup(LEGACY_ASSIGNMENTS[row.id]||''),saved=parseGroup(row.assignment);
             if(legacy&&saved&&legacy.grade===saved.grade&&legacy.group===saved.group)row.assignment=defaults.teachers.find(teacher=>teacher.id===row.id).assignment;
           }
           config.organizationRevision=defaults.organizationRevision;
-          try{storage.setItem(STORAGE_KEY,JSON.stringify(config));status={persisted:true,message:'Lista de maestros actualizada. Tus etiquetas y ajustes personales se conservan.'};}
-          catch(_){status={persisted:false,message:'Lista de maestros actualizada. Exporta una copia: este navegador no permite guardar los cambios.'};}
+          migrated=true;assignmentsUpdated=true;
+        }
+        if(raw&&!config.layoutRevision&&defaults.layoutRevision){
+          if(config.labels.length===PREVIOUS_LAYOUT.length&&config.labels.every((row,index)=>row.name===PREVIOUS_LAYOUT[index])){
+            config.labels=copy(defaults.labels);layoutUpdated=true;
+          }
+          config.layoutRevision=defaults.layoutRevision;migrated=true;
+        }
+        if(migrated){
+          const message=layoutUpdated?'Distribución de salones actualizada. Los profes siguen a su grupo.':assignmentsUpdated?'Lista de maestros actualizada. Tus etiquetas y ajustes personales se conservan.':'Tus salones personalizados se conservan.';
+          try{storage.setItem(STORAGE_KEY,JSON.stringify(config));status={persisted:true,message};}
+          catch(_){status={persisted:false,message:message+' Exporta una copia: este navegador no permite guardar los cambios.'};}
         }
       }
       catch(error){status={persisted:false,message:error.message+' Puedes importar una copia de tus ajustes.'};}
@@ -103,6 +118,7 @@
     function commit(value){
       const next=validate(value,defaults);
       next.organizationRevision=defaults.organizationRevision;
+      next.layoutRevision=defaults.layoutRevision;
       try{storage.setItem(STORAGE_KEY,JSON.stringify(next));status={persisted:true,message:'✓ Guardado en este navegador'};}
       catch(_){status={persisted:false,message:'Los cambios están aplicados, pero el navegador no permite guardarlos. Exporta una copia para conservarlos.'};}
       config=next;apply(game,config,initialPositions);notify();return {...status};
@@ -115,6 +131,9 @@
     return {getConfig:()=>copy(config),getStatus:()=>({...status}),
       setLabel:(id,name)=>edit('labels',id,'name',name),setTeacher:(id,assignment)=>edit('teachers',id,'assignment',assignment),
       importSave:text=>commit(parseSave(text,defaults)),
+      applyDefaultLayout(){
+        const next=copy(config);next.labels=copy(defaults.labels);return commit(next);
+      },
       applyOfficialAssignments(){
         const next=copy(config);
         for(const teacher of game.TEACHERS)if(teacher.officialAssignment!==undefined)next.teachers.find(row=>row.id===teacher.id).assignment=teacher.officialAssignment;

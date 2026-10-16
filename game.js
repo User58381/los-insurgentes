@@ -19,7 +19,7 @@
   const media=window.matchMedia('(prefers-reduced-motion: reduce)');
   const audioSources=Object.fromEntries(Object.entries({...window.SchoolAudio.AUDIO_PATHS,...window.INSURGENTES_AUDIO}).map(([key,path])=>[key,window.SchoolAssets?.url(path)||path]));
   const music=new window.SchoolAudio.Player({sources:audioSources});
-  let soundOn=true, currentFeedback='', windowActive=true,schoolEditorOpen=false,keyboardRun=false,enterDown=false,enterTimer=0;
+  let soundOn=true, currentFeedback='', windowActive=true,schoolEditorOpen=false,keyboardRun=false,trompoPaused=false;
   let gamepadButtons=[],gamepadIndex=null,gamepadId='',menuDirection=0,menuRepeatAt=0,selectedAnswer=0,questionKey='';
   const gamepadSamples=new Map();
   let controllerTitleStatus=null,controllerMapStatus=null,controllerStatus='';
@@ -62,7 +62,7 @@
     music.setMusicPaused(!!(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen()||(miniMusic&&playground.phase!=='playing')));
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(miniMusic||(['title','welcome','trompo'].includes(scene)?scene:state.scene));
-    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||(miniMusic&&playground.phase==='paused')));
+    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||trompoPaused||(miniMusic&&playground.phase==='paused')));
     music.update();
   }
   function resumeWorldMusic(){syncMusic();if(soundOn)void activateSound();}
@@ -81,7 +81,6 @@
     clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),4200);
   }
   function clearInput() {
-    clearTimeout(enterTimer);enterTimer=0;enterDown=false;
     held.clear();touch.clear();
     document.querySelectorAll('[data-direction]').forEach(b=>b.classList.remove('pressed'));
     state.player.walking=false;
@@ -160,7 +159,7 @@
     if(!G.finishWelcome(state))return null;
     welcomeDialog.close();enableWorldControls(true);clearInput();canvas.focus({preventScroll:true});
     syncMusic();syncUI();saveProgress();
-    showToast('Juegas como '+state.player.name+'. Usa Enter para actuar; mantenlo pulsado para ver las opciones.');
+    showToast('Juegas como '+state.player.name+'. Enter: A · Espacio: B · E: pausa y mapa.');
     return G.snapshot(state);
   }
   function showUniformGuide() {
@@ -173,7 +172,13 @@
     drainEvents();syncUI();syncMusic();return true;
   }
   function closeTrompo() {
+    trompoPaused=false;
     G.leaveTrompo(state);drainEvents();clearInput();syncUI();canvas.focus({preventScroll:true});
+  }
+  function toggleTrompoPause(){
+    if(state.phase!=='trompo')return;
+    trompoPaused=!trompoPaused;clearInput();renderTrompo();syncMusic();
+    keyboard.focus($('trompo-action').disabled?$('trompo-pause'):$('trompo-action'),false);
   }
   function openPacman(){
     if(window.PacmanArcade.isOpen())return;
@@ -253,6 +258,7 @@
     }
   }
   function interact() {
+    if(trompoPaused){toggleTrompoPause();return null;}
     if(state.phase==='title')return startGame();
     if(state.phase==='welcome')return finishWelcome();
     if(state.phase==='uniform')return closeUniformGuide();
@@ -283,13 +289,16 @@
     const game=state.trompo;if(!game||!loaded)return;
     $('trompo-round').textContent='Ronda '+game.round+' de 3';
     $('trompo-score').textContent='Tú '+game.wins+' · Oliver '+game.oliverWins;
-    if($('trompo-message').textContent!==game.message)$('trompo-message').textContent=game.message;
+    const message=trompoPaused?'Pausa. Pulsa E / START o Enter / A para continuar.':game.message;
+    if($('trompo-message').textContent!==message)$('trompo-message').textContent=message;
+    $('trompo-pause').textContent=trompoPaused?'▶ Continuar':'Ⅱ Pausa';
+    $('trompo-pause').setAttribute('aria-pressed',String(trompoPaused));
     $('trompo-meter').style.visibility=game.stage==='aim'?'visible':'hidden';
     $('trompo-needle').style.left=(game.power*100)+'%';
     const wasDisabled=$('trompo-action').disabled;
-    $('trompo-action').disabled=game.stage==='spin';
+    $('trompo-action').disabled=!trompoPaused&&game.stage==='spin';
     if(wasDisabled&&!$('trompo-action').disabled&&document.activeElement!==$('trompo-close'))keyboard.focus($('trompo-action'),false);
-    $('trompo-action').textContent=game.stage==='aim'?'Enter / A · Lanzar trompo':game.stage==='spin'?'Girando…':game.stage==='complete'?'Enter / A · Volver al patio':game.round===3?'Enter / A · Ver resultado':'Enter / A · Siguiente ronda';
+    $('trompo-action').textContent=trompoPaused?'Enter / A · Continuar':game.stage==='aim'?'Enter / A · Lanzar trompo':game.stage==='spin'?'Girando…':game.stage==='complete'?'Enter / A · Volver al patio':game.round===3?'Enter / A · Ver resultado':'Enter / A · Siguiente ronda';
     topCtx.imageSmoothingEnabled=false;
     topCtx.drawImage(images.map,327,699,630,194,0,0,720,280);
     topCtx.strokeStyle='#fff2c3';topCtx.lineWidth=4;topCtx.beginPath();topCtx.ellipse(360,142,98,89,0,0,Math.PI*2);topCtx.stroke();
@@ -297,6 +306,7 @@
     if(game.tops.length)for(const top of game.tops)drawTop(top.owner,top.x,top.y,top.energy,top.angle,top.age);
     else{drawTop('red',290,185,60,0,0);drawTop('blue',430,185,60,0,0);}
     drawTrompoActors();
+    if(trompoPaused){topCtx.fillStyle='#10332dd9';topCtx.fillRect(0,0,720,280);topCtx.fillStyle='#ffe295';topCtx.font='bold 32px Georgia';topCtx.textAlign='center';topCtx.fillText('PAUSA',360,140);}
   }
   function renderQuestion() {
     const quiz=state.quiz;if(!quiz)return;
@@ -588,7 +598,7 @@
   function initControllerHints() {
     const titleControls=document.querySelector('.title-controls');
     if(titleControls){
-      titleControls.innerHTML='Flechas · Elegir &nbsp; | &nbsp; Enter · Confirmar<br>Xbox One / 360: joystick · Caminar &nbsp; | &nbsp; A · Acción<br>';
+      titleControls.innerHTML='Flechas · Mover y elegir &nbsp; | &nbsp; Enter · A<br>Espacio · B (correr / volver) &nbsp; | &nbsp; E · Pausa<br>Xbox One / 360: joystick · Caminar &nbsp; | &nbsp; A · Acción<br>';
       controllerTitleStatus=document.createElement('span');titleControls.append(controllerTitleStatus);
     }
     const mapHelp=document.querySelector('.controller-help');
@@ -635,7 +645,7 @@
       if(edge(0)){if(state.quiz.correct)nextQuestion();else submitAnswer(selectedAnswer);}
       else if(edge(9)&&state.quiz.correct)nextQuestion();
     }
-    else if(state.phase==='trompo'){if(edge(1))closeTrompo();else if(edge(9))interact();else controllerMenu(trompoDialog,x,y,edge(0),timestamp,$('trompo-action'));}
+    else if(state.phase==='trompo'){if(edge(1))closeTrompo();else if(edge(9))toggleTrompoPause();else controllerMenu(trompoDialog,x,y,edge(0),timestamp,$('trompo-action'));}
     else if(state.phase==='victory'){
       if(edge(0)||edge(1)||edge(9)){victoryDialog.close();state.phase='play';clearInput();canvas.focus({preventScroll:true});}
     }
@@ -651,7 +661,7 @@
     let y=(held.has('arrowdown')||held.has('s')?1:0)-(held.has('arrowup')||held.has('w')?1:0);
     for(const direction of touch.values()){if(direction==='right')x++;if(direction==='left')x--;if(direction==='down')y++;if(direction==='up')y--;}
     if(controller.x)x=controller.x;if(controller.y)y=controller.y;
-    return{x,y,run:keyboardRun||held.has('shift')||controller.run};
+    return{x,y,run:keyboardRun||held.has(' ')||held.has('shift')||controller.run};
   }
   function frame(timestamp) {
     const dt=Math.min(.05,lastTime?(timestamp-lastTime)/1000:1/60);lastTime=timestamp;
@@ -663,7 +673,7 @@
       else if(window.PlaygroundGames.isOpen())window.PlaygroundGames.tick(dt);
       else if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
       else if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
-      else if(!mapOpen&&!schoolEditorOpen)G.tick(state,dt,inputVector(controller));
+      else if(!mapOpen&&!schoolEditorOpen&&!trompoPaused)G.tick(state,dt,inputVector(controller));
     }
     drainEvents();if(state.started&&timestamp-lastAutosave>2000){saveProgress();lastAutosave=timestamp;}syncUI();syncMusic();drawFrame(timestamp/1000,dt);animationHandle=requestAnimationFrame(frame);
   }
@@ -683,6 +693,7 @@
   $('title-music').addEventListener('click',()=>setSound(!(soundOn&&music.ready)));
   $('trompo-action').addEventListener('click',interact);
   $('trompo-close').addEventListener('click',closeTrompo);
+  $('trompo-pause').addEventListener('click',toggleTrompoPause);
   trompoDialog.addEventListener('cancel',event=>{event.preventDefault();closeTrompo();});
   $('action-button').addEventListener('click',interact);
   $('next-question').addEventListener('click',nextQuestion);
@@ -709,59 +720,59 @@
     for(const name of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(name,event=>{touch.delete(event.pointerId);button.classList.remove('pressed');});
   }
   window.addEventListener('keydown',event=>{
-    if(event.defaultPrevented)return;
+    if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey)return;
     if(window.CharacterSelect.isOpen()){if(window.CharacterSelect.key(event))event.preventDefault();return;}
     if(window.PlaygroundGames.isOpen()){if(window.PlaygroundGames.key(event))event.preventDefault();return;}
     if(window.TheaterRehearsal.isOpen()){if(window.TheaterRehearsal.key(event))event.preventDefault();return;}
     if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
     const key=event.key.toLowerCase();
     if(schoolEditorOpen){
-      if(key==='escape'){event.preventDefault();if(!event.repeat)window.SchoolEditor.close();}
+      if(keyboard.isBack(event)||(key==='e'&&!keyboard.isEditing(event))){event.preventDefault();if(!event.repeat)window.SchoolEditor.close();}
       else if(keyboard.key(event,$('school-editor')))event.preventDefault();
       return;
     }
-    if(state.phase==='criss-dialogue'&&key==='escape'){event.preventDefault();if(!event.repeat)closeCrissDialogue();return;}
     const menu=state.phase==='criss-dialogue'?crissDialog:mapOpen?mapDialog:state.phase==='title'?$('start-screen'):state.phase==='uniform'?uniformDialog:state.phase==='welcome'?welcomeDialog:state.phase==='trompo'?trompoDialog:state.quiz?quizDialog:state.phase==='victory'?victoryDialog:null;
-    if(state.phase==='trompo'&&state.trompo.stage==='spin'&&['enter',' '].includes(key)&&document.activeElement!==$('trompo-close')){event.preventDefault();return;}
+    if(menu&&keyboard.isBack(event)){
+      event.preventDefault();if(event.repeat)return;
+      if(state.phase==='criss-dialogue')closeCrissDialogue();
+      else if(mapOpen)closeMap();
+      else if(state.phase==='uniform')closeUniformGuide();
+      else if(state.phase==='trompo')closeTrompo();
+      else if(state.phase==='victory')$('continue-button').click();
+      return;
+    }
+    if(key==='e'&&!keyboard.isEditing(event)){
+      event.preventDefault();if(event.repeat)return;
+      if(mapOpen)closeMap();else if(state.phase==='trompo')toggleTrompoPause();else if(state.phase==='play'&&!state.quiz)openMap();
+      return;
+    }
+    if(state.phase==='trompo'&&!trompoPaused&&state.trompo.stage==='spin'&&key==='enter'&&![$('trompo-close'),$('trompo-pause')].includes(document.activeElement)){event.preventDefault();return;}
     if(menu&&keyboard.key(event,menu,{defaultTarget:state.phase==='title'?$('start-button'):null})){event.preventDefault();return;}
     if(menu&&document.activeElement?.matches('input,select,textarea,[contenteditable="true"]'))return;
-    const gameKeys=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','e','m','shift'];
+    const gameKeys=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','enter','m','shift'];
     if(state.phase==='title')return;
     if(state.phase==='uniform'){
-      if(['enter',' ','a','e','escape','u','x'].includes(key)){event.preventDefault();if(!event.repeat)closeUniformGuide();}return;
+      if(['a','u','x'].includes(key)){event.preventDefault();if(!event.repeat)closeUniformGuide();}return;
     }
     if(state.phase==='welcome'&&['u','x'].includes(key)){event.preventDefault();if(!event.repeat)showUniformGuide();return;}
     if(state.phase==='welcome'||state.phase==='trompo'){
-      if(['enter',' ','a','e'].includes(key)){event.preventDefault();if(!event.repeat)interact();}
-      if(key==='escape'&&state.phase==='trompo'){event.preventDefault();closeTrompo();}
+      if(key==='a'){event.preventDefault();if(!event.repeat)interact();}
       return;
     }
     if(mapOpen){if(key==='m'||key==='escape'){event.preventDefault();closeMap();}return;}
     if(state.quiz){
       if(['1','2','3'].includes(key)){event.preventDefault();submitAnswer(Number(key)-1);}
-      if((key==='e'||key===' ')&&state.quiz.correct&&!event.repeat){event.preventDefault();nextQuestion();}
       return;
     }
     if(state.phase!=='play')return;
-    if(key==='enter'){
-      event.preventDefault();
-      if(!event.repeat&&!enterDown){
-        enterDown=true;
-        enterTimer=setTimeout(()=>{if(enterDown&&state.phase==='play'&&!state.quiz&&!schoolEditorOpen&&!mapOpen)openMap();},650);
-      }
-      return;
-    }
     if(gameKeys.includes(key))event.preventDefault();
     if(key==='m'&&!event.repeat){openMap();return;}
-    if((key==='e'||key===' ')&&!event.repeat){interact();return;}
+    if(key==='enter'){if(!event.repeat)interact();return;}
     held.add(key);
   });
   window.addEventListener('keyup',event=>{
     const key=event.key.toLowerCase();held.delete(key);
-    if(key==='enter'&&enterDown){
-      event.preventDefault();clearTimeout(enterTimer);enterTimer=0;enterDown=false;
-      if(state.phase==='play'&&!mapOpen&&!schoolEditorOpen&&!state.quiz)interact();
-    }
+    if(key===' '&&!keyboard.isEditing(event))event.preventDefault();
   });
   window.addEventListener('school-editor-visibility',event=>{
     schoolEditorOpen=!!event.detail.open;clearInput();

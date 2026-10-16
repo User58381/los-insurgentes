@@ -130,11 +130,11 @@
   function hit(lane){if(!opened||state.phase!=='playing'||audio.paused||buffering)return;R.hit(state,lane,audio.currentTime);events();render();}
   function key(event){
     if(!opened||event.altKey||event.ctrlKey||event.metaKey)return false;const key=event.key.toLowerCase();
-    if(key==='escape'){if(!event.repeat)close();return true;}
-    if(key==='p'){if(!event.repeat)togglePause();return true;}
+    if(K.isBack(event)){if(!event.repeat)close();return true;}
+    if(key==='e'||key==='p'){if(!event.repeat)togglePause();return true;}
     if(state.phase!=='playing')return K.key(event,dialog,{filter:node=>!node.hasAttribute('data-theater-direction'),defaultTarget:$('theater-play')});
     if(Object.hasOwn(directions,key)){if(!event.repeat&&!heldKeys.has(key)){heldKeys.add(key);hit(directions[key]);}return true;}
-    if(key==='enter'||key===' '){if(!event.repeat){const active=document.activeElement;if([$('theater-close'),$('theater-pause'),$('theater-sound')].includes(active))active.click();else togglePause();}return true;}
+    if(key==='enter'){if(!event.repeat){const active=document.activeElement;if([$('theater-close'),$('theater-pause'),$('theater-sound')].includes(active))active.click();else togglePause();}return true;}
     return false;
   }
   function pad({x=0,y=0,confirm=false,pause=false,back=false,timestamp=performance.now()}={}){

@@ -14,7 +14,8 @@ El alumno que estás controlando canta en el coro. Hay **seis alumnos cantando**
 Guadalupe. Los alumnos conservan el uniforme del día y su identidad en la lista.
 
 - **Flechas**: toca cuando la flecha móvil coincida con su marca de arriba.
-- **Enter**: empezar, confirmar y abrir la pausa durante la canción.
+- **Enter / A**: empezar y confirmar; conserva el acceso a opciones durante la canción.
+- **E / START**: pausar o continuar. **Espacio / B**: volver a la explanada.
 - **En pausa**: flechas para elegir continuar o regresar; Enter para confirmar.
 - **Xbox**: cruceta o joystick para las cuatro flechas; A para confirmar,
   START para pausa y B para volver a la explanada.
