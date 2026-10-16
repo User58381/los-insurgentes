@@ -1,33 +1,19 @@
-# Botes y residuos de la explanada
+# Botes y residuos orgánicos e inorgánicos
 
-El juego carga `assets/limpieza-sprites.png`, un atlas PNG RGBA de 1536 × 1024
-con fondo transparente. Contiene tres botes abiertos y tres residuos. Los
-recortes están definidos en `SchoolPlayground.CLEANUP_FRAMES` dentro de
-`playground-engine.js`; el dibujo y la animación están en `playground-ui.js`.
+Asset final: `assets/limpieza-sprites.png`, PNG RGBA de 1536 × 1024 con
+transparencia real. Se editó con ImageGen integrado a partir del atlas de v12.
 
-| Tipo | Bote | Residuo | Recorte del bote: x, y, ancho, alto | Recorte del residuo |
+| Bote | Color | Residuo | Recorte del bote: x, y, ancho, alto | Recorte del residuo |
 | --- | --- | --- | --- | --- |
-| Papel | Azul | Papel arrugado | 126, 88, 331, 578 | 150, 726, 252, 228 |
-| Envases | Amarillo | Botella de agua | 603, 88, 330, 578 | 618, 709, 297, 252 |
-| Otros | Verde | Envoltura | 1082, 88, 331, 578 | 1083, 722, 345, 239 |
+| Orgánica · Cáscaras | Verde | Cáscara de plátano | 90, 41, 401, 659 | 92, 712, 399, 268 |
+| Inorgánica · Envases | Amarillo | Botella de plástico | 567, 41, 398, 659 | 590, 707, 337, 285 |
+| Inorgánica · Envolturas | Azul | Envoltura de plástico | 1045, 41, 401, 659 | 1064, 712, 394, 273 |
 
-Los nombres se dibujan en el juego para mantenerlos legibles. Cada residuo se
-ve en el suelo, junto al personaje al recogerlo y durante su trayectoria al
-bote. El bote correcto se ilumina al recibirlo. El último depósito termina
-su animación antes de mostrar el resultado. La pausa congela la animación.
+Los recortes están en SchoolPlayground.CLEANUP_FRAMES. Los letreros se dibujan
+en dos líneas, mostrando la categoría y el tipo de residuo. Se conservan las
+posiciones de los botes, los nueve residuos, el traslado en la mano, la
+trayectoria al depositar, el brillo al acertar y el sonido START original.
 
-Se creó este atlas con ImageGen, en modo integrado. Prompt de producción:
+Prompt final utilizado, modo integrado:
 
-> Use case: stylized-concept. Asset type: one production sprite atlas PNG for
-> a warm, polished 16-bit top-down school RPG, three-quarter overhead view
-> with front faces visible, consistent soft pixel clusters, dark forest-brown
-> outlines and small pixel highlights. Transparent landscape 1536 × 1024,
-> three columns and two rows with separate, fully visible objects. Top row:
-> blue open paper wheelie bin, yellow open plastic bottle wheelie bin, green
-> open general litter wheelie bin. Bottom row: crumpled paper, cyan water
-> bottle, red-orange wrapper. Leave transparent space around each object;
-> no text, grid, people or environment. Finished reusable sprites for the
-> existing school courtyard game.
-
-Las canciones y efectos se conservan aparte. El sonido de cada depósito
-correcto reutiliza `assets/audio/start-106.wav`, recibido para el juego.
+> Use case: precise-object-edit. Asset type: production pixel-art sprite atlas for the existing Los Insurgentes school cleanup game. Edit the attached atlas to teach organic versus inorganic waste. Preserve the detailed crisp chunky pixel-art style, the three OPEN wheelie bins with large dark open mouths for the deposit animation, same three-column/two-row composition, front three-quarter view, consistent sprite sizes and large transparent gutters. EXACTLY SIX isolated objects, NO background and NO glow or floor or cast shadows outside the objects, genuine transparent alpha. Canvas 1536x1024 landscape if possible. Top row has three open bins entirely contained near these source areas: left x126..457 y88..666, center x603..933 y88..666, right x1082..1413 y88..666. Bottom row three separate litter sprites: left around x150..402 y726..954, center around x618..915 y709..961, right around x1083..1428 y722..961. CHANGE ONLY THESE CONTENT DETAILS: the LEFT bin becomes rich GREEN, with a clear white banana-peel silhouette emblem, and the bottom-left crumpled paper is replaced with an unmistakable discarded yellow BANANA PEEL, open empty peel with 3 curled flaps, absolutely no edible fruit inside. The CENTER bin stays YELLOW with its bottle emblem, and keep the cyan blue-capped plastic water bottle below it. The RIGHT bin becomes BLUE, keeping its white wrapper emblem, with the orange/red empty snack wrapper below it. No written text anywhere; all labels will be rendered by the game. No recycling-arrows symbol on the organic bin. Do not add characters, faces, extra bins, extra litter, decorative scenery, panels, glows or gradients on the background. Every object must be fully separated, fully visible with no clipping, and sufficiently large for clear small game sprites. This is an actual transparent sprite atlas, not a poster or screenshot.

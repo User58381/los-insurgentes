@@ -1,0 +1,20 @@
+LOS INSURGENTES — V13 NORMAL
+
+JUEGO COMPLETO
+Descomprime Los_Insurgentes_GitHub_v13.zip. Abre Los_Insurgentes_GitHub y sube
+todo su contenido a la raíz de User58381/los-insurgentes, donde está index.html.
+Incluye version.json, todos los JS/CSS y assets/ con sus rutas.
+
+ACTUALIZACIÓN PEQUEÑA PARA V11 O V12
+Descomprime Actualizacion_Insurgentes_v11_v12_a_v13.zip.
+Copia el CONTENIDO de su carpeta Los_Insurgentes_GitHub sobre la carpeta del juego
+normal que ya tienes, y acepta REEMPLAZAR los archivos existentes.
+Conserva el resto de assets/: esta actualización contiene solamente el nuevo
+atlas de limpieza; las demás imágenes, músicas y efectos se reutilizan.
+También puedes subir los archivos de esta actualización a las mismas rutas del
+repositorio existente. No borres las canciones ni los sprites anteriores.
+
+Espera a que GitHub Pages termine de publicar. Se mantiene el actualizador
+automático y no hace falta borrar los datos del navegador. Se conservan los
+personajes, puntos, estrellas, logros de Criss, ajustes de salones y récords.
+No se cambia la versión pública de los-insurgentes2.

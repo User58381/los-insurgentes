@@ -1,6 +1,22 @@
-LOS INSURGENTES — V12: SALONES CORRECTOS Y TECLADO COMO XBOX
+LOS INSURGENTES — V13: ORGÁNICA E INORGÁNICA CON CRISS
 
 CAMBIOS DE ESTA VERSIÓN
+El velador se retira del selector; quedan 44 personajes: 27 alumnos y 17 del
+personal. Los guardados antiguos conservan sus personajes y sus avances.
+
+La limpieza de Criss mantiene exactamente su dinámica: tres botes en el mismo
+lugar, nueve residuos, 90 segundos, recogida y depósito con Enter/A y sonido
+START por acierto. Se conserva la música, el reloj, la animación y la recompensa.
+Bote verde: ORGÁNICA / Cáscaras; recibe cáscaras de plátano.
+Bote amarillo: INORGÁNICA / Envases; recibe botellas de plástico.
+Bote azul: INORGÁNICA / Envolturas; recibe envolturas de plástico.
+Los dos últimos son inorgánicos. Criss explica la diferencia y da pistas cuando
+se recoge un objeto o se elige otro bote. El papel se sustituye por cáscaras.
+
+Lee ACTUALIZAR.txt: puedes subir el paquete completo o copiar la actualización
+pequeña sobre la versión normal v11 o v12. Se conservan todos los guardados.
+
+CAMBIOS DE V12 CONSERVADOS
 Se incorpora por defecto el orden de Escuela_Los_Insurgentes.json.
 Fila superior de izquierda a derecha: 4.º A, 1.º B, 6.º B, 5.º A, 5.º B,
 3.º B, 4.º B, 2.º A, 2.º B y 3.º A. Se conservan los otros 8 edificios.
@@ -20,7 +36,7 @@ Ese botón conserva los grupos de los maestros y todo tu progreso.
 Se incluye el JSON que enviaste para importarlo si lo necesitas.
 
 CAMBIOS DE V11 CONSERVADOS
-Los 18 personajes del personal mueven los pies al jugar con ellos, incluidos
+Los 17 personajes seleccionables del personal mueven los pies al jugar con ellos, incluidos
 los maestros, Criss, Claudia, Mauricio y el director. Hay pasos alternados en
 las cuatro direcciones, con ajustes para cada sprite y su ropa.
 Los adultos conservan su altura al girar. Los pasos aceleran al correr y paran
@@ -49,7 +65,7 @@ ACTUALIZAR TU JUEGO EN GITHUB
    Los datos guardados no se borran. Lee README.md para los detalles.
 
 PERSONAJES
-Al comenzar, elige entre 45 personajes. Puedes buscarlos por nombre, filtrar
+Al comenzar, elige entre 44 personajes. Puedes buscarlos por nombre, filtrar
 alumnos/personal y girar la vista. Incluye a los maestros y al director.
 Desde el mapa puedes cambiar de personaje sin perder estrellas ni puntos.
 
@@ -59,7 +75,7 @@ Daniel y Alexis: ellos tiran y tú atajas. Gana quien llegue primero a 3:
 Joaquín: él es portero y tú tiras. Tú necesitas 3 goles, él 3 atajadas.
 Dalila: salta la cuerda 10 veces. Pulsa A/Enter en la señal dorada. Hay 3 intentos.
 Criss: habla con ella en la explanada y acepta su invitación para desbloquear
-la misión. Recoge 9 residuos y sepáralos en Papel, Envases u Otros antes de
+la misión. Recoge 9 residuos y sepáralos en Orgánica o en uno de los dos botes de Inorgánica antes de
 90 segundos. El contador usa el WAV recibido; acelera los avisos en los últimos
 10 segundos. Suena tu MP3 durante el reto y vuelve la música del patio al salir.
 La pausa detiene el contador y la música. Al llegar a cero puedes reintentarlo.

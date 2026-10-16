@@ -1,6 +1,6 @@
 # Animación de pasos del personal
 
-Los 18 personajes del personal tienen pasos al seleccionarlos para jugar.
+Los 17 personajes seleccionables del personal tienen pasos al jugar. La compatibilidad de la animación del velador se conserva para los guardados anteriores.
 Se usan los sprites existentes. Los 17 personajes con imagen propia llevan
 ajustes individuales para cada dirección. María Alejandra conserva su figura
 genérica y usa la animación de sus uniformes.

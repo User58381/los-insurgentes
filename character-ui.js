@@ -28,7 +28,7 @@
     for(const button of document.querySelectorAll('[data-character-filter]'))button.setAttribute('aria-pressed',String(button.dataset.characterFilter===filter));
   }
   function open(config){
-    options=config;returnFocus=document.activeElement;all=C.list(config.game);filter='all';facing='down';
+    options=config;returnFocus=document.activeElement;all=C.selectable(config.game);filter='all';facing='down';
     $('character-search').value='';$('character-background').src=config.images.introBg.src;
     selected=all.find(actor=>actor.id===config.playerId)||all[0];render();select(selected);
     dialog.showModal();K.focus($('character-confirm'),false);

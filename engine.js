@@ -160,7 +160,7 @@
     if(official)Object.assign(teacher,{fullName:official.fullName,group:official.assignment,officialAssignment:official.assignment});
   }
   // A directory entry can be added before a portrait is available.
-  TEACHERS.push({id:'maria_alejandra',name:'María Alejandra',fullName:'María Alejandra Alvarado Sandoval',group:'Velador',officialAssignment:'Velador',positions:{}});
+  TEACHERS.push({id:'maria_alejandra',name:'María Alejandra',fullName:'María Alejandra Alvarado Sandoval',group:'Velador',officialAssignment:'Velador',selectable:false,positions:{}});
   function teachersInScene(state) {
     return TEACHERS.filter(teacher=>teacher.positions[state.scene]).map(teacher=>({...teacher,...teacher.positions[state.scene]}));
   }

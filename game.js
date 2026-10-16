@@ -114,7 +114,7 @@
     if(mapOpen)closeMap();
     if(state.scene!=='outside'||Math.hypot(state.player.x-criss.x,state.player.y-criss.y)>=62){showToast('Busca a Criss a la derecha de la explanada. Acércate y pulsa Enter / A para hablar con ella.');return;}
     clearInput();state.phase='criss-dialogue';enableWorldControls(false);
-    $('criss-message').textContent='¡Hola, '+state.player.name+'! ¿Me ayudas a dejar limpia la explanada? Recoge los nueve residuos y sepáralos en Papel, Envases y Otros. Tienes 90 segundos. ¡Hagamos que nuestra escuela brille!';
+    $('criss-message').textContent='¡Hola, '+state.player.name+'! ¿Me ayudas a dejar limpia la explanada? Las cáscaras de fruta son orgánicas; las botellas y envolturas de plástico son inorgánicas. Usa los tres botes: Orgánica, Inorgánica: envases e Inorgánica: envolturas. Recoge y separa los nueve residuos en 90 segundos. ¡Hagamos que nuestra escuela brille!';
     const portrait=$('criss-portrait'),context=portrait.getContext('2d');context.clearRect(0,0,portrait.width,portrait.height);C.draw(context,G,images,C.find(G,'criss'),state.schoolDay,100,220,190);
     crissDialog.showModal();keyboard.focus($('criss-accept'),false);syncUI();
   }

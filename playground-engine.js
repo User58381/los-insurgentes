@@ -5,11 +5,20 @@
     alexis:{type:'football',npc:'jose_alexis',role:'keeper',title:'Ataja con Alexis',copy:'Alexis tira un poco más rápido. Muévete con ← → y pulsa Enter / A para estirarte. Consigue 3 atajadas antes de que Alexis meta 3 goles.'},
     joaquin:{type:'football',npc:'joaquin',role:'striker',title:'Marca contra Joaquín',copy:'Joaquín es el portero y tú tiras. Apunta con ← → y pulsa Enter / A para patear. Ganas con 3 goles; Joaquín gana con 3 atajadas.'},
     dalila:{type:'rope',npc:'dalila',title:'La cuerda de Dalila',copy:'¡A saltar! Pulsa Enter / A un poquito antes de que la cuerda toque tus pies. Mira la zona dorada. Consigue 10 saltos; tienes 3 oportunidades.'},
-    criss:{type:'cleanup',npc:'criss',title:'La explanada con Criss',copy:'Ayuda a Criss a cuidar la escuela. Muévete con las flechas; Enter / A recoge un residuo. Llévalo al contenedor de su tipo y pulsa otra vez. Separa los 9 residuos antes de que terminen los 90 segundos.'}
+    criss:{type:'cleanup',npc:'criss',title:'La explanada con Criss',copy:'Ayuda a Criss a cuidar la escuela. Las cáscaras de fruta son orgánicas; las botellas y envolturas de plástico son inorgánicas. Usa los tres botes: Orgánica, Inorgánica: envases e Inorgánica: envolturas. Muévete con las flechas; Enter / A recoge y deposita. Separa los 9 residuos antes de que terminen los 90 segundos.'}
   };
   const CLEANUP_SECONDS=90;
-  const CLEANUP_FRAMES={bins:{paper:[126,88,331,578],bottle:[603,88,330,578],wrapper:[1082,88,331,578]},litter:{paper:[150,726,252,228],bottle:[618,709,297,252],wrapper:[1083,722,345,239]}};
-  const BINS=[{type:'paper',name:'Papel',x:170,y:155,color:'#5a9ed1'},{type:'bottle',name:'Envases',x:360,y:155,color:'#e6c35b'},{type:'wrapper',name:'Otros',x:550,y:155,color:'#78af86'}];
+  const CLEANUP_FRAMES={bins:{organic:[90,41,401,659],bottle:[567,41,398,659],wrapper:[1045,41,401,659]},litter:{organic:[92,712,399,268],bottle:[590,707,337,285],wrapper:[1064,712,394,273]}};
+  const WASTE={
+    organic:{label:'una cáscara de plátano',category:'organic',lesson:'Es orgánica: es un resto de fruta.'},
+    bottle:{label:'una botella de plástico',category:'inorganic',lesson:'Es inorgánica: está hecha de plástico.'},
+    wrapper:{label:'una envoltura de plástico',category:'inorganic',lesson:'Es inorgánica: está hecha de plástico.'}
+  };
+  const BINS=[
+    {type:'organic',name:'Orgánica',heading:'Orgánica',detail:'Cáscaras',category:'organic',x:170,y:155,color:'#78af86'},
+    {type:'bottle',name:'Inorgánica: envases',heading:'Inorgánica',detail:'Envases',category:'inorganic',x:360,y:155,color:'#e6c35b'},
+    {type:'wrapper',name:'Inorgánica: envolturas',heading:'Inorgánica',detail:'Envolturas',category:'inorganic',x:550,y:155,color:'#5a9ed1'}
+  ];
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   function createState(id){
     if(!Object.hasOwn(TASKS,id))throw new Error('Reto desconocido.');
@@ -21,7 +30,7 @@
   }
   function emit(s,type,data={}){s.events.push({type,...data});}
   function finish(s,won,reason=null){if(s.phase==='complete')return;s.phase='complete';s.won=won;s.reason=reason;
-    s.message=won?(s.type==='football'?'¡Ganaste el duelo! ':s.type==='rope'?'¡Diez saltos! ': '¡La explanada está limpia! ')+(s.type==='cleanup'?'Gracias por ayudar a Criss.':'¡Buen trabajo en equipo!'):'¡Buen intento! Puedes volver a practicar.';
+    s.message=won?(s.type==='football'?'¡Ganaste el duelo! ':s.type==='rope'?'¡Diez saltos! ': '¡La explanada está limpia! ')+(s.type==='cleanup'?'Separaste residuos orgánicos e inorgánicos. ¡Gracias por ayudar a Criss!':'¡Buen trabajo en equipo!'):'¡Buen intento! Puedes volver a practicar.';
     if(reason==='timeout')s.message='¡Se acabó el tiempo! Separaste '+s.collected+' de 9 residuos. Criss te espera para volver a intentarlo.';
     emit(s,'complete',{won,score:s.score,reason});
   }
@@ -52,16 +61,16 @@
     if(s.carrying){
       const bin=BINS.find(b=>Math.hypot(b.x-p.x,b.y+33-p.y)<65);
       if(!bin){s.message='Llevas '+label(s.carrying.type)+'. Acércate a su contenedor.';return false;}
-      if(bin.type!==s.carrying.type){s.message='Ese residuo va en '+BINS.find(b=>b.type===s.carrying.type).name+'. ¡Busca su letrero!';emit(s,'try');return false;}
+      if(bin.type!==s.carrying.type){s.message=WASTE[s.carrying.type].lesson+' Va en '+BINS.find(b=>b.type===s.carrying.type).name+'. ¡Mira el dibujo del bote!';emit(s,'try');return false;}
       const deposit={type:s.carrying.type,fromX:p.x+20,fromY:p.y-49,toX:bin.x,toY:bin.y-52};
       s.carrying=null;s.collected++;s.score=s.collected;s.message='¡Bien separado! '+s.collected+' de 9 residuos.';emit(s,'success',{deposit});
       if(s.collected===9)finish(s,true);return true;
     }
     const nearest=s.litter.filter(item=>!item.picked).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
     if(!nearest||Math.hypot(nearest.x-p.x,nearest.y-p.y)>43){s.message='Acércate un poco más al residuo.';return false;}
-    nearest.picked=true;s.carrying={id:nearest.id,type:nearest.type};s.message='Recogiste '+label(nearest.type)+'. Llévalo a '+BINS.find(b=>b.type===nearest.type).name+'.';emit(s,'pickup');return true;
+    nearest.picked=true;s.carrying={id:nearest.id,type:nearest.type};s.message='Recogiste '+label(nearest.type)+'. '+WASTE[nearest.type].lesson+' Llévala a '+BINS.find(b=>b.type===nearest.type).name+'.';emit(s,'pickup');return true;
   }
-  function label(type){return {paper:'un papel',bottle:'una botella',wrapper:'una envoltura'}[type];}
+  function label(type){return WASTE[type].label;}
   function tick(s,dt,input={},random=Math.random){
     if(s.phase!=='playing')return;dt=clamp(Number(dt)||0,0,.05);s.time+=dt;
     if(s.type==='cleanup'){
@@ -110,5 +119,5 @@
     }
   }
   function snapshot(s){return {id:s.id,type:s.type,phase:s.phase,stage:s.stage,score:s.score,rival:s.rival,won:s.won,hits:s.hits,misses:s.misses,collected:s.collected,carrying:s.carrying?.type||null,message:s.message,remaining:s.remaining===null?null:Math.max(0,Math.round(s.remaining*1000)/1000),reason:s.reason};}
-  return {TASKS,BINS,CLEANUP_SECONDS,CLEANUP_FRAMES,createState,action,tick,pause,resume,jumpHeight,snapshot};
+  return {TASKS,BINS,WASTE,CLEANUP_SECONDS,CLEANUP_FRAMES,createState,action,tick,pause,resume,jumpHeight,snapshot};
 });

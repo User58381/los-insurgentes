@@ -28,6 +28,8 @@
     [[19,85],[41,97],[20,87],[47,104],[18,88],[41,102],[18,86],[42,102]]
   ];
   function list(game){return [...game.STUDENTS.map(actor=>({...actor,kind:'student',group:game.classroomLabel()})),...game.TEACHERS.map(actor=>({...actor,kind:'staff',style:'girl'}))];}
+  // Keep directory entries recognizable when loading older saves.
+  function selectable(game){return list(game).filter(actor=>actor.selectable!==false);}
   function find(game,id){return list(game).find(actor=>actor.id===id)||null;}
   function select(game,state,id){
     const actor=find(game,id);if(!actor)return false;
@@ -73,5 +75,5 @@
     if(right<sw)ctx.rect(dx+right*scale,dy+lowerY*scale,(sw-right)*scale+1,legHeight+1);
     ctx.clip();ctx.drawImage(image,sx,sy,sw,sh,dx,dy,sw*scale,sh*scale);ctx.restore();
   }
-  return {list,find,select,frame,draw};
+  return {list,selectable,find,select,frame,draw};
 });

@@ -1,8 +1,35 @@
-# Los Insurgentes · La aventura del saber — v12
+# Los Insurgentes · La aventura del saber — v13
 
-Versión normal completa basada en **Los_Insurgentes_GitHub_v11.zip**. Conserva
-los 27 alumnos con nombre, los 18 personajes del personal, sus animaciones,
+Versión normal completa basada en **Los_Insurgentes_GitHub_v12.zip**. Conserva
+los 27 alumnos con nombre, los 17 personajes seleccionables del personal, sus animaciones,
 el arte, las canciones, el editor y todos los minijuegos.
+
+## Limpieza orgánica e inorgánica y selector
+
+El selector ofrece **44 personajes**: 27 alumnos y 17 integrantes del personal.
+El velador ya no aparece en Todos, Personal ni en los resultados de búsqueda.
+Los guardados anteriores siguen siendo compatibles y conservan su progreso.
+
+Criss conserva la misma jugabilidad: **3 botes, 9 residuos y 90 segundos**.
+Los botes mantienen sus posiciones y la recogida, el traslado, el depósito,
+las animaciones, el sonido START por acierto y el contador funcionan como antes.
+
+| Bote | Dibujo | Qué recoge |
+| --- | --- | --- |
+| Orgánica · Cáscaras | Verde, cáscara de plátano | Restos de fruta |
+| Inorgánica · Envases | Amarillo, botella | Botellas de plástico |
+| Inorgánica · Envolturas | Azul, envoltura | Envolturas de plástico |
+
+Los dos últimos botes pertenecen a la categoría **inorgánica**; sus dibujos
+ayudan a separar los dos tipos de objetos. Criss explica la diferencia y los
+mensajes al recoger o equivocarse recuerdan por qué corresponde ese residuo.
+La cáscara sustituye al papel del minijuego anterior. No se añaden preguntas ni
+pasos al reto. Las recompensas y los logros guardados se conservan.
+
+Se incluye una actualización pequeña para **v11 o v12**, con todos los archivos
+de código y el atlas de limpieza nuevo. Se copia sobre la carpeta existente,
+aceptando reemplazar archivos y conservando las imágenes y canciones restantes.
+El ZIP completo incluye todo para instalarlo desde cero. Lee `ACTUALIZAR.txt`.
 
 ## Salones y teclado actualizados
 
@@ -25,11 +52,11 @@ Esto conserva las asignaciones de maestros, estrellas, puntos y récords.
 También puedes importar el JSON incluido. En los campos de texto, espacio y E
 siguen sirviendo para escribir.
 
-Verificación y alcance en `VERIFICACION_V12.txt`.
+Verificación de esta entrega en `VERIFICACION_V13.txt`; se conservan los informes anteriores.
 
 ## Pasos animados para todo el personal
 
-- Los **18 personajes del personal**, incluidos los maestros, Criss, Claudia,
+- Los **17 personajes seleccionables del personal**, incluidos los maestros, Criss, Claudia,
   Mauricio y el director, mueven los pies al usarlos como jugador.
 - Hay pasos alternados de frente, de espalda y hacia ambos lados. Cada sprite
   propio tiene ajustes para sus piernas, zapatos y ropa. El cabello, el torso,
@@ -53,7 +80,7 @@ Detalles y alcance en `ANIMACION_PERSONAL.md` y `VERIFICACION_V11.txt`.
   música del lugar. Si el navegador interrumpe un intento de reproducción,
   el reproductor vuelve a intentarlo automáticamente. Se respeta el botón
   de silencio y las pausas al cambiar de pestaña o abrir el editor.
-- Limpieza incluye botes abiertos azules, amarillos y verdes, papel, botellas
+- Limpieza incluye botes abiertos verdes, amarillos y azules, cáscaras, botellas
   y envolturas con fondo transparente. Ves el residuo mientras lo llevas y
   cómo entra al bote al acertar. Cada depósito correcto usa el WAV original
   de START de Los Insurgentes, `assets/audio/start-106.wav`.
@@ -65,7 +92,7 @@ Detalles y alcance en `ANIMACION_PERSONAL.md` y `VERIFICACION_V11.txt`.
 1. Busca a **Criss a la derecha de la explanada**. Su globo dice:
    «¿Me ayudas a limpiar la explanada?». Pulsa Enter / A para hablar con ella.
 2. Criss explica la misión. **¡Sí, te ayudo!** desbloquea el reto y lo inicia.
-   **Después**, Escape o B te devuelven al patio sin desbloquearlo.
+   **Después**, espacio, Escape o B te devuelven al patio sin desbloquearlo.
 3. Hay **90 segundos** para separar los 9 residuos. El contador muestra minutos
    y segundos. Suena el WAV recibido cada segundo; durante los últimos **10**,
    el reloj cambia de color y el aviso suena cada medio segundo, más agudo.
@@ -85,7 +112,7 @@ Las músicas de fútbol, cuerda y limpieza ya están incluidas.
 
 ## Novedades
 
-- Selector con **45 personajes**: 27 alumnos y 18 miembros del personal, incluido
+- Selector con **44 personajes**: 27 alumnos y 17 miembros del personal, incluido
   el director. Fondo de la escuela, vista grande, giro, filtros y búsqueda.
   Se abre al comenzar; también puedes cambiar de personaje desde el mapa sin
   perder estrellas. El personal sin retrato propio usa una figura genérica.
@@ -93,7 +120,7 @@ Las músicas de fútbol, cuerda y limpieza ya están incluidas.
   suma para el compañero. Gana quien llegue primero a 3. Alexis tira más rápido.
 - Joaquín es el portero; apunta y marca 3 goles antes de que él consiga 3 atajadas.
 - Dalila: consigue 10 saltos de cuerda, con 3 oportunidades y una señal dorada.
-- Criss: recoge 9 residuos de la explanada y llévalos a Papel, Envases u Otros.
+- Criss: recoge 9 residuos de la explanada y llévalos a Orgánica, Inorgánica: envases o Inorgánica: envolturas.
   Hay 90 segundos. Una clasificación equivocada permite corregirla.
 - Cada reto nuevo da **80 puntos la primera vez**. Puedes repetirlo para practicar.
 - Progreso automático: personaje, posición, estrellas, puntos, goles, día, pregunta

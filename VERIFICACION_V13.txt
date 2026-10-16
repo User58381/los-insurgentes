@@ -1,0 +1,41 @@
+LOS INSURGENTES — VERIFICACIÓN V13
+
+BASE
+Versión normal v12, con los salones y controles pedidos por el maestro Ángel.
+
+SELECTOR
+44 personajes elegibles: 27 alumnos y 17 miembros del personal.
+El velador no aparece en Todos, Personal ni en búsquedas.
+Su identificador sigue siendo compatible con partidas anteriores para conservar
+los avances y poder cambiar después a otro personaje. Se conservan las
+asignaciones y el directorio del personal en el editor de la escuela.
+
+LIMPIEZA CON CRISS
+Tres botes en las mismas coordenadas de v12: x=170, 360 y 550; y=155.
+Nueve residuos, las mismas posiciones y alcances de recogida y depósito.
+Velocidad, 90 segundos, reloj, música, pausas y controles conservados.
+Se mantiene la recompensa de 80 puntos la primera vez y los logros guardados.
+No se añaden preguntas ni fases al juego.
+Orgánica: cáscaras de plátano; bote verde.
+Inorgánica: botellas de plástico; bote amarillo de Envases.
+Inorgánica: envolturas de plástico; bote azul de Envolturas.
+Los dos últimos tienen claramente el título Inorgánica.
+El diálogo y las pistas explican la diferencia de materiales.
+Una elección equivocada conserva el objeto para poder corregir.
+Se mantienen la animación de depósito y el sonido START original.
+
+VERIFICACIÓN
+70 pruebas automáticas de lógica e integración: node --test tests/*.cjs.
+Incluyen seis casos nuevos de selección, guardados y clasificación.
+Se conserva la cobertura de música, contador, depósitos, salones y actualización.
+La integración usa DOM simulado y mando sintético.
+Se renderizaron tres estados con el dibujado del juego y los PNG reales:
+inicio, objeto recogido y depósito. Se inspeccionaron visualmente.
+Atlas RGBA 1536 x 1024: transparencia comprobada y recortes dentro de sus límites.
+Los MP3/WAV y los demás mapas y sprites se compararon con v12.
+No se realizó una prueba interactiva en navegador o dispositivo físico.
+
+ENTREGA
+Paquete completo y actualización pequeña con código y atlas de limpieza.
+La actualización se reconstruye sobre v12 y se compara byte por byte con el
+paquete completo. Se conservan el actualizador automático y las claves de datos.
