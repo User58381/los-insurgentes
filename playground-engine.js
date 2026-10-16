@@ -14,7 +14,7 @@
   function createState(id){
     if(!Object.hasOwn(TASKS,id))throw new Error('Reto desconocido.');
     return {id,type:TASKS[id].type,role:TASKS[id].role,phase:'intro',time:0,score:0,rival:0,events:[],won:false,message:TASKS[id].copy,
-      aim:0,keeperX:360,keeperDir:1,dive:0,ball:null,round:1,stage:'ready',wait:0,
+      aim:0,keeperX:360,keeperDir:1,keeperWalking:false,keeperTime:0,dive:0,ball:null,round:1,stage:'ready',wait:0,
       period:1.7,cycle:0,jump:-1,hits:0,misses:0,turns:0,
       player:{x:360,y:363,facing:'up',walking:false,time:0},carrying:null,collected:0,remaining:TASKS[id].type==='cleanup'?CLEANUP_SECONDS:null,tickClock:0,reason:null,
       litter:Array.from({length:9},(_,i)=>({id:i,type:BINS[i%3].type,x:[160,350,540][i%3]+(Math.floor(i/3)%2?28:-15),y:233+Math.floor(i/3)*57,picked:false}))};
@@ -73,6 +73,7 @@
     }
     const x=clamp(Number(input.x)||0,-1,1),y=clamp(Number(input.y)||0,-1,1);
     if(s.type==='football'){
+      const keeperStart=s.keeperX;s.keeperWalking=false;
       if(s.stage==='result')return;
       if(s.role==='keeper'){s.keeperX=clamp(s.keeperX+x*360*dt,170,550);s.dive=Math.max(0,s.dive-dt);}
       else if(s.stage==='ready'){s.aim=clamp(s.aim+x*1.8*dt,-1,1);s.keeperX=360+Math.sin(s.time*1.4)*148;}
@@ -89,6 +90,7 @@
         ball.x=360+(ball.target-360)*ball.progress;ball.y=355-201*ball.progress;
         if(ball.progress>=1){const saved=Math.abs(ball.target-s.keeperX)<=(s.role==='keeper'&&s.dive>0?76:37);result(s,s.role==='keeper'?saved:!saved);}
       }
+      const travelled=Math.abs(s.keeperX-keeperStart);s.keeperWalking=travelled>.0001;s.keeperTime+=travelled/165;
     }else if(s.type==='rope'){
       if(s.jump>=0){s.jump+=dt;if(s.jump>=.7)s.jump=-1;}
       s.cycle+=dt;
@@ -101,9 +103,10 @@
       }
     }else{
       const length=Math.max(1,Math.hypot(x,y)),p=s.player;
-      p.walking=Math.hypot(x,y)>.1;p.time+=dt;
-      if(p.walking)p.facing=Math.abs(x)>Math.abs(y)?(x<0?'left':'right'):(y<0?'up':'down');
+      const startX=p.x,startY=p.y;
+      if(Math.hypot(x,y)>.1)p.facing=Math.abs(x)>Math.abs(y)?(x<0?'left':'right'):(y<0?'up':'down');
       p.x=clamp(p.x+x/length*230*dt,65,655);p.y=clamp(p.y+y/length*230*dt,185,390);
+      const travelled=Math.hypot(p.x-startX,p.y-startY);p.walking=travelled>.0001;p.time+=travelled/165;
     }
   }
   function snapshot(s){return {id:s.id,type:s.type,phase:s.phase,stage:s.stage,score:s.score,rival:s.rival,won:s.won,hits:s.hits,misses:s.misses,collected:s.collected,carrying:s.carrying?.type||null,message:s.message,remaining:s.remaining===null?null:Math.max(0,Math.round(s.remaining*1000)/1000),reason:s.reason};}

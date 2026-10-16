@@ -1,0 +1,35 @@
+LOS INSURGENTES V11 — ANIMACIÓN DEL PERSONAL
+15 de octubre de 2026
+
+52 pruebas automatizadas de regresión aprobadas.
+
+Revisión específica de la animación:
+- Se renderizaron 144 poses reales: 18 personajes, 4 direcciones y 2 pasos opuestos.
+- Las cuatro direcciones de cada personaje muestran movimiento en los pies.
+- Se compararon píxeles: la cabeza y la parte superior del torso conservan su imagen.
+- Reposo y reducir movimiento reproducen el sprite original, sin pasos.
+- Caminar y correr funcionan con los 18 personajes en las cuatro direcciones.
+- El ritmo de los pasos depende del desplazamiento, no de una orden bloqueada.
+- Se revisaron visualmente los recortes de pantalones, vestidos, abrigos y cabello.
+- Los adultos mantienen la altura al girar, incluida su vista de espalda.
+- Portería y limpieza usan los pasos; la pausa detiene su reloj.
+
+Regresiones comprobadas por la suite existente:
+- Selección de 45 personajes; teclado y mando simulados.
+- Guardado, recuperación, copia completa y compatibilidad con partidas anteriores.
+- Editor de escuela y asignaciones de personal.
+- Fútbol, cuerda, limpieza, Pac-Man, trompo y teatro disponibles.
+- Canciones por reto, recuperación de la música y START por depósito correcto.
+- Diálogo de Criss, desbloqueo y contador de 90 segundos.
+- Actualización automática diferida y conservación de datos.
+
+Se verificaron la sintaxis JavaScript, los identificadores HTML, el manifiesto
+de actualización y la integridad del ZIP. Los archivos de imágenes y audio
+se compararon con v10 y conservan exactamente sus bytes.
+
+Pruebas de regresión: node --test tests/*.cjs
+Preparación de la versión: python3 preparar_version.py
+
+Alcance: renderizado de lienzo con imágenes reales y comparación de píxeles;
+DOM, mando y audio simulados. No se realizó una prueba interactiva en navegador,
+teléfono o mando físico durante esta sesión.

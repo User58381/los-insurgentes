@@ -288,11 +288,11 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     const length = Math.hypot(dx, dy);
     if (length > 1) { dx /= length; dy /= length; }
     const p = state.player;
+    const startX=p.x,startY=p.y;
     p.walking = length > 0.08;
     if (!p.walking) return;
     if (Math.abs(dx) > Math.abs(dy)) p.facing = dx < 0 ? 'left' : 'right';
     else p.facing = dy < 0 ? 'up' : 'down';
-    p.time += dt;
     const speed = running ? 255 : 165;
     // Small steps prevent crossing walls during a slow animation frame.
     const pieces = Math.max(1, Math.ceil(speed * dt / 4));
@@ -302,6 +302,9 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
       const ny = p.y + dy * speed * dt / pieces;
       if (canStand(state.scene, p.x, ny)) p.y = ny;
     }
+    const travelled=Math.hypot(p.x-startX,p.y-startY);
+    p.walking=travelled>.0001;
+    p.time+=travelled/165;
   }
   function nearby(state) {
     const p = state.player;

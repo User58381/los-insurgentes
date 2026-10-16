@@ -1,7 +1,22 @@
-# Los Insurgentes · La aventura del saber — v10
+# Los Insurgentes · La aventura del saber — v11
 
-Paquete completo basado en **Los_Insurgentes_GitHub_v9.zip**, con el mismo mapa,
+Paquete completo basado en **Los_Insurgentes_GitHub_v10.zip**, con el mismo mapa,
 arte, canciones, controles, editor, trompo con Oliver, Pac-Man y ensayo musical.
+
+## Pasos animados para todo el personal
+
+- Los **18 personajes del personal**, incluidos los maestros, Criss, Claudia,
+  Mauricio y el director, mueven los pies al usarlos como jugador.
+- Hay pasos alternados de frente, de espalda y hacia ambos lados. Cada sprite
+  propio tiene ajustes para sus piernas, zapatos y ropa. El cabello, el torso,
+  los vestidos y los abrigos conservan su forma.
+- El ritmo sigue la distancia recorrida: acelera al correr y se detiene cuando
+  el personaje deja de avanzar. Los adultos mantienen su altura al girar.
+- La animación también se usa al desplazarse como portero en fútbol y al
+  caminar y llevar residuos durante la limpieza. La pausa deja quietos los pies.
+- Se conserva el ajuste del dispositivo para reducir movimiento.
+
+Detalles y alcance en `ANIMACION_PERSONAL.md` y `VERIFICACION_V11.txt`.
 
 ## Canciones, regreso de la música y nuevos botes
 

@@ -4,7 +4,8 @@
   const dialog=$('playground-dialog'),canvas=$('playground-canvas'),ctx=canvas.getContext('2d'),held=new Set(),touch=new Map();
   let state=null,options={},opened=false,padVector={x:0,y:0},lastPhase='';
   const deposits=[];
-  const actor=(id)=>C.find(options.game,id),drawActor=(person,x,y,height=73,facing='down')=>C.draw(ctx,options.game,options.images,person,options.day,x,y,height,facing);
+  const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)')||{matches:false};
+  const actor=(id)=>C.find(options.game,id),drawActor=(person,x,y,height=73,facing='down',motion=null)=>C.draw(ctx,options.game,options.images,person,options.day,x,y,height,facing,motion);
   function label(text,x,y,color='#fff1cf'){
     ctx.font='bold 16px Trebuchet MS';ctx.textAlign='center';const width=ctx.measureText(text).width+18;
     ctx.fillStyle='#17493ded';ctx.fillRect(x-width/2,y-18,width,27);ctx.fillStyle=color;ctx.fillText(text,x,y+2);
@@ -21,7 +22,7 @@
       const target=360+state.aim*185;ctx.strokeStyle='#ffdf77';ctx.lineWidth=3;ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(360,347);ctx.lineTo(target,154);ctx.stroke();ctx.setLineDash([]);
       ctx.fillStyle='#ffdf77';ctx.beginPath();ctx.arc(target,154,9,0,Math.PI*2);ctx.fill();
     }
-    ctx.save();ctx.translate(state.keeperX,160);if(state.dive>0)ctx.rotate(state.keeperX<360?-.32:.32);drawActor(keeper,0,0,78,'down');ctx.restore();
+    ctx.save();ctx.translate(state.keeperX,160);if(state.dive>0)ctx.rotate(state.keeperX<360?-.32:.32);drawActor(keeper,0,0,78,'down',{walking:state.keeperWalking&&state.phase==='playing',time:state.keeperTime,reducedMotion:reducedMotion.matches});ctx.restore();
     label((state.role==='keeper'?'Tú':npc.name)+' · portero',state.keeperX,194);
     drawActor(striker,360,354,80,'up');label(state.role==='keeper'?npc.name:'Tú',360,389);
     const ball=state.ball||{x:360,y:348};ctx.font='27px Arial';ctx.textAlign='center';ctx.fillText('⚽',ball.x,ball.y);
@@ -68,7 +69,7 @@
       if(!state.carrying&&Math.hypot(item.x-state.player.x,item.y-state.player.y)<=43){ctx.strokeStyle='#ffe49b';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(item.x,item.y+3,23,12,0,0,Math.PI*2);ctx.stroke();}
       trash(item);
     }
-    const player=state.player;drawActor(options.player,player.x,player.y,70,player.facing);
+    const player=state.player;drawActor(options.player,player.x,player.y,70,player.facing,{walking:player.walking&&state.phase==='playing',time:player.time,reducedMotion:reducedMotion.matches});
     if(state.carrying)trash(state.carrying,player.x+20,player.y-49);
     for(const item of deposits){const t=Math.min(1,item.age/.58),ease=1-Math.pow(1-t,2),x=item.fromX+(item.toX-item.fromX)*ease,y=item.fromY+(item.toY-item.fromY)*ease-Math.sin(t*Math.PI)*43;ctx.save();ctx.globalAlpha=t>.82?(1-t)/.18:1;trash(item,x,y,32*(1-t*.65));ctx.restore();}
     if(state.carrying)label('Lleva a '+P.BINS.find(b=>b.type===state.carrying.type).name,360,409,'#ffe49d');

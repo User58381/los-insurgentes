@@ -25,14 +25,6 @@
   let controllerTitleStatus=null,controllerMapStatus=null,controllerStatus='';
   try {soundOn=localStorage.getItem('insurgentes-sound')!=='no';} catch (_) {}
   music.setEnabled(soundOn);
-  const spriteRows={down:0,left:1,right:2,up:3};
-  // Shoe bounds in each source frame keep ponytails outside the moving legs.
-  const spriteLegBounds = [
-    [[21,93],[27,87],[21,94],[25,88],[21,95],[21,87],[20,93],[21,87]],
-    [[17,84],[26,78],[17,84],[23,81],[14,85],[14,83],[17,87],[21,82]],
-    [[26,97],[56,109],[25,96],[56,111],[26,97],[45,118],[23,95],[57,116]],
-    [[19,85],[41,97],[20,87],[47,104],[18,88],[41,102],[18,86],[42,102]]
-  ];
   const eventParticles=[];
   let lastDayCheck=-Infinity;
   function resize() {
@@ -400,42 +392,13 @@
     ctx.shadowColor='#092b27';ctx.shadowBlur=3;ctx.fillText(label,0,28);ctx.restore();
   }
   function drawStudentSprite(context,student,unitHeight) {
-    const column=G.studentUniformColumn(student,state.schoolDay);
-    const [sx,sy,sw,sh,ax,ay]=G.STUDENT_FRAMES[spriteRows[student.facing]][column];
-    const factor=unitHeight/G.STUDENT_FRAMES[0][column][3],x=student.x-ax*factor,y=student.y-ay*factor;
-    if(!student.walking){context.drawImage(images.students,sx,sy,sw,sh,x,y,sw*factor,sh*factor);return;}
-    // Bend each leg from a fixed joint. Translating a whole lower half opens
-    // rectangular gaps between the trousers/skirt and the moving feet.
-    // The skirt stays intact while only the socks and shoes step underneath it.
-    const skirt=student.style==='girl'&&(column===1||column===3);
-    const cut=Math.round(sh*(skirt ? .84 : .72)),overlap=4,split=Math.round(ax);
-    const [footLeft,footRight]=spriteLegBounds[spriteRows[student.facing]][column];
-    const legLeft=Math.max(0,footLeft-3),legRight=Math.min(sw,footRight+4);
-    const wave=Math.sin(student.time*13),sideView=student.facing==='left'||student.facing==='right';
-    const stride=(sideView?2.4:.5)*unitHeight/45,lift=(sideView?1.8:1.5)*unitHeight/45;
-    for(const [start,w,side] of [[legLeft,split-legLeft,-1],[split,legRight-split,1]]){
-      const step=side*wave,lowerY=cut-overlap,lowerH=sh-lowerY;
-      const legHeight=lowerH*factor,footLift=Math.max(0,step)*lift;
-      context.save();
-      context.translate(x+start*factor,y+lowerY*factor);
-      // The top edge remains attached; displacement grows toward the shoe.
-      context.transform(1,0,step*stride/legHeight,1-footLift/legHeight,0,0);
-      context.drawImage(images.students,sx+start,sy+lowerY,w,lowerH,
-        0,0,w*factor,legHeight);
-      context.restore();
-    }
-    // Hair and any other pixels beside the legs retain their original position.
-    const lowerY=cut-overlap,lowerH=sh-lowerY;
-    for(const [start,w] of [[0,legLeft],[legRight,sw-legRight]]){
-      if(w)context.drawImage(images.students,sx+start,sy+lowerY,w,lowerH,
-        x+start*factor,y+lowerY*factor,w*factor,lowerH*factor);
-    }
-    context.drawImage(images.students,sx,sy,sw,cut,x,y,sw*factor,cut*factor);
+    C.draw(context,G,images,student,state.schoolDay,student.x,student.y,unitHeight,student.facing,
+      {walking:student.walking,time:student.time,reducedMotion:media.matches});
   }
   function drawPlayer() {
     const p=state.player;
     ctx.save();ctx.fillStyle='#142f2945';ctx.beginPath();ctx.ellipse(p.x,p.y-1,12,4.2,0,0,Math.PI*2);ctx.fill();
-    if(p.kind==='staff'){const bob=p.walking&&!media.matches?Math.sin(p.time*13)*1.2:0;C.draw(ctx,G,images,p,state.schoolDay,p.x,p.y+bob,53,p.facing);}else drawStudentSprite(ctx,p,45);ctx.restore();
+    if(p.kind==='staff')C.draw(ctx,G,images,p,state.schoolDay,p.x,p.y,53,p.facing,{walking:p.walking,time:p.time,reducedMotion:media.matches});else drawStudentSprite(ctx,p,45);ctx.restore();
   }
   function placeOliverInvitation() {
     const bubble=$('oliver-invitation'),oliver=state.classmates.find(actor=>actor.id==='oliver');
@@ -460,9 +423,8 @@
     drawStudentSprite(ctx,student,36);ctx.restore();
   }
   function drawTeacher(teacher) {
-    const [sx,sy,sw,sh,ax,ay]=teacher.frames[spriteRows[teacher.facing]],factor=53/teacher.frames[0][3];
     ctx.save();ctx.fillStyle='#142f2945';ctx.beginPath();ctx.ellipse(teacher.x,teacher.y-1,12,4,0,0,Math.PI*2);ctx.fill();
-    ctx.drawImage(images[teacher.assetKey],sx,sy,sw,sh,teacher.x-ax*factor,teacher.y-ay*factor,sw*factor,sh*factor);ctx.restore();
+    C.draw(ctx,G,images,{...teacher,kind:'staff'},state.schoolDay,teacher.x,teacher.y,53,teacher.facing,{walking:teacher.walking,time:teacher.time,reducedMotion:media.matches});ctx.restore();
   }
   function drawArcade(){
     const cabinet=G.ARCADE,[sx,sy,sw,sh]=cabinet.frame;

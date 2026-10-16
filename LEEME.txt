@@ -1,6 +1,15 @@
-LOS INSURGENTES — V10: CANCIONES, MÚSICA CONTINUA Y BOTES DE LIMPIEZA
+LOS INSURGENTES — V11: PASOS ANIMADOS PARA TODO EL PERSONAL
 
 CAMBIOS DE ESTA VERSIÓN
+Los 18 personajes del personal mueven los pies al jugar con ellos, incluidos
+los maestros, Criss, Claudia, Mauricio y el director. Hay pasos alternados en
+las cuatro direcciones, con ajustes para cada sprite y su ropa.
+Los adultos conservan su altura al girar. Los pasos aceleran al correr y paran
+cuando dejas de avanzar. También funcionan en la portería y en la limpieza.
+La pausa y el ajuste de reducir movimiento se respetan.
+Se conservan todos los controles, el editor, los minijuegos y los guardados.
+
+CAMBIOS DE V10 CONSERVADOS
 La primera canción recibida suena en fútbol con Daniel, Alexis y Joaquín;
 la segunda, en la cuerda de Dalila. Se conservan los MP3 originales completos.
 Se corrige el silencio al salir de los minijuegos, incluido el teatro.
