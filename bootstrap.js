@@ -50,7 +50,7 @@
       }catch(_){try{const saved=JSON.parse(localStorage.getItem(manifestKey));if(valid(saved)&&saved.version===documentVersion)current=saved;}catch(_){}}
     }
     window.SchoolAssets={url,version:current.version,refresh};document.getElementById('game-style').href=url('style.css');
-    for(const path of ['engine.js','characters.js','adventure-save.js','update-runtime.js','audio.js','school-settings.js','keyboard.js','character-ui.js','playground-engine.js','playground-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js'])await load(path);
+    for(const path of ['engine.js','characters.js','adventure-save.js','update-runtime.js','audio.js','school-settings.js','keyboard.js','character-ui.js','playground-engine.js','playground-ui.js','missions-engine.js','missions-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js'])await load(path);
     if(online){
       setInterval(()=>void check(),60000);setInterval(()=>void applyPending(),1200);
       document.addEventListener('visibilitychange',()=>{if(!document.hidden)void check();});window.addEventListener('focus',()=>void check());window.addEventListener('online',()=>void check());

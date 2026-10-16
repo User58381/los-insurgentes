@@ -1,20 +1,20 @@
-LOS INSURGENTES — V13 NORMAL
+LOS INSURGENTES — V14 NORMAL
 
 JUEGO COMPLETO
-Descomprime Los_Insurgentes_GitHub_v13.zip. Abre Los_Insurgentes_GitHub y sube
-todo su contenido a la raíz de User58381/los-insurgentes, donde está index.html.
-Incluye version.json, todos los JS/CSS y assets/ con sus rutas.
+Descomprime Los_Insurgentes_GitHub_v14.zip. Abre Los_Insurgentes_GitHub y sube
+todo su contenido a la raíz del repositorio normal User58381/los-insurgentes.
+Incluye los nuevos missions-engine.js y missions-ui.js, bootstrap.js, index.html,
+version.json, todos los JS/CSS y assets/ con sus rutas.
 
-ACTUALIZACIÓN PEQUEÑA PARA V11 O V12
-Descomprime Actualizacion_Insurgentes_v11_v12_a_v13.zip.
-Copia el CONTENIDO de su carpeta Los_Insurgentes_GitHub sobre la carpeta del juego
-normal que ya tienes, y acepta REEMPLAZAR los archivos existentes.
-Conserva el resto de assets/: esta actualización contiene solamente el nuevo
-atlas de limpieza; las demás imágenes, músicas y efectos se reutilizan.
-También puedes subir los archivos de esta actualización a las mismas rutas del
-repositorio existente. No borres las canciones ni los sprites anteriores.
+ACTUALIZACIÓN PEQUEÑA PARA V11, V12 O V13
+Descomprime Actualizacion_Insurgentes_v11_a_v14.zip. Copia el contenido de su
+carpeta Los_Insurgentes_GitHub sobre la carpeta normal existente y acepta
+REEMPLAZAR. También puedes subir esos archivos a sus mismas rutas en GitHub.
+Conserva el resto de assets/: el paquete pequeño incluye el atlas actualizado
+de limpieza y reutiliza las demás imágenes, canciones y efectos anteriores.
+No borres las músicas ni los otros sprites.
 
-Espera a que GitHub Pages termine de publicar. Se mantiene el actualizador
-automático y no hace falta borrar los datos del navegador. Se conservan los
-personajes, puntos, estrellas, logros de Criss, ajustes de salones y récords.
-No se cambia la versión pública de los-insurgentes2.
+Espera a que GitHub Pages termine de publicar. El actualizador conserva la
+partida y espera a que cierres una misión antes de recargar. No se necesita
+borrar los datos del navegador. Se mantienen los logros antiguos y los seis nuevos.
+No se modifica la versión pública de los-insurgentes2.

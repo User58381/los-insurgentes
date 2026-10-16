@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const G=window.SchoolGame;
-  const keyboard=window.SchoolKeyboard,C=window.SchoolCharacters,P=window.SchoolPlayground,Save=window.SchoolAdventureSave;
+  const keyboard=window.SchoolKeyboard,C=window.SchoolCharacters,P=window.SchoolPlayground,M=window.SchoolMissions,Save=window.SchoolAdventureSave;
   const $=id=>document.getElementById(id);
   const schoolStore=window.SchoolSettings.createStore(G,{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
   window.InsurgentesSchool=schoolStore;
@@ -58,11 +58,12 @@
   }
   function syncMusic() {
     const playground=window.PlaygroundGames.isOpen()?window.PlaygroundGames.snapshot():null;
-    const miniMusic=playground?({football:'football',rope:'rope',cleanup:'cleanup'}[playground.type]||null):null;
-    music.setMusicPaused(!!(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen()||(miniMusic&&playground.phase!=='playing')));
+    const mission=window.MissionActivities.isOpen()?window.MissionActivities.snapshot():null,activity=playground||mission;
+    const miniMusic=playground?({football:'football',rope:'rope',cleanup:'cleanup'}[playground.type]||null):mission?.type==='drawing'?'cleanup':null;
+    music.setMusicPaused(!!(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen()||(miniMusic&&activity.phase!=='playing')));
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(miniMusic||(['title','welcome','trompo'].includes(scene)?scene:state.scene));
-    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||trompoPaused||(miniMusic&&playground.phase==='paused')));
+    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||trompoPaused||mission?.phase==='paused'||(miniMusic&&activity.phase==='paused')));
     music.update();
   }
   function resumeWorldMusic(){syncMusic();if(soundOn)void activateSound();}
@@ -133,14 +134,32 @@
       onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();saveProgress();syncChallengeList();canvas.focus({preventScroll:true});showToast(report.won?'¡Reto conseguido! Puedes seguir explorando.':'Volviste al patio. El reto te espera cuando quieras.');}
     });syncMusic();syncUI();void activateSound();
   }
+  function openMission(id,hostId){
+    if(!loaded||!M.TASKS[id]||window.MissionActivities.isOpen()||state.quiz)return false;
+    if(id==='dibujo'&&state.scene!=='classroom'){if(mapOpen)closeMap();showToast('Entra a '+G.STATIONS.classroom.name+' y habla con el maestro Ángel para pintar.');return false;}
+    if(mapOpen)closeMap();clearInput();state.phase='mission';enableWorldControls(false);
+    window.MissionActivities.open({id,hostId,game:G,images,day:state.schoolDay,player:state.player,record:state.challenges[id],sound:playTone,isSoundEnabled:()=>soundOn,onSoundChange:setSound,
+      onAward(taskId,score){const old=state.challenges[taskId]||{won:false,best:0,wins:0};state.challenges[taskId]={won:true,best:Math.max(old.best,score),wins:old.wins+1};if(!old.won)state.points+=80;saveProgress();particles();},
+      onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();saveProgress();syncChallengeList();canvas.focus({preventScroll:true});showToast(report.won?'¡Misión conseguida! Tus avances quedaron guardados.':'Volviste a la escuela. Puedes practicar la misión cuando quieras.');}
+    });syncMusic();syncUI();void activateSound();return true;
+  }
+  function syncTeacherMissions(){
+    $('teacher-mission-list').replaceChildren();const activities=[...Object.entries(P.TASKS).filter(([,task])=>task.commission),...Object.entries(M.TASKS)];
+    for(const [id,task] of activities){
+      const button=document.createElement('button'),icon=document.createElement('span'),copy=document.createElement('span'),where=document.createElement('small');
+      const won=state.challenges[id]?.won;button.type='button';button.classList.toggle('won',!!won);icon.textContent=won?'✓':id==='dibujo'?'🎨':task.type==='cleanup'?'♻':task.type==='punctuality'?'◷':task.type==='english'?'ABC':'👕';copy.textContent=task.title;
+      where.textContent=(id==='dibujo'?G.STATIONS.classroom.name:task.commission)+(won?' · Conseguida':' · Aprender');copy.append(where);button.append(icon,copy);button.addEventListener('click',()=>P.TASKS[id]?openPlayground(id):openMission(id));$('teacher-mission-list').append(button);
+    }
+  }
   function syncChallengeList(){
     $('challenge-list').replaceChildren();
-    for(const [id,task] of Object.entries(P.TASKS)){
+    for(const [id,task] of Object.entries(P.TASKS).filter(([,task])=>!task.commission)){
       const button=document.createElement('button'),icon=document.createElement('span'),copy=document.createElement('span'),where=document.createElement('small');
       const won=state.challenges[id]?.won;button.type='button';button.classList.toggle('won',!!won);icon.textContent=won?'✓':task.type==='football'?'⚽':task.type==='rope'?'↻':'♻';copy.textContent=task.title;
       const locked=id==='criss'&&!state.unlocks.cleanup;if(locked){icon.textContent='🔒';button.setAttribute('aria-label','Habla con Criss para desbloquear la limpieza');}
       where.textContent=locked?'Habla con Criss · Explanada':(task.type==='football'?'Cancha':'Explanada')+(won?' · Conseguido':' · Jugar');copy.append(where);button.append(icon,copy);button.addEventListener('click',()=>openPlayground(id));$('challenge-list').append(button);
     }
+    syncTeacherMissions();
   }
   function startGame() {
     if(!loaded) return {error:'El terreno sigue cargando.'};
@@ -240,6 +259,7 @@
         clearInput();renderTrompo();if(!trompoDialog.open)trompoDialog.showModal();
         keyboard.focus($('trompo-action'),false);
       }
+      if(event.type==='teacher-mission'){if(P.TASKS[event.id])openPlayground(event.id);else openMission(event.id,event.hostId);}
       if(event.type==='trompo-close'){if(trompoDialog.open)trompoDialog.close();clearInput();resumeWorldMusic();canvas.focus({preventScroll:true});}
       if(event.type==='trompo-throw')playTone('throw');
       if(event.type==='trompo-win')playTone('correct');
@@ -615,7 +635,7 @@
   }
   function controllerInput(timestamp) {
     const controller=readController();
-    if(!controller){if(window.PlaygroundGames.isOpen())window.PlaygroundGames.pad({x:0,y:0});return {x:0,y:0,run:false};}
+    if(!controller){if(window.PlaygroundGames.isOpen())window.PlaygroundGames.pad({x:0,y:0});if(window.MissionActivities.isOpen())window.MissionActivities.pad({x:0,y:0});return {x:0,y:0,run:false};}
     const pressed=controller.pressed,{x,y}=controller;
     const edge=index=>!!pressed[index]&&!gamepadButtons[index];
     if(schoolEditorOpen){
@@ -624,6 +644,7 @@
     }
     if(edge(3))setSound(window.TheaterRehearsal.isOpen()?!soundOn:!(soundOn&&music.ready));
     if(window.CharacterSelect.isOpen()){window.CharacterSelect.pad({x,y,confirm:edge(0),back:edge(1),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
+    if(window.MissionActivities.isOpen()){window.MissionActivities.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1),previous:edge(4),next:edge(5),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(window.PlaygroundGames.isOpen()){window.PlaygroundGames.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(window.TheaterRehearsal.isOpen()){
       window.TheaterRehearsal.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1),timestamp});
@@ -670,6 +691,7 @@
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
       if(window.CharacterSelect.isOpen()){}
+      else if(window.MissionActivities.isOpen())window.MissionActivities.tick(dt);
       else if(window.PlaygroundGames.isOpen())window.PlaygroundGames.tick(dt);
       else if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
       else if(window.PacmanArcade.isOpen())window.PacmanArcade.tick(dt);
@@ -722,6 +744,7 @@
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey)return;
     if(window.CharacterSelect.isOpen()){if(window.CharacterSelect.key(event))event.preventDefault();return;}
+    if(window.MissionActivities.isOpen()){if(window.MissionActivities.key(event))event.preventDefault();return;}
     if(window.PlaygroundGames.isOpen()){if(window.PlaygroundGames.key(event))event.preventDefault();return;}
     if(window.TheaterRehearsal.isOpen()){if(window.TheaterRehearsal.key(event))event.preventDefault();return;}
     if(window.PacmanArcade.isOpen()){if(window.PacmanArcade.key(event))event.preventDefault();return;}
@@ -787,9 +810,9 @@
     if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
     readController();
   });
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();saveProgress();music.setPaused(true);});
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();saveProgress();music.setPaused(true);});
   window.addEventListener('focus',()=>{windowActive=true;lastTime=0;resumeWorldMusic();});
-  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();saveProgress();}G.refreshSchoolDay(state);syncUI();syncMusic();});
+  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();saveProgress();}G.refreshSchoolDay(state);syncUI();syncMusic();});
   window.addEventListener('pagehide',()=>{saveProgress();clearInput();window.TheaterRehearsal.destroy();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
@@ -827,11 +850,11 @@
     }catch(error){$('adventure-save-status').textContent=error.message;$('adventure-save-status').classList.add('save-error');}
     finally{event.target.value='';}
   });
-  window.SchoolUpdater?.configure({canReload:()=>loaded&&!schoolEditorOpen&&!window.CharacterSelect.isOpen()&&!mapOpen&&!state.quiz&&['title','play'].includes(state.phase),save:saveProgress});
+  window.SchoolUpdater?.configure({canReload:()=>loaded&&!schoolEditorOpen&&!window.CharacterSelect.isOpen()&&!window.MissionActivities.isOpen()&&!mapOpen&&!state.quiz&&['title','play'].includes(state.phase),save:saveProgress});
   function installAgentTools(){
     const model=document.modelContext;if(!model?.registerTool)return;
     const lifecycle=new AbortController();
-    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot(),playground:window.PlaygroundGames.snapshot(),challenges:{...state.challenges}};}};
+    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot(),playground:window.PlaygroundGames.snapshot(),missions:window.MissionActivities.snapshot(),challenges:{...state.challenges}};}};
     const startTool={name:'start_school_adventure',title:'Pulsar START',description:'Pulsa START en la portada y abre la bienvenida del director. No reinicia una partida en curso.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta acción no acepta parámetros.');if(state.phase!=='title')throw new Error('La aventura ya está en curso.');return startGame();}};
     for(const item of [tool,startTool]){try{void Promise.resolve(model.registerTool(item,{signal:lifecycle.signal})).catch(error=>console.warn('No se pudo registrar la herramienta del juego',error));}catch(error){console.warn('Herramientas del juego no disponibles',error);}}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});

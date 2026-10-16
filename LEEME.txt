@@ -1,6 +1,26 @@
-LOS INSURGENTES — V13: ORGÁNICA E INORGÁNICA CON CRISS
+LOS INSURGENTES — V14: DIBUJO Y MISIONES DE LOS MAESTROS
 
 CAMBIOS DE ESTA VERSIÓN
+Dibujo con el maestro Ángel dentro del salón: mueve la cubeta con flechas o
+palanca y pulsa Enter/A para rellenar toda la figura. Sigue las claves de color.
+Hay 12 zonas, seis colores y 90 segundos. Se usa la música de Criss y su contador.
+Elige color con la paleta y A, botones de color, 1–6, Z/X o LB/RB. Se puede corregir.
+En teléfono, toca el color y la figura. E/START pausa; espacio/B vuelve.
+
+Teacher Raúl: seis actividades visuales de inglés (colores y útiles escolares).
+Cesia y Diana: limpiar el salón después de comer en el recreo. Cada maestra
+propone su propio reto, con tres botes, nueve residuos y 90 segundos.
+Angélica: uniforme de cada día con imágenes originales y Verdadero/Falso.
+Luis Miguel y Norma: entrada 8:00 a. m., salida 12:30 p. m. y hábitos de puntualidad.
+Ambos comparten la misma misión de puntualidad.
+
+Habla con el docente o busca Misiones de los maestros en el mapa. El dibujo
+requiere entrar al salón. Cada uno de los seis nuevos logros da 80 puntos
+solamente la primera vez. Las misiones se pueden repetir y los avances se guardan.
+Se conservan todos los minijuegos, personajes, salones, editor y guardados de v13.
+Consulta MISIONES_DOCENTES.md y VERIFICACION_V14.txt.
+
+CAMBIOS DE V13 CONSERVADOS
 El velador se retira del selector; quedan 44 personajes: 27 alumnos y 17 del
 personal. Los guardados antiguos conservan sus personajes y sus avances.
 
@@ -14,7 +34,7 @@ Los dos últimos son inorgánicos. Criss explica la diferencia y da pistas cuand
 se recoge un objeto o se elige otro bote. El papel se sustituye por cáscaras.
 
 Lee ACTUALIZAR.txt: puedes subir el paquete completo o copiar la actualización
-pequeña sobre la versión normal v11 o v12. Se conservan todos los guardados.
+pequeña sobre la versión normal v11, v12 o v13. Se conservan todos los guardados.
 
 CAMBIOS DE V12 CONSERVADOS
 Se incorpora por defecto el orden de Escuela_Los_Insurgentes.json.

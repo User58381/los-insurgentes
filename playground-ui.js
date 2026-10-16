@@ -57,7 +57,12 @@
     ctx.restore();
   }
   function cleanup(){
-    courtyard();
+    const task=P.TASKS[state.id];
+    if(task.scene==='classroom'){
+      ctx.fillStyle='#ded5b9';ctx.fillRect(0,0,720,420);
+      ctx.strokeStyle='#bdb69b';ctx.lineWidth=1;for(let x=0;x<720;x+=72){ctx.beginPath();ctx.moveTo(x,60);ctx.lineTo(x,420);ctx.stroke();}for(let y=60;y<420;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(720,y);ctx.stroke();}
+      if(options.images.room)ctx.drawImage(options.images.room,0,0,1280,190,0,0,720,60);
+    }else courtyard();
     for(const bin of P.BINS){
       const frame=P.CLEANUP_FRAMES.bins[bin.type],image=options.images.cleanupSprites;
       const receiving=deposits.some(item=>item.type===bin.type&&item.age<.65);
@@ -66,7 +71,7 @@
       else{ctx.fillStyle=bin.color;ctx.fillRect(bin.x-31,bin.y-45,62,55);ctx.fillStyle='#254a3c';ctx.fillRect(bin.x-34,bin.y-51,68,9);}
       label(bin.heading+'\n'+bin.detail,bin.x,bin.y-91);
     }
-    drawActor(actor('criss'),646,222,87,'left');label('Criss',646,249);
+    const helper=actor(task.npc);drawActor(helper,646,222,87,'left');label(task.npc==='criss'?'Criss':task.npc==='cesia'?'Cesia':'Diana',646,249);
     for(const item of state.litter)if(!item.picked){
       if(!state.carrying&&Math.hypot(item.x-state.player.x,item.y-state.player.y)<=43){ctx.strokeStyle='#ffe49b';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(item.x,item.y+3,23,12,0,0,Math.PI*2);ctx.stroke();}
       trash(item);

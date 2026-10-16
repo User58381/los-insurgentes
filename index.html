@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-version="v13-d56663bfd6fe8fc7">
+<html lang="es" data-version="v14-7b5cd15a8c1d215d">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,8 +8,8 @@
   <meta name="description" content="La aventura del saber: explora Los Insurgentes, elige tu personaje, resuelve retos y juega con tus compañeros.">
   <title>Los Insurgentes · La aventura del saber</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a5554'/%3E%3Cpath d='M32 10l6 14 15 2-11 10 3 16-13-8-13 8 3-16-11-10 15-2z' fill='%23ffd168'/%3E%3C/svg%3E">
-  <link id="game-style" rel="stylesheet" href="style.css?v=v13-d56663bfd6fe8fc7">
-  <script defer src="bootstrap.js?v=v13-d56663bfd6fe8fc7"></script>
+  <link id="game-style" rel="stylesheet" href="style.css?v=v14-7b5cd15a8c1d215d">
+  <script defer src="bootstrap.js?v=v14-7b5cd15a8c1d215d"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Aventura en la escuela Los Insurgentes">
@@ -124,6 +124,17 @@
       <div class="playground-controls"><div id="playground-directions" aria-label="Movimiento"><button type="button" data-playground-direction="up" aria-label="Arriba">↑</button><button type="button" data-playground-direction="left" aria-label="Izquierda">←</button><button type="button" data-playground-direction="down" aria-label="Abajo">↓</button><button type="button" data-playground-direction="right" aria-label="Derecha">→</button></div><button id="playground-action" class="primary-button" type="button">Enter / A · ¡Vamos!</button></div>
       <p class="playground-help">Flechas / joystick · Mover &nbsp; Enter / A · Acción &nbsp; E / START · Pausa &nbsp; Espacio / B · Patio</p>
     </dialog>
+    <dialog id="missions-dialog" aria-labelledby="missions-title">
+      <header class="mission-heading"><canvas id="missions-portrait" width="100" height="120" aria-hidden="true"></canvas><div><p id="missions-commission" class="eyebrow"></p><h2 id="missions-title"></h2><p id="missions-host"></p></div><button id="missions-close" class="close-button" type="button" aria-label="Volver a la escuela">✕</button></header>
+      <p id="missions-copy" class="mission-invitation"></p>
+      <div class="mission-status"><strong id="missions-progress"></strong><span id="missions-record"></span><div id="missions-timer" class="cleanup-timer" hidden><span aria-hidden="true">⌛</span><div><small>TIEMPO</small><strong id="missions-time" role="timer" aria-live="off">1:30</strong></div></div><button id="missions-sound" class="uniform-button" type="button" aria-pressed="true" aria-label="Silenciar sonido">♫</button><button id="missions-pause" class="uniform-button" type="button">Ⅱ Pausa</button></div>
+      <canvas id="missions-canvas" width="720" height="460" tabindex="0" aria-label="Actividad con los maestros"></canvas>
+      <section id="missions-questions" hidden aria-label="Responde la misión"><h3 id="missions-prompt"></h3><div id="missions-answers" class="mission-answers"></div></section>
+      <p id="missions-message" class="mission-feedback" role="status" aria-live="polite"></p>
+      <div id="missions-drawing-controls" hidden><p class="mission-color-hint">Clave de color: el número de cada zona indica qué color usar.</p><div id="missions-palette" class="mission-palette" aria-label="Elige el color de la cubeta"></div><div class="mission-dpad" aria-label="Mover la cubeta"><button type="button" data-mission-direction="up" aria-label="Cubeta hacia arriba">↑</button><button type="button" data-mission-direction="left" aria-label="Cubeta a la izquierda">←</button><button type="button" data-mission-direction="down" aria-label="Cubeta hacia abajo">↓</button><button type="button" data-mission-direction="right" aria-label="Cubeta a la derecha">→</button></div></div>
+      <button id="missions-action" class="primary-button" type="button">Enter / A · Comenzar</button>
+      <p id="missions-help" class="fine-print">Flechas / palanca · Mover o elegir &nbsp; Enter / A · Confirmar &nbsp; E / START · Pausa &nbsp; Espacio / B · Volver</p>
+    </dialog>
     <dialog id="quiz-dialog" aria-labelledby="quiz-title">
       <div class="dialog-top"><p id="quiz-subject" class="eyebrow"></p><span id="quiz-progress"></span></div>
       <h2 id="quiz-title"></h2>
@@ -141,6 +152,7 @@
         <div class="map-image-wrap"><img id="overview-image" src="assets/mapa.png" alt="Plano de Los Insurgentes: salones al norte; teatro al oeste del patio y sala de usos múltiples al este con el mural unido. La plazuela de la fuente tiene cercas fijas y una reja con puerta central al patio; entrada azul al sureste y portón Bicentenario al suroeste."><span id="map-player" aria-label="Tu posición"></span><span class="map-pin pin-fountain">1</span><span class="map-pin pin-room">2</span><span class="map-pin pin-field">3</span></div>
         <div class="map-guide"><p>Consigue una estrella en cada lugar. Puedes hacerlo en el orden que prefieras.</p><ol><li><b>La fuente</b><span>Resuelve dos sumas.</span></li><li><b id="map-classroom-name">Salón 3.º A</b><span>Entra por la puerta azul y lee en el pizarrón.</span></li><li><b>La cancha</b><span>Descubre números y patea el balón con Enter o A.</span></li></ol><p>Busca a Oliver frente a los salones para retarlo al trompo en la explanada.</p><p>En el teatro, a la izquierda de la explanada, puedes ensayar una canción con el maestro Ángel. Acércate a las escaleras y pulsa Enter o A.</p><p class="fine-print">Flechas para moverte; Enter es A. Mantén espacio (B) para correr. E abre o cierra la pausa y el mapa. En teléfono: cruceta y A.</p><div class="keyboard-options"><button id="map-run" class="uniform-button" type="button" aria-pressed="false">Paso: caminar</button><button id="map-sound" class="uniform-button" type="button" aria-pressed="true">♫ Sonido activado</button></div><p class="controller-help">Xbox 360: joystick o cruceta para caminar; A para actuar; B para correr o cerrar; X / START para abrir el mapa; Y para sonido. En los retos, elige con la cruceta y confirma con A.</p><a class="download-link" href="https://github.com/User58381/los-insurgentes/archive/refs/heads/main.zip">Descargar para jugar sin internet</a></div>
         <section class="adventure-tools"><h3>Juega con tus compañeros</h3><p>Encuéntralos en la escuela o elige un reto aquí. Habla con Criss para desbloquear su misión.</p><div id="challenge-list" class="challenge-list"></div><button id="map-character" class="uniform-button" type="button">Cambiar personaje</button></section>
+        <section class="adventure-tools"><h3>Misiones de los maestros</h3><p>Habla con cada docente para aprender con su comisión. El dibujo se juega dentro del salón con el maestro Ángel.</p><div id="teacher-mission-list" class="challenge-list"></div></section>
         <section class="adventure-tools"><h3>Tu partida</h3><p id="adventure-save-status" role="status">Se guarda automáticamente en este navegador.</p><div class="backup-buttons"><button id="adventure-export" class="uniform-button" type="button">Guardar copia completa</button><button id="adventure-import" class="uniform-button" type="button">Restaurar copia</button></div><input id="adventure-import-file" type="file" accept=".json,application/json" hidden><p class="fine-print">Incluye estrellas, puntos, personaje, retos, ajustes de la escuela y récords de Pac-Man y teatro.</p><p id="update-status" class="fine-print" role="status">Las actualizaciones conservan tu partida.</p></section>
         <section class="school-tools"><button class="uniform-button" type="button" data-open-school-editor>⚙ Editar escuela</button><p>Cambia las etiquetas de los edificios y los grupos de los profes. Guarda una copia o actualiza los archivos del juego.</p></section>
         <section class="uniform-settings" aria-labelledby="uniform-title">

@@ -3,7 +3,7 @@
   // These keys describe the save format, never the deployment number.
   const KEY='insurgentes-adventure-v1',BACKUP=KEY+'-backup',FORMAT='los-insurgentes-aventura';
   const RECORD_KEYS=['insurgentes-pacman-record-v1','insurgentes-theater-record-v1','insurgentes-sound'];
-  const TASK_IDS=['daniel','alexis','joaquin','dalila','criss'];
+  const TASK_IDS=['daniel','alexis','joaquin','dalila','criss','cesia','diana','dibujo','ingles','uniforme','puntualidad'];
   const copy=value=>JSON.parse(JSON.stringify(value));
   function number(value,name,max=100000000){if(!Number.isFinite(value)||value<0||value>max)throw new Error('Dato no válido: '+name);return value;}
   function validate(game,characters,value){

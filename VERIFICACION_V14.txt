@@ -1,0 +1,48 @@
+LOS INSURGENTES — VERIFICACIÓN V14
+
+BASE Y CONSERVACIÓN
+Versión normal v13. Se mantienen los 44 personajes seleccionables, salones,
+asignaciones, controles, editor, guardados, tres estrellas y minijuegos anteriores.
+No se sustituye ninguna música, efecto, mapa, uniforme ni sprite de la v13.
+
+MISIONES NUEVAS
+Ángel: dibujo dentro del salón, 12 figuras cerradas, seis claves de color,
+cubeta con flechas/palanca y relleno con Enter/A. Permite corregir los colores.
+Se elige color en la paleta del lienzo con A, botones, 1–6, Z/X o LB/RB.
+Dispone de 90 segundos, el MP3 original de limpieza de Criss y su SFX de reloj.
+La pausa detiene el tiempo; el intento termina sin premio al agotarse el reloj.
+Raúl: seis tarjetas visuales de inglés: red, blue, yellow, pencil, book, backpack.
+Cesia y Diana: dos misiones de limpieza de salón después de comer en el recreo.
+Conservan la dinámica de tres botes, nueve residuos, 90 segundos y clasificación.
+Angélica: ocho tarjetas con los uniformes originales de los cinco días y V/F.
+El martes admite deportivo y la alternativa blanco/cuadros de la guía existente.
+Luis Miguel y Norma: una misión compartida de cinco preguntas de puntualidad.
+Entrada 8:00 a. m., salida 12:30 p. m.; preparar mochila, llegar con tiempo y orden.
+Las preguntas permiten corregir y leer una explicación antes de continuar.
+
+PROGRESO Y ACTUALIZACIÓN
+Se guardan seis logros nuevos: dibujo, ingles, cesia, diana, uniforme, puntualidad.
+Cada uno otorga 80 puntos la primera vez; repetirlo no duplica la recompensa.
+Se conservan los datos anteriores y las mismas claves y formato de guardado.
+Exportar e importar copia completa incluye los logros nuevos y antiguos.
+La actualización automática espera a cerrar las misiones. Regresar restaura
+la música del lugar y respeta la preferencia global de sonido.
+
+PRUEBAS
+98 pruebas automatizadas de lógica e integración aprobadas.
+Se comprueban entrada por los siete docentes, acceso al dibujo desde el salón,
+capas y claves de figuras, relleno y corrección, reloj, pausa y fin de tiempo,
+movimiento normalizado, teclas, Xbox, LB/RB, botones táctiles y toques en lienzo.
+Se comprueban preguntas, uniformes del martes, horas, recompensas únicas,
+guardados restaurados, importación/exportación, audio real con medios simulados
+y el regreso de la música al cerrar. También pasan las pruebas anteriores.
+La integración utiliza un DOM simulado y un mando sintético.
+Se renderizaron e inspeccionaron siete estados con el Canvas del juego y sus
+sprites reales: dibujo con claves y coloreado, dos uniformes, libro de inglés,
+reloj de salida y salón de Cesia. No se hizo prueba interactiva en navegador
+ni con teléfono, tableta o mando físico.
+
+ENTREGA
+ZIP completo y actualización pequeña para v11/v12/v13. Incluyen los nuevos
+missions-engine.js y missions-ui.js. Sus archivos y el manifiesto se verifican;
+la actualización aplicada sobre v13 reconstruye el contenido completo.

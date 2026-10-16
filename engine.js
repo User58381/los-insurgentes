@@ -198,6 +198,22 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     return UNIFORM_DAYS[day].column+(student.style==='girl'?1:0);
   }
   const CHALLENGE_ACTORS={daniel:{id:'daniel',x:380,y:455},alexis:{id:'jose_alexis',x:850,y:455},joaquin:{id:'joaquin',x:865,y:180},dalila:{id:'dalila',x:550,y:795},criss:{id:'criss'}};
+  const TEACHER_MISSIONS={
+    angel:{id:'dibujo',scene:'classroom',label:'Dibujar con el maestro Ángel'},
+    raul:{id:'ingles',label:'Aprender inglés con el Teacher Raúl'},
+    cesia:{id:'cesia',label:'Limpiar el salón con Cesia · Después del recreo'},
+    diana:{id:'diana',label:'Limpiar el salón con Diana · Después del recreo'},
+    angelica:{id:'uniforme',label:'Reconocer el uniforme con Angélica'},
+    luis_miguel:{id:'puntualidad',label:'Misión de puntualidad con Luis Miguel'},
+    norma:{id:'puntualidad',label:'Misión de puntualidad con Norma'}
+  };
+  function nearbyTeacherMission(state){
+    return Object.entries(TEACHER_MISSIONS).map(([hostId,mission])=>{
+      if(mission.scene&&mission.scene!==state.scene)return null;
+      const position=TEACHERS.find(teacher=>teacher.id===hostId)?.positions[state.scene];
+      return position?{...mission,...position,hostId}:null;
+    }).filter(mission=>mission&&Math.hypot(mission.x-state.player.x,mission.y-state.player.y)<62).sort((a,b)=>Math.hypot(a.x-state.player.x,a.y-state.player.y)-Math.hypot(b.x-state.player.x,b.y-state.player.y))[0]||null;
+  }
   function challengeActors(state){return Object.entries(CHALLENGE_ACTORS).map(([id,target])=>{const actor=id==='criss'?TEACHERS.find(t=>t.id==='criss').positions.outside:state.classmates.find(a=>a.id===target.id);return {...actor,id};});}
   function createClassmates() {
     return STUDENTS.map((student,index)=>{
@@ -310,6 +326,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
   function nearby(state) {
     const p = state.player;
     if (state.scene === 'classroom') {
+      const mission=nearbyTeacherMission(state);if(mission)return {...mission,id:'teacher-'+mission.hostId};
       if (distance(p, {x:640,y:721}) < 75) return { id:'exit', label:'Salir al patio', x:640, y:722 };
       if(distance(p,ARCADE)<ARCADE.reach)return {id:'arcade',label:'Jugar Pac-Man educativo',x:ARCADE.x,y:ARCADE.y};
       if (distance(p, STATIONS.classroom) < STATIONS.classroom.reach) return { id:'classroom', label:state.completed.classroom ? 'Leer de nuevo' : 'Reto de lectura', x:640, y:145 };
@@ -331,6 +348,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     if(theaterDistance<THEATER.reach)return {id:'theater',label:'Ensayar una canción con el maestro Ángel',x:THEATER.x,y:THEATER.y};
     const director=TEACHERS.find(teacher=>teacher.id==='guadalupe').positions.outside;
     if(distance(p,director)<62)return {id:'director',label:'Hablar con el director · Mi uniforme',x:director.x,y:director.y};
+    const mission=nearbyTeacherMission(state);if(mission)return {...mission,id:'teacher-'+mission.hostId};
     if (distance(p,{x:150,y:1179}) < 65) return {id:'bicentenario',label:'Portón Bicentenario',x:150,y:1139};
     return null;
   }
@@ -343,6 +361,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     const target = nearby(state);
     if (!target) return null;
     const p = state.player;
+    if(target.id.startsWith('teacher-')){p.walking=false;state.phase='mission';const mission=TEACHER_MISSIONS[target.hostId];emit(state,'teacher-mission',{id:mission.id,hostId:target.hostId});return target.id;}
     if(target.id.startsWith('challenge-')){p.walking=false;const criss=target.id==='challenge-criss';state.phase=criss?'criss-dialogue':'playground';emit(state,criss?'criss-talk':'playground-open',{id:target.id.slice(10)});return target.id;}
     switch (target.id) {
       case 'gate': p.x=1104; p.y=1033; p.facing='up'; emit(state,'transition'); break;
@@ -468,6 +487,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     if(state.phase==='theater')return 'Ensayo musical con el maestro Ángel';
     if(state.phase==='playground')return 'Reto con tus compañeros';
     if(state.phase==='criss-dialogue')return 'La invitación de Criss';
+    if(state.phase==='mission')return 'Aprende con las comisiones de tu escuela';
     if(state.scene==='outside'&&state.player.y>1150) return 'Entra por el portón azul';
     if(!state.completed.fountain) return 'Busca la estrella de la fuente';
     if(!state.completed.classroom) return state.scene==='classroom'?'Acércate al pizarrón':'Visita '+STATIONS.classroom.name;
@@ -477,5 +497,5 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
   function snapshot(state) {
     return {phase:state.phase,scene:state.scene,player:{id:state.player.id,name:state.player.name,style:state.player.style},position:{x:Math.round(state.player.x),y:Math.round(state.player.y)},stars:Object.values(state.completed).filter(Boolean).length,points:state.points,goals:state.goals,completed:{...state.completed},objective:objective(state),nearby:nearby(state)?.label||null,question:state.quiz?{station:state.quiz.station,index:state.quiz.index,correct:state.quiz.correct,feedback:state.quiz.feedback}:null,trompo:state.trompo?{round:state.trompo.round,stage:state.trompo.stage,power:Math.round(state.trompo.power*100),wins:state.trompo.wins,oliverWins:state.trompo.oliverWins}:null,classmates:STUDENTS.length,schoolDay:UNIFORM_DAYS[state.schoolDay].name,uniform:UNIFORM_DAYS[state.schoolDay].uniform,automaticDay:state.dayMode==='auto',teachers:teachersInScene(state).map(teacher=>({name:teacher.name,group:teacher.group}))};
   }
-  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,buildingEntrance,setClassroomBuilding,classroomLabel,LAYOUT_REVISION,ORGANIZATION_REVISION,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,ARCADE,THEATER,CHALLENGE_ACTORS,challengeActors,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
+  return {GAME_TITLE,WELCOME_TEXT,ASSET_PATHS,TOP_FRAMES,WORLD,QUESTIONS,STATIONS,CLASSROOM_DOOR,MAP_LABELS,buildingEntrance,setClassroomBuilding,classroomLabel,LAYOUT_REVISION,ORGANIZATION_REVISION,FRAME_BOUNDS,OUTSIDE_RECTS,OUTSIDE_CIRCLES,FENCE_SEGMENTS,MURAL,ROOM_RECTS,ARCADE,THEATER,CHALLENGE_ACTORS,challengeActors,TEACHER_MISSIONS,nearbyTeacherMission,STUDENTS,TEACHERS,teachersInScene,UNIFORM_DAYS,STUDENT_FRAMES,schoolDay,setSchoolDay,refreshSchoolDay,studentUniformColumn,classmatesInScene,updateClassmates,createState,start,finishWelcome,openUniformGuide,closeUniformGuide,move,canStand,nearby,interact,answer,nextQuestion,cancelQuiz,trompoAction,leaveTrompo,tick,objective,snapshot};
 });

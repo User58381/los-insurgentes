@@ -1,8 +1,43 @@
-# Los Insurgentes · La aventura del saber — v13
+# Los Insurgentes · La aventura del saber — v14
 
-Versión normal completa basada en **Los_Insurgentes_GitHub_v12.zip**. Conserva
+Versión normal completa basada en **Los_Insurgentes_GitHub_v13.zip**. Conserva
 los 27 alumnos con nombre, los 17 personajes seleccionables del personal, sus animaciones,
 el arte, las canciones, el editor y todos los minijuegos.
+
+## Nuevas misiones de los maestros
+
+| Docente | Misión |
+| --- | --- |
+| Maestro Ángel, dentro del salón | Dibujo con cubeta: 12 zonas, 6 claves de color y 90 segundos |
+| Teacher Raúl | Seis actividades visuales de colores y útiles en inglés |
+| Maestra Cesia | Limpiar el salón después de comer en el recreo |
+| Maestra Diana | Practicar el hábito de dejar limpio el salón al volver del recreo |
+| Maestra Angélica | Ocho tarjetas con imágenes del uniforme y respuestas Verdadero/Falso |
+| Maestro Luis Miguel y maestra Norma | Puntualidad: entrada a las 8:00 a. m., salida a las 12:30 p. m. y buenos hábitos |
+
+Acércate al docente y pulsa **Enter / A** para leer su invitación. Las actividades
+también aparecen en **Mapa → Misiones de los maestros**. Para el dibujo debes
+entrar al salón jugable y hablar con Ángel. El grupo y su puerta siguen los ajustes
+del editor. El dibujo usa la **canción original de Criss y su sonido de contador**.
+
+Mueve la cubeta con flechas/palanca y rellena la figura completa con Enter/A.
+Puedes elegir el color tocando la paleta del lienzo con la cubeta y pulsando A,
+con los botones de color, con **1–6**, con **Z/X**, o con **LB/RB** del mando.
+Una selección equivocada se puede corregir. La pausa detiene reloj y movimiento;
+al llegar a cero termina el intento sin otorgar el logro. En teléfono también
+puedes tocar directamente una figura para rellenarla con el color elegido.
+
+La limpieza de salón mantiene la dinámica de Criss: tres botes, nueve residuos,
+90 segundos, separación orgánica/inorgánica y el mismo sonido por depósito.
+Se diferencia de la explanada por su ambiente, docente y explicación del hábito.
+El uniforme usa los sprites originales de cada día y permite el uniforme blanco
+y de cuadros como alternativa del martes, igual que la guía existente.
+
+Hay **seis nuevos logros**, cada uno con 80 puntos la primera vez. Luis Miguel
+y Norma comparten una misión y su logro; Cesia y Diana tienen retos propios.
+Las preguntas permiten corregir y continuar después de leer la explicación.
+Se conservan los controles Enter=A, espacio=B, E=pausa y los guardados anteriores.
+Ver detalles en `MISIONES_DOCENTES.md` y `VERIFICACION_V14.txt`.
 
 ## Limpieza orgánica e inorgánica y selector
 
@@ -26,7 +61,7 @@ mensajes al recoger o equivocarse recuerdan por qué corresponde ese residuo.
 La cáscara sustituye al papel del minijuego anterior. No se añaden preguntas ni
 pasos al reto. Las recompensas y los logros guardados se conservan.
 
-Se incluye una actualización pequeña para **v11 o v12**, con todos los archivos
+Se incluye una actualización pequeña para **v11, v12 o v13**, con todos los archivos
 de código y el atlas de limpieza nuevo. Se copia sobre la carpeta existente,
 aceptando reemplazar archivos y conservando las imágenes y canciones restantes.
 El ZIP completo incluye todo para instalarlo desde cero. Lee `ACTUALIZAR.txt`.
@@ -52,7 +87,7 @@ Esto conserva las asignaciones de maestros, estrellas, puntos y récords.
 También puedes importar el JSON incluido. En los campos de texto, espacio y E
 siguen sirviendo para escribir.
 
-Verificación de esta entrega en `VERIFICACION_V13.txt`; se conservan los informes anteriores.
+Verificación de esta entrega en `VERIFICACION_V14.txt`; se conservan los informes anteriores.
 
 ## Pasos animados para todo el personal
 

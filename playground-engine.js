@@ -5,7 +5,9 @@
     alexis:{type:'football',npc:'jose_alexis',role:'keeper',title:'Ataja con Alexis',copy:'Alexis tira un poco más rápido. Muévete con ← → y pulsa Enter / A para estirarte. Consigue 3 atajadas antes de que Alexis meta 3 goles.'},
     joaquin:{type:'football',npc:'joaquin',role:'striker',title:'Marca contra Joaquín',copy:'Joaquín es el portero y tú tiras. Apunta con ← → y pulsa Enter / A para patear. Ganas con 3 goles; Joaquín gana con 3 atajadas.'},
     dalila:{type:'rope',npc:'dalila',title:'La cuerda de Dalila',copy:'¡A saltar! Pulsa Enter / A un poquito antes de que la cuerda toque tus pies. Mira la zona dorada. Consigue 10 saltos; tienes 3 oportunidades.'},
-    criss:{type:'cleanup',npc:'criss',title:'La explanada con Criss',copy:'Ayuda a Criss a cuidar la escuela. Las cáscaras de fruta son orgánicas; las botellas y envolturas de plástico son inorgánicas. Usa los tres botes: Orgánica, Inorgánica: envases e Inorgánica: envolturas. Muévete con las flechas; Enter / A recoge y deposita. Separa los 9 residuos antes de que terminen los 90 segundos.'}
+    criss:{type:'cleanup',npc:'criss',title:'La explanada con Criss',copy:'Ayuda a Criss a cuidar la escuela. Las cáscaras de fruta son orgánicas; las botellas y envolturas de plástico son inorgánicas. Usa los tres botes: Orgánica, Inorgánica: envases e Inorgánica: envolturas. Muévete con las flechas; Enter / A recoge y deposita. Separa los 9 residuos antes de que terminen los 90 segundos.'},
+    cesia:{type:'cleanup',npc:'cesia',scene:'classroom',commission:'Limpieza',title:'Salón limpio con Cesia',copy:'Soy la maestra Cesia, de la comisión de limpieza. Ya comimos durante el recreo: ahora recogemos nuestros residuos para recibir un salón limpio al volver. Separa las cáscaras, botellas y envolturas en sus tres botes. Flechas para moverte y Enter / A para recoger y depositar. Tienes 90 segundos.'},
+    diana:{type:'cleanup',npc:'diana',scene:'classroom',commission:'Limpieza',title:'Buenos hábitos con Diana',copy:'Soy la maestra Diana, de la comisión de limpieza. Después de comer en el recreo dejamos limpio nuestro salón. Recoge lo que quedó y sepáralo en Orgánica, Inorgánica: envases e Inorgánica: envolturas. Flechas para moverte; Enter / A recoge y deposita. Hay 9 residuos y 90 segundos.'}
   };
   const CLEANUP_SECONDS=90;
   const CLEANUP_FRAMES={bins:{organic:[90,41,401,659],bottle:[567,41,398,659],wrapper:[1045,41,401,659]},litter:{organic:[92,712,399,268],bottle:[590,707,337,285],wrapper:[1064,712,394,273]}};
@@ -32,6 +34,7 @@
   function finish(s,won,reason=null){if(s.phase==='complete')return;s.phase='complete';s.won=won;s.reason=reason;
     s.message=won?(s.type==='football'?'¡Ganaste el duelo! ':s.type==='rope'?'¡Diez saltos! ': '¡La explanada está limpia! ')+(s.type==='cleanup'?'Separaste residuos orgánicos e inorgánicos. ¡Gracias por ayudar a Criss!':'¡Buen trabajo en equipo!'):'¡Buen intento! Puedes volver a practicar.';
     if(reason==='timeout')s.message='¡Se acabó el tiempo! Separaste '+s.collected+' de 9 residuos. Criss te espera para volver a intentarlo.';
+    if(TASKS[s.id].commission){if(won)s.message='¡Salón limpio después de comer en el recreo! Recoger y separar nuestros residuos es un buen hábito. Dejamos el lugar listo para volver a aprender.';else if(reason==='timeout')s.message='Se acabó el tiempo. Separaste '+s.collected+' de 9 residuos. La maestra te acompaña para volver a practicar el hábito de limpiar después de comer.';}
     emit(s,'complete',{won,score:s.score,reason});
   }
   function pause(s){if(s.phase!=='playing')return false;s.phase='paused';return true;}
