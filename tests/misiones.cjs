@@ -4,9 +4,9 @@ const G=require('../engine.js'),C=require('../characters.js'),M=require('../miss
 function drawing(){const s=M.createState('dibujo',G);M.action(s);return s;}
 function advance(s,seconds,input={}){for(let t=0;t<seconds-.000001;t+=.05)M.tick(s,Math.min(.05,seconds-t),input);}
 function completeQuiz(s){M.action(s);while(s.phase==='playing'){assert(M.answer(s,s.cards[s.index].answer));M.action(s);}return s;}
-test('dibujo: empieza en pausa de invitación, con 12 zonas, seis claves y 90 segundos',()=>{
- const s=M.createState('dibujo',G);advance(s,10);assert.equal(s.phase,'intro');assert.equal(s.remaining,90);assert.equal(s.regions.length,12);assert.equal(M.COLORS.length,6);assert.equal(s.score,0);
- M.action(s);advance(s,1);assert(Math.abs(s.remaining-89)<.000001);
+test('dibujo: empieza en pausa de invitación, con 12 zonas, seis claves y 210 segundos (3:30)',()=>{
+ const s=M.createState('dibujo',G);advance(s,10);assert.equal(s.phase,'intro');assert.equal(s.remaining,210);assert.equal(s.regions.length,12);assert.equal(M.COLORS.length,6);assert.equal(s.score,0);
+ M.action(s);advance(s,1);assert(Math.abs(s.remaining-209)<.000001);
 });
 test('dibujo: cada número corresponde a una región visible, incluidas las figuras superpuestas',()=>{
  const s=drawing();for(const region of s.regions){assert.equal(M.hitRegion(s,...region.label).id,region.id,region.id);assert(M.COLORS[region.key-1]);}
@@ -23,20 +23,22 @@ test('dibujo: la cubeta rellena toda la figura, admite corregir y no duplica aci
 });
 test('dibujo: pintar las 12 zonas antes de cero gana una sola vez y detiene el reloj',()=>{
  const s=drawing();advance(s,20);for(const region of s.regions){M.color(s,region.key-1);M.setCursor(s,...region.label);M.action(s);}
- assert(s.won);assert.equal(s.score,12);assert.equal(s.phase,'complete');assert.equal(s.events.filter(e=>e.type==='complete').length,1);const before=JSON.stringify(s);advance(s,90);M.action(s);assert.equal(JSON.stringify(s),before);
+ assert(s.won);assert.equal(s.score,12);assert.equal(s.phase,'complete');assert.equal(s.events.filter(e=>e.type==='complete').length,1);const before=JSON.stringify(s);advance(s,210);M.action(s);assert.equal(JSON.stringify(s),before);
 });
-test('dibujo: al agotarse 90 segundos termina sin recompensa y no vuelve a terminar',()=>{
- const s=drawing();advance(s,90);assert.equal(s.remaining,0);assert.equal(s.phase,'complete');assert.equal(s.reason,'timeout');assert.equal(s.won,false);assert.equal(s.events.filter(e=>e.type==='complete').length,1);advance(s,10);assert.equal(s.events.filter(e=>e.type==='complete').length,1);
+test('dibujo: sigue jugando a los 90 segundos y expira a los 210 sin recompensa',()=>{
+ const s=drawing();advance(s,90);assert.equal(s.phase,'playing');assert(Math.abs(s.remaining-120)<.000001);assert.equal(s.events.filter(e=>e.type==='complete').length,0);
+ advance(s,120);assert.equal(s.remaining,0);assert.equal(s.phase,'complete');assert.equal(s.reason,'timeout');assert.equal(s.won,false);assert.equal(s.events.filter(e=>e.type==='complete').length,1);assert.equal(s.events.find(e=>e.type==='complete').won,false);advance(s,10);assert.equal(s.events.filter(e=>e.type==='complete').length,1);
 });
 test('dibujo: el reloj avisa más rápido al final y la pausa congela reloj y cubeta',()=>{
- const s=drawing();advance(s,79);const normal=s.events.filter(e=>e.type==='timer-tick').length;s.events=[];advance(s,2);assert(normal>=78);assert(s.events.some(e=>e.type==='timer-tick'&&e.urgent));
+ const s=drawing();advance(s,199);const normal=s.events.filter(e=>e.type==='timer-tick').length;s.events=[];advance(s,2);assert(normal>=198);assert(s.events.some(e=>e.type==='timer-tick'&&e.urgent));
  M.pause(s);const before=JSON.stringify(s);advance(s,60,{x:1,y:1});assert.equal(JSON.stringify(s),before);M.resume(s);advance(s,.05,{x:1});assert(s.remaining<9);assert(s.cursor.x>360);
 });
 test('dibujo: movimiento analógico normalizado, límites y entrada de tiempo inválida',()=>{
  const a=drawing(),b=drawing();M.tick(a,.05,{x:1});M.tick(b,.05,{x:1,y:1});assert(Math.abs(Math.hypot(b.cursor.x-360,b.cursor.y-185)-(a.cursor.x-360))<.00001);
  for(let i=0;i<200;i++)M.tick(a,.05,{x:1,y:-1});assert(a.cursor.x<=710&&a.cursor.y>=10);const old=a.remaining;M.tick(a,-1,{x:1});assert.equal(a.remaining,old);
 });
-test('uniforme: imágenes de los cinco días y alternativa del martes respetan la guía existente',()=>{
+test('uniforme: martes y jueves usan blanco y cuadros según la guía actualizada',()=>{
+ assert.equal(G.UNIFORM_DAYS[2].column,2);assert.equal(G.UNIFORM_DAYS[4].column,2);
  const cards=M.uniformCards(G);assert.equal(new Set(cards.map(c=>c.day)).size,5);assert(cards.some(c=>c.answer===0));assert(cards.some(c=>c.answer===1));
  assert.equal(cards.find(c=>c.day===2&&c.shownDay===2).answer,0);assert.equal(cards.find(c=>c.day===2&&c.shownDay===4).answer,0);assert.equal(cards.find(c=>c.day===1&&c.shownDay===3).answer,1);assert.equal(cards.find(c=>c.day===5&&c.shownDay===2).answer,1);
  for(const card of cards)assert.deepEqual(card.options,['Verdadero','Falso']);

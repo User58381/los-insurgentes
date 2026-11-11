@@ -4,7 +4,8 @@ const ROOT=path.resolve(__dirname,'..');
 class Emitter{
  constructor(){this.listeners={};}
  addEventListener(type,fn){(this.listeners[type]??=[]).push(fn);}
- dispatchEvent(event){event.target??=this;event.preventDefault??=function(){this.defaultPrevented=true;};for(const fn of this.listeners[event.type]||[])fn(event);return !event.defaultPrevented;}
+ removeEventListener(type,fn){this.listeners[type]=(this.listeners[type]||[]).filter(item=>item!==fn);}
+ dispatchEvent(event){event.target??=this;event.preventDefault??=function(){this.defaultPrevented=true;};event.stopPropagation??=function(){this.propagationStopped=true;};event.stopImmediatePropagation??=function(){this.immediatePropagationStopped=true;};for(const fn of this.listeners[event.type]||[]){if(event.immediatePropagationStopped)break;fn(event);}return !event.defaultPrevented;}
 }
 function dom(){
  let document;
@@ -16,11 +17,18 @@ function dom(){
   get id(){return this.attrs.id||'';} set id(v){this.attrs.id=v;}
   get className(){return this.attrs.class||'';}set className(v){this.attrs.class=v;}
   get options(){return this.querySelectorAll('option');}
+  get valueAsNumber(){return this.value===''?NaN:Number(this.value);}
   get value(){return this.tagName==='SELECT'?(this.options[this.selectedIndex]?.attrs.value??''):this._value;}
   set value(v){if(this.tagName==='SELECT'){const i=this.options.findIndex(o=>o.attrs.value===String(v));this.selectedIndex=i<0?0:i;}else this._value=String(v);}
   get textContent(){return this._text+this.children.map(x=>x.textContent).join('');}set textContent(v){this._text=String(v);this.children=[];}
-  set innerHTML(v){this.textContent=v;}
+  set innerHTML(v){this.replaceChildren();parseMarkup(String(v),this);}
   get firstElementChild(){return this.children[0]||null;}
+  get parentNode(){return this.parentElement;}
+  get childElementCount(){return this.children.length;}
+  appendChild(node){this.append(node);return node;}
+  prepend(...nodes){for(const node of nodes.reverse()){node.remove?.();node.parentElement=this;this.children.unshift(node);}}
+  closest(selector){for(let node=this;node;node=node.parentElement)if(node.matches(selector))return node;return null;}
+  insertAdjacentHTML(position,html){if(position==='beforeend')parseMarkup(html,this);else throw new Error('Unsupported test DOM position: '+position);}
   append(...nodes){for(const n of nodes){if(typeof n==='string'){this._text+=n;continue;}n.parentElement=this;this.children.push(n);}}
   replaceChildren(...nodes){for(const c of this.children)c.parentElement=null;this.children=[];this._text='';this.append(...nodes);}
   after(node){const list=this.parentElement.children,index=list.indexOf(this);list.splice(index+1,0,node);node.parentElement=this.parentElement;}
@@ -44,13 +52,16 @@ function dom(){
   showModal(){this.open=true;this.attrs.open='';}close(){if(!this.open)return;this.open=false;delete this.attrs.open;this.dispatchEvent({type:'close'});}
   getContext(){return this.ctx??=context2d();}scrollIntoView(){}setPointerCapture(){}getBoundingClientRect(){return {left:0,top:0,right:this.width,bottom:this.height,width:this.width,height:this.height};}
  }
- const root=new Element('root'),stack=[root],voids=new Set(['meta','link','img','input','br','hr','source','wbr']);
- for(const token of fs.readFileSync(path.join(ROOT,'index.html'),'utf8').match(/<!--[\s\S]*?-->|<[^>]+>|[^<]+/g)||[]){
+ function parseMarkup(html,parent){
+ const stack=[parent],voids=new Set(['meta','link','img','input','br','hr','source','wbr']);
+ for(const token of html.match(/<!--[\s\S]*?-->|<[^>]+>|[^<]+/g)||[]){
   if(token.startsWith('<!--')||token.startsWith('<!'))continue;
   if(token.startsWith('</')){const tag=token.slice(2).split(/[ >]/)[0];while(stack.length>1){const e=stack.pop();if(e.tagName.toLowerCase()===tag)break;}continue;}
   if(token.startsWith('<')){const tag=/^<([\w-]+)/.exec(token)?.[1];if(!tag)continue;const attrs={};for(const m of token.slice(tag.length+1,-1).matchAll(/([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g))attrs[m[1]]=m[2]??m[3]??m[4]??'';const e=new Element(tag,attrs);if(attrs.type)e.type=attrs.type;stack.at(-1).append(e);if(!voids.has(tag)&&!token.endsWith('/>'))stack.push(e);}
   else stack.at(-1)._text+=token;
  }
+ }
+ const root=new Element('root');parseMarkup(fs.readFileSync(path.join(ROOT,'index.html'),'utf8'),root);
  document=new Emitter();Object.assign(document,{documentElement:root.querySelector('html'),head:root.querySelector('head'),body:root.querySelector('body'),hidden:false,activeElement:null,createElement:tag=>new Element(tag),getElementById:id=>root.querySelector('#'+id),querySelector:s=>root.querySelector(s),querySelectorAll:s=>root.querySelectorAll(s),hasFocus:()=>true});
  return {document,Element};
 }
@@ -59,10 +70,10 @@ async function runtime(seed=[],options={}){
  class Image {constructor(){this.complete=true;this.naturalWidth=1400;this.naturalHeight=1300;this.width=1400;this.height=1300;}set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}get src(){return this._src;}}
  class Audio extends Emitter {constructor(){super();this.paused=true;this.currentTime=0;this.duration=156;this.readyState=4;}play(){if(this.rejectNextPlay){const error=this.rejectNextPlay;this.rejectNextPlay=null;this.paused=true;return Promise.reject(error);}this.paused=false;return Promise.resolve();}pause(){this.paused=true;}load(){}removeAttribute(){}}
  class Music{constructor(){this.ready=true;this.effects=[];window.__music=this;}setEnabled(v){this.enabled=v;}setPaused(v){this.paused=v;}setMusicPaused(v){this.musicOnlyPaused=v;}setScene(v){this.scene=v;}update(){}effect(kind){this.effects.push(kind);}stopVoices(){}destroy(){}activate(){return Promise.resolve(true);}}
- Object.assign(window,{document,console,Image,Audio,innerWidth:1100,innerHeight:800,devicePixelRatio:1,matchMedia:()=>({matches:false}),performance:{now:()=>1000},navigator:{getGamepads:()=>pads},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v))},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},requestAnimationFrame:()=>1,cancelAnimationFrame(){},getComputedStyle:n=>({display:n.hidden?'none':'block',visibility:'visible',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr'}),CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},Event:class{constructor(type,options){this.type=type;Object.assign(this,options);}},AbortController,URL,Blob,SchoolAudio:{Player:Music,AUDIO_PATHS:{}},SchoolAssets:{url:p=>p},SchoolUpdater:{configure(value){this.hooks=value;},check:async()=>false,status:()=>'',isPending:()=>false}});
+ Object.assign(window,{document,console,Image,Audio,innerWidth:1100,innerHeight:800,devicePixelRatio:1,matchMedia:()=>({matches:false}),performance:{now:()=>1000},navigator:{getGamepads:()=>pads},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v))},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},requestAnimationFrame:()=>1,cancelAnimationFrame(){},getComputedStyle:n=>({display:n.hidden?'none':'block',visibility:'visible',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr'}),CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},Event:class{constructor(type,options){this.type=type;Object.assign(this,options);}},KeyboardEvent:class{constructor(type,options){this.type=type;Object.assign(this,options);}},fetch:async()=>{throw new Error('offline test');},AbortController,URL,Blob,SchoolAudio:{Player:Music,AUDIO_PATHS:{}},SchoolAssets:{url:p=>p},SchoolUpdater:{configure(value){this.hooks=value;},check:async()=>false,status:()=>'',isPending:()=>false}});
  window.window=window;document.modelContext={registerTool(item){tools.set(item.name,item);}};
  const ctx=vm.createContext(window);
- for(const file of ['engine.js','characters.js','adventure-save.js','school-settings.js','keyboard.js','character-ui.js','playground-engine.js','playground-ui.js','missions-engine.js','missions-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','game.js','school-editor.js']){
+ for(const file of ['engine.js','weather.js','characters.js','adventure-save.js','school-settings.js','keyboard.js','controls-ui.js','character-ui.js','playground-engine.js','playground-ui.js','missions-engine.js','missions-ui.js','pacman-engine.js','pacman-ui.js','theater-song.js','theater-engine.js','theater-ui.js','hide-seek-engine.js','hide-seek-ui.js','game.js','school-editor.js']){
   if(file==='game.js'&&options.realAudio)vm.runInContext(fs.readFileSync(path.join(ROOT,'audio.js'),'utf8'),ctx,{filename:'audio.js'});
   let source=fs.readFileSync(path.join(ROOT,file),'utf8');if(file==='game.js')source=source.replace(/\}\)\(\);\s*$/,"window.__test={getState:()=>state,getMusic:()=>music,startGame,finishWelcome,openMap,closeMap,openPlayground,openCharacters,interact,controllerInput,frame,saveProgress,openPacman,openTheater,closeTrompo,openMission};})();");
   if(file==='missions-ui.js')source=source.replace(/\}\)\(\);\s*$/,'window.__missionTest={getState:()=>state};})();');
@@ -79,8 +90,8 @@ function talkToCriss(r,accept=true){
 test('integración: selección de director, bienvenida, mapa, cinco retos y regreso',async()=>{
  const r=await runtime(),{window:w,document:d}=r,T=w.__test;
  assert.equal(d.getElementById('start-button').disabled,false);T.startGame();assert(w.CharacterSelect.isOpen());
- const director=d.querySelector('[data-character="guadalupe"]');director.focus();d.getElementById('character-confirm').click();assert.equal(T.getState().player.id,'guadalupe');assert.equal(T.getState().phase,'welcome');T.finishWelcome();assert.equal(T.getState().phase,'play');
- T.openMap();assert.equal(d.getElementById('challenge-list').children.length,5);T.closeMap();
+ d.querySelector('[data-character-filter="staff"]').click();const director=d.querySelector('[data-character="guadalupe"]');director.focus();d.getElementById('character-confirm').click();assert.equal(T.getState().player.id,'guadalupe');assert.equal(T.getState().phase,'welcome');T.finishWelcome();assert.equal(T.getState().phase,'play');
+ T.openMap();assert.equal(d.getElementById('challenge-list').children.length,6);T.closeMap();
  for(const id of Object.keys(w.SchoolPlayground.TASKS)){if(id==='criss')talkToCriss(r);else T.openPlayground(id);assert(w.PlaygroundGames.isOpen());assert.equal(w.PlaygroundGames.snapshot().id,id);w.PlaygroundGames.key({key:'Enter'});w.PlaygroundGames.tick(.02);T.frame(10000);assert.equal(w.SchoolUpdater.hooks.canReload(),false);w.PlaygroundGames.close();assert.equal(T.getState().phase,'play');}
  const saved=JSON.parse(r.storage.get(w.SchoolAdventureSave.KEY));assert.equal(saved.playerId,'guadalupe');assert.equal(saved.started,true);
  assert.equal(r.tools.get('read_school_adventure').execute({}).player.id,'guadalupe');
@@ -214,8 +225,8 @@ test('editor: usar los salones nuevos conserva las asignaciones y las estrellas'
 });
 test('selector: el velador no aparece en Todos, Personal ni en la búsqueda',async()=>{
  const r=await runtime(),w=r.window,d=r.document;w.__test.startGame();
- assert.equal(d.getElementById('character-count').textContent,'44 personajes');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
- d.querySelector('[data-character-filter="staff"]').click();assert.equal(d.getElementById('character-count').textContent,'17 personajes');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
+ assert.equal(d.getElementById('character-count').textContent,'27 de 44');d.querySelector('[data-character-filter="all"]').click();assert.equal(d.getElementById('character-count').textContent,'44 de 44');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
+ d.querySelector('[data-character-filter="staff"]').click();assert.equal(d.getElementById('character-count').textContent,'17 de 44');assert.equal(d.querySelector('[data-character="maria_alejandra"]'),null);
  const search=d.getElementById('character-search');search.value='María Alejandra';search.dispatchEvent({type:'input'});assert.equal(d.getElementById('character-grid').children.length,0);assert(d.getElementById('character-empty').hidden===false);
 });
 test('selector: una partida anterior del velador abre una selección válida y conserva el avance',async()=>{
@@ -240,13 +251,13 @@ test('misiones: los siete maestros ofrecen su comisión y se conserva el regreso
   else{assert(w.MissionActivities.isOpen(),hostId);assert.equal(w.MissionActivities.snapshot().id,spec.id);assert.equal(w.MissionActivities.snapshot().hostId,hostId);w.MissionActivities.close();}
   assert.equal(T.getState().phase,'play');
  }
- T.openMap();assert.equal(d.getElementById('challenge-list').children.length,5);assert.equal(d.getElementById('teacher-mission-list').children.length,6);
+ T.openMap();assert.equal(d.getElementById('challenge-list').children.length,6);assert.equal(d.getElementById('teacher-mission-list').children.length,6);
 });
 test('dibujo: solo se abre en el salón, mueve la cubeta y pausa el contador con E',async()=>{
  const r=await runtime(),w=r.window,d=r.document,T=w.__test;beginAdventure(r);assert.equal(T.openMission('dibujo'),false);assert.equal(w.MissionActivities.isOpen(),false);
- visitTeacher(r,'angel');tap(r,'Enter');assert.equal(w.MissionActivities.snapshot().phase,'playing');assert.equal(d.getElementById('missions-time').textContent,'1:30');
+ visitTeacher(r,'angel');tap(r,'Enter');assert.equal(w.MissionActivities.snapshot().phase,'playing');assert.equal(d.getElementById('missions-time').textContent,'3:30');
  const x=w.MissionActivities.snapshot().cursor.x;keydown(r,'ArrowRight');T.frame(1000);T.frame(1050);keyup(r,'ArrowRight');assert(w.MissionActivities.snapshot().cursor.x>x);
- for(let i=1;i<=22;i++)T.frame(1050+i*50);assert.equal(d.getElementById('missions-time').textContent,'1:29');assert.equal(w.__music.scene,'cleanup');assert(w.__music.effects.includes('cleanup-tick'));
+ for(let i=1;i<=22;i++)T.frame(1050+i*50);assert.equal(d.getElementById('missions-time').textContent,'3:29');assert.equal(w.__music.scene,'cleanup');assert(w.__music.effects.includes('cleanup-tick'));
  tap(r,'E');const remaining=w.MissionActivities.snapshot().remaining;T.frame(3000);assert.equal(w.MissionActivities.snapshot().remaining,remaining);assert.equal(w.__music.paused,true);tap(r,'e');T.frame(3050);assert(w.MissionActivities.snapshot().remaining<remaining);
  tap(r,' ');assert.equal(w.MissionActivities.isOpen(),false);assert.equal(T.getState().scene,'classroom');assert.equal(w.__music.scene,'classroom');
 });
@@ -290,4 +301,65 @@ test('dibujo con audio real: usa la canción de Criss, pausa y recupera la músi
  const r=await runtime([],{realAudio:true}),w=r.window,T=w.__test;beginAdventure(r);visitTeacher(r,'angel');tap(r,'Enter');T.frame(1000);await new Promise(setImmediate);const music=T.getMusic();
  assert.equal(music.scene,'cleanup');assert.equal(music.music.src,'assets/audio/limpieza-criss.mp3');assert.equal(music.music.paused,false);tap(r,'e');T.frame(1050);assert(music.music.paused);tap(r,'e');T.frame(1100);await new Promise(setImmediate);assert.equal(music.music.paused,false);
  tap(r,' ');await new Promise(setImmediate);assert.equal(music.scene,'classroom');assert.equal(music.music.paused,false);assert.equal(music.enabled,true);assert.notEqual(r.storage.get('insurgentes-sound'),'no');
+});
+
+function visitRomina(r){
+ const T=r.window.__test,actor=T.getState().classmates.find(a=>a.id==='romina');
+ Object.assign(T.getState().player,{x:actor.x,y:actor.y});T.interact();
+ assert.equal(r.window.RominaHideSeek.snapshot()?.phase,'ready');
+}
+function beginHiding(r){
+ r.document.getElementById('hide-seek-dialog').querySelector('.primary-button').click();
+ for(let i=0;i<101;i++)r.window.RominaHideSeek.tick(.05,{});
+ assert.equal(r.window.RominaHideSeek.snapshot().phase,'playing');
+}
+function findAllHiding(r){
+ for(const spot of r.window.SchoolHideSeek.SPOTS){
+  if(r.window.RominaHideSeek.snapshot().phase!=='playing')break;
+  Object.assign(r.window.__test.getState().player,{x:spot.x,y:spot.y});tap(r,'Enter');
+ }
+ assert.equal(r.window.RominaHideSeek.snapshot().won,true);
+}
+test('Romina: hablar, posponer, buscar, pausar y conservar un único premio al recargar',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test,d=r.document;beginAdventure(r);
+ T.openMap();d.getElementById('challenge-list').children[5].click();assert.equal(w.RominaHideSeek.isOpen(),false);
+ visitRomina(r);assert.equal(w.SchoolUpdater.hooks.canReload(),false);tap(r,' ');assert.equal(w.RominaHideSeek.isOpen(),false);assert.equal(T.getState().phase,'play');
+ visitRomina(r);beginHiding(r);const initial=T.getState().player.x;keydown(r,'ArrowRight');T.frame(1000);T.frame(1050);keyup(r,'ArrowRight');assert(T.getState().player.x>initial);
+ tap(r,'e');const remaining=w.RominaHideSeek.snapshot().remaining;T.frame(1100);assert.equal(w.RominaHideSeek.snapshot().remaining,remaining);assert.equal(w.RominaHideSeek.snapshot().phase,'paused');tap(r,'e');
+ findAllHiding(r);assert.equal(T.getState().points,80);assert.equal(T.getState().challenges.romina.wins,1);tap(r,' ');assert.equal(T.getState().phase,'play');assert.equal(w.SchoolUpdater.hooks.canReload(),true);
+ const next=await runtime([...r.storage]);next.window.__test.startGame();assert.equal(next.window.__test.getState().points,80);assert(next.window.__test.getState().challenges.romina.won);
+ visitRomina(next);beginHiding(next);findAllHiding(next);assert.equal(next.window.__test.getState().points,80);assert.equal(next.window.__test.getState().challenges.romina.wins,2);
+});
+test('Romina con audio real: comparte la canción del dibujo, pausa y vuelve al patio',async()=>{
+ const r=await runtime([],{realAudio:true}),w=r.window,T=w.__test;beginAdventure(r);visitRomina(r);beginHiding(r);T.frame(1000);await new Promise(setImmediate);
+ const music=T.getMusic();assert.equal(music.scene,'cleanup');assert.equal(music.music.src,'assets/audio/limpieza-criss.mp3');assert.equal(music.music.paused,false);
+ w.dispatchEvent({type:'blur'});assert.equal(w.RominaHideSeek.snapshot().phase,'paused');assert(music.music.paused);tap(r,'e');T.frame(1050);await new Promise(setImmediate);assert.equal(music.music.paused,false);
+ w.RominaHideSeek.close();await new Promise(setImmediate);assert.equal(T.getState().phase,'play');assert.equal(music.scene,'outside');assert.equal(music.music.paused,false);
+});
+test('controles: preset J/K/P funciona en patio y dibujo y no altera los campos de texto',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test,d=r.document;beginAdventure(r);w.SchoolControls.open();
+ d.querySelector('[data-control-preset="compact"]').click();d.getElementById('controls-done').click();
+ tap(r,'p');assert(d.getElementById('map-dialog').open);tap(r,'k');assert.equal(d.getElementById('map-dialog').open,false);
+ visitTeacher(r,'angel');tap(r,'j');assert.equal(w.MissionActivities.snapshot().phase,'playing');tap(r,'p');assert.equal(w.MissionActivities.snapshot().phase,'paused');tap(r,'k');assert.equal(w.MissionActivities.isOpen(),false);
+ T.openCharacters(false);d.getElementById('character-search').focus();const event=keydown(r,'p');assert.equal(event.defaultPrevented,undefined);assert(w.CharacterSelect.isOpen());assert.equal(d.getElementById('map-dialog').open,false);
+});
+
+test('ajustes: clima y controles detienen el movimiento y evitan recargar hasta cerrarse',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);Object.assign(T.getState().player,{x:600,y:800});
+ for(const panel of [w.SchoolWeather,w.SchoolControls]){
+  keydown(r,'ArrowRight');T.frame(1000);panel.open();const before={x:T.getState().player.x,y:T.getState().player.y};
+  assert.equal(w.SchoolUpdater.hooks.canReload(),false);keydown(r,'ArrowRight');T.frame(1050);T.frame(1100);keyup(r,'ArrowRight');
+  assert.deepEqual({x:T.getState().player.x,y:T.getState().player.y},before);assert.equal(w.__music.paused,true);
+  panel.close();assert.equal(w.SchoolUpdater.hooks.canReload(),true);assert.equal(r.document.getElementById('touch-controls').inert,false);
+ }
+});
+test('uniformes: las tarjetas de Angélica muestran el día evaluado aunque haga frío',async()=>{
+ const r=await runtime(),w=r.window,T=w.__test;beginAdventure(r);w.SchoolWeather.setSettings({uniform:'winter'});
+ assert(w.SchoolWeather.isWinter());const actor={kind:'student',style:'girl'};
+ assert.equal(w.SchoolCharacters.frame(w.SchoolGame,actor,2).winter,true);
+ assert.equal(w.SchoolCharacters.frame(w.SchoolGame,actor,2,'down',{ignoreWeather:true}).winter,false);
+ const calls=[],draw=w.SchoolCharacters.draw;w.SchoolCharacters.draw=(...args)=>{calls.push(args);return draw(...args);};
+ T.openMission('uniforme','angelica');tap(r,'Enter');
+ const cards=calls.filter(args=>args[3].kind==='student'&&!args[3].id);assert(cards.length>=2);
+ assert(cards.every(args=>args[9]?.ignoreWeather===true));
 });
