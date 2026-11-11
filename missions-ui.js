@@ -58,8 +58,8 @@
     const card=state.cards[state.index];
     if(card.picture==='uniform'){
       const day=options.game.UNIFORM_DAYS[card.day];caption(day.name.toUpperCase(),360,66,28);
-      C.draw(ctx,options.game,options.images,{kind:'student',style:'boy'},card.shownDay,250,374,275);
-      C.draw(ctx,options.game,options.images,{kind:'student',style:'girl'},card.shownDay,470,374,275);
+      C.draw(ctx,options.game,options.images,{kind:'student',style:'boy'},card.shownDay,250,374,275,'down',{ignoreWeather:true});
+      C.draw(ctx,options.game,options.images,{kind:'student',style:'girl'},card.shownDay,470,374,275,'down',{ignoreWeather:true});
     }else if(card.picture==='clock')clock(card);else objectPicture(card.picture,card.color);
   }
   function events(){for(const event of state.events.splice(0)){

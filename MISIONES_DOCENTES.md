@@ -1,4 +1,4 @@
-# Misiones de los docentes — v14
+# Misiones de los docentes — v16
 
 Habla con los maestros usando Enter/A. El mapa ofrece un segundo acceso a sus
 actividades. La entrada al dibujo se encuentra con Ángel dentro del salón; si
@@ -6,7 +6,7 @@ lo eliges desde el patio, el juego te indica dónde encontrarlo.
 
 | Docente | Comisión o actividad | Dinámica | Logro guardado |
 | --- | --- | --- | --- |
-| Ángel | Arte | Cubeta, claves 1–6, 12 zonas, 90 segundos | dibujo |
+| Ángel | Arte | Cubeta, claves 1–6, 12 zonas, 210 segundos (3:30) | dibujo |
 | Raúl | Inglés | Colores, pencil, book y backpack; seis tarjetas | ingles |
 | Cesia | Limpieza | Recoger y separar después de comer en el recreo | cesia |
 | Diana | Limpieza | Dejar el salón limpio al volver del recreo | diana |
@@ -30,7 +30,7 @@ El número que se muestra corresponde a una clave estable de color:
 - Botones de color y toque sobre el dibujo: alternativa táctil.
 - E/START: pausa y continuar; espacio/B: volver a la escuela.
 
-El reloj muestra 1:30. Se reutilizan el MP3 de Criss y el WAV original del
+El reloj muestra 3:30. Se reutilizan el MP3 de Criss y el WAV original del
 contador, con avisos cada medio segundo durante los últimos diez. La pausa y
 el cambio de pestaña detienen el intento. Los errores de color se pueden
 corregir y la misión se consigue al tener las doce figuras del color de su clave.
@@ -52,8 +52,8 @@ pista; acertar permite leer la explicación y pasar a la tarjeta siguiente.
 No se puede repetir un acierto de la misma tarjeta para sumar puntos.
 
 El uniforme se dibuja con los sprites originales para niño y niña. Se cubren
-los cinco días. El martes acepta deportivo o blanco y cuadros, tal como señala
-la guía del juego. No se cambia el uniforme de la partida al responder.
+los cinco días. Martes y jueves se usa blanco y cuadros; Educación Física
+corresponde al día configurado para el grupo. No se cambia el uniforme de la partida al responder.
 
 Puntualidad fija entrada a las 8:00 a. m. y salida a las 12:30 p. m.; también
 practica llegar con tiempo, preparar la mochila y entrar con calma sin empujar.

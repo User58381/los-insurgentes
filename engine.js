@@ -6,8 +6,8 @@
   'use strict';
   const WORLD = { outside: { width: 1215, height: 1295 }, classroom: { width: 1280, height: 800 } };
   const GAME_TITLE = 'Los Insurgentes: La aventura del saber';
-  const WELCOME_TEXT = '¡Bienvenido a la Escuela Primaria Los Insurgentes! Soy el director José Guadalupe. Pasa, resuelve retos matemáticos y diviértete aprendiendo. ¿Quieres saber cómo es tu uniforme de cada día?';
-  const ASSET_PATHS = {map:'assets/mapa.png',player:'assets/personaje.png',room:'assets/salon-3a-real.png',arcade:'assets/maquinita-pacman.png',students:'assets/alumnos-uniformes.png',introBg:'assets/escuela-intro.png',directorPortrait:'assets/director-bienvenida.png',tops:'assets/trompos.png',uniformGuide:'assets/guia-uniformes-pixel.png',guitarAngel:'assets/angel-guitarra.png',theaterBackdrop:'assets/teatro-ensayo.png',cleanupSprites:'assets/limpieza-sprites.png'};
+  const WELCOME_TEXT = '¡Bienvenido a la Escuela Primaria Los Insurgentes! Soy el director José Guadalupe. Pasa, resuelve retos matemáticos y diviértete aprendiendo. ¿Quieres conocer tu uniforme de cada día y el de invierno para cuando hace frío?';
+  const ASSET_PATHS = {map:'assets/mapa.png',player:'assets/personaje.png',room:'assets/salon-3a-real.png',arcade:'assets/maquinita-pacman.png',students:'assets/alumnos-uniformes.png',introBg:'assets/escuela-intro.png',directorPortrait:'assets/director-bienvenida.png',tops:'assets/trompos.png',uniformGuide:'assets/guia-uniformes-invierno.jpg',guitarAngel:'assets/angel-guitarra.png',theaterBackdrop:'assets/teatro-ensayo.png',cleanupSprites:'assets/limpieza-sprites.png'};
   const TOP_FRAMES = {
     red:[[113,84,275,354,137,346],[106,494,273,346,175.5,335],[127,897,276,351,100,341],[101,1330,271,327,226.5,318]],
     blue:[[499,84,276,354,138,346],[486,494,273,344,174.5,335],[514,899,275,348,95,339],[477,1330,271,327,228.5,318]]
@@ -166,7 +166,7 @@
   }
   const UNIFORM_DAYS = {
     1:{name:'Lunes',uniform:'Gala',column:0,description:'Camisa blanca y corbata roja; blusa blanca, chaleco y boina rojos con falda azul marino.'},
-    2:{name:'Martes',uniform:'Educación Física',column:6,description:'Polo roja, bermuda azul marino, calcetas y tenis blancos.'},
+    2:{name:'Martes',uniform:'Blanco y cuadros',column:2,description:'Camisa blanca y pantalón azul marino; blusa blanca con uniforme de cuadros y zapatos negros. Educación Física se usa el día que corresponde a cada grupo.'},
     3:{name:'Miércoles',uniform:'Polo rojo',column:4,description:'Polo roja, pantalón de mezclilla y tenis blancos.'},
     4:{name:'Jueves',uniform:'Blanco y cuadros',column:2,description:'Camisa blanca con pantalón azul marino; blusa blanca con uniforme de cuadros y zapatos negros.'},
     5:{name:'Viernes',uniform:'Polo rojo',column:4,description:'Polo roja, pantalón de mezclilla y tenis blancos.'}
@@ -298,7 +298,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     emit(state,'uniform-close');return true;
   }
   function move(state, horizontal, vertical, dt, running = false) {
-    if (state.phase !== 'play' || state.quiz) return;
+    if (!['play','hide-seek'].includes(state.phase) || state.quiz) return;
     dt = Math.max(0, Math.min(0.05, dt));
     let dx = Math.max(-1, Math.min(1, horizontal));
     let dy = Math.max(-1, Math.min(1, vertical));
@@ -342,6 +342,8 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
     if (distance(p,state.ball) < 47 && p.y < 505) return {id:'ball',label:'Patear el balón',x:state.ball.x,y:state.ball.y};
     const challenge=challengeActors(state).filter(actor=>distance(p,actor)<49).sort((a,b)=>distance(p,a)-distance(p,b))[0];
     if(challenge){const labels={daniel:'Atajar los tiros de Daniel',alexis:'Atajar los tiros de Alexis',joaquin:'Marcar goles a Joaquín',dalila:'Saltar la cuerda con Dalila',criss:'Hablar con Criss · Limpiar la explanada'};return {id:'challenge-'+challenge.id,label:labels[challenge.id],x:challenge.x,y:challenge.y};}
+    const romina=state.classmates.find(actor=>actor.id==='romina');
+    if(romina&&distance(p,romina)<55)return {id:'romina',label:'Hablar con Romina · Jugar a las escondidas',x:romina.x,y:romina.y};
     const oliver=state.classmates.find(actor=>actor.id==='oliver');
     const theaterDistance=distance(p,THEATER);
     if(oliver&&distance(p,oliver)<55&&distance(p,oliver)<=theaterDistance)return {id:'oliver',label:'Jugar trompo con Oliver',x:oliver.x,y:oliver.y};
@@ -379,6 +381,7 @@ const STUDENT_FRAMES = [[[65,27,117,213,57,213],[279,25,138,215,57,215],[501,27,
       }
       case 'bicentenario': emit(state,'toast',{text:'Este es el portón Bicentenario. Tu aventura empieza en la entrada azul, a la derecha.'}); break;
       case 'director': openUniformGuide(state);break;
+      case 'romina': p.walking=false;emit(state,'romina-talk');break;
       case 'oliver':
         state.phase='trompo';p.walking=false;
         state.trompo={round:1,stage:'aim',clock:0,power:0,wins:0,oliverWins:0,elapsed:0,tops:[],message:'Pulsa Enter o A cuando la aguja esté en la zona dorada.'};

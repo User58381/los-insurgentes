@@ -1,0 +1,41 @@
+VERIFICACIÓN V15 — 10 NOVIEMBRE 2026
+
+BASE: Los_Insurgentes_GitHub_v14.zip, actualización más reciente localizada.
+
+PRUEBAS AUTOMÁTICAS
+125 pruebas aprobadas, 0 fallos: node --test tests/*.cjs.
+Incluyen lógica original, minijuegos anteriores, distribución de salones,
+actualización sin pérdida de progreso, importación/exportación, audio, mandos,
+selector, controles remapeados, clima e invierno y escondidas con Romina.
+
+ESCONDIDAS
+Inicio hablando con Romina, rechazo sin iniciar, cuenta previa, cinco objetivos,
+ocho posiciones candidatas validadas como transitables, límite explanada,
+pistas, pausa (sin consumir tiempo), pérdida de foco, límite de tiempo,
+victoria, reintento, recompensa de 80 puntos una sola vez y guardado del logro.
+Si el jugador es Romina se eligen cinco alumnos distintos. El reloj usa el
+mismo total redondeado de segundos para evitar saltos al cruzar un minuto.
+Audio reutilizado del dibujo: música cleanup, contador y START.
+
+CLIMA Y UNIFORME
+Se realizó una consulta HTTPS real exitosa a Open-Meteo y se comprobó la
+lectura en el navegador. El termómetro muestra una decimal para distinguir
+18.1 °C de 18.0 °C al aplicar el umbral de invierno (18 °C incluido).
+Pruebas de códigos meteorológicos, respuesta incompleta, fallo de red, timeout,
+caché, demo etiquetada y temporal, persistencia de ajustes y Educación Física.
+Render revisado en cuatro direcciones: caras/cabello conservados, chamarra y
+pantalón rojo/navy, rayas claras, polo rojo y tenis blancos. Personal intacto.
+Lluvia en exteriores revisada visualmente; no se renderiza dentro del salón.
+
+INTERFAZ
+Revisión en navegador de portada, selector, continuación de partida,
+ajustes de clima, temperatura real, demostración de lluvia y ropa de invierno.
+La navegación teclado/mando/táctil y la interacción completa de las escondidas
+se verificaron mediante pruebas automatizadas del motor y del DOM. No se
+utilizó un teléfono físico ni un mando físico durante esta revisión.
+
+PAQUETE
+Se verifican sintaxis de JS, integridad ZIP, hashes version.json y recursos.
+Las canciones y efectos originales mantienen sus bytes.
+El paquete es para copiar/subir a la publicación del usuario; esta entrega
+no modifica automáticamente el sitio anterior alojado ni GitHub Pages.

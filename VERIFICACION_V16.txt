@@ -1,0 +1,19 @@
+LOS INSURGENTES V16 — VERIFICACIÓN
+Fecha: 10 de noviembre de 2026
+Base: paquete completo v15 previamente comprobado.
+
+Cambios: duración de pintura de 90 a 210 segundos (3:30); texto de invitación,
+reloj inicial y documentación sincronizados. Guía del director con la imagen
+de invierno suministrada, título, descripción accesible y explicación adicional.
+
+15 pruebas relevantes de misiones e integración aprobadas: temporizador3:30,
+partida activa a90s, expiración210s sin recompensa, pausa y pérdida de foco
+congelan reloj, audio y controles del dibujo. Limpieza y escondidas mantienen
+sus tiempos anteriores.
+
+Recursos completos incluidos, con manifiesto de versión regenerado.
+La revisión v15 permanece en VERIFICACION_V15.txt como antecedente.
+
+Revisión visual: guía del director abierta en navegador, imagen de invierno
+cargada y explicación adicional visible. Sintaxis JS, hashes de59 recursos
+y contenido del ZIP comprobados.

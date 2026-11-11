@@ -1,20 +1,46 @@
-LOS INSURGENTES — V14 NORMAL
+LOS INSURGENTES — V16 · PINTURA 3:30, ROMINA, CLIMA E INVIERNO
+Actualización del 10 de noviembre de 2026 sobre la v15 completa.
 
-JUEGO COMPLETO
-Descomprime Los_Insurgentes_GitHub_v14.zip. Abre Los_Insurgentes_GitHub y sube
-todo su contenido a la raíz del repositorio normal User58381/los-insurgentes.
-Incluye los nuevos missions-engine.js y missions-ui.js, bootstrap.js, index.html,
-version.json, todos los JS/CSS y assets/ con sus rutas.
+INSTALAR EL JUEGO COMPLETO
+1. Descomprime Los_Insurgentes_GitHub_v16.zip.
+2. Abre la carpeta Los_Insurgentes_GitHub.
+3. Copia TODO su contenido sobre tu juego actual o súbelo a la raíz de
+   User58381/los-insurgentes, donde está index.html. Acepta reemplazar.
+4. Incluye assets/, todos los JS y CSS, bootstrap.js y version.json.
+   No subas solamente el ZIP ni crees otra carpeta anidada dentro del sitio.
+5. Espera a que termine GitHub Pages y abre tu dirección habitual:
+   https://user58381.github.io/los-insurgentes/
 
-ACTUALIZACIÓN PEQUEÑA PARA V11, V12 O V13
-Descomprime Actualizacion_Insurgentes_v11_a_v14.zip. Copia el contenido de su
-carpeta Los_Insurgentes_GitHub sobre la carpeta normal existente y acepta
-REEMPLAZAR. También puedes subir esos archivos a sus mismas rutas en GitHub.
-Conserva el resto de assets/: el paquete pequeño incluye el atlas actualizado
-de limpieza y reutiliza las demás imágenes, canciones y efectos anteriores.
-No borres las músicas ni los otros sprites.
+ANTES DE ACTUALIZAR
+En el mapa puedes elegir Guardar copia completa. El juego mantiene sus claves
+anteriores de guardado y conserva personaje, puntos, estrellas y récords.
+No necesitas borrar los datos del navegador. La nueva versión se carga al
+volver al patio cuando no hay ningún reto ni ajuste abierto.
 
-Espera a que GitHub Pages termine de publicar. El actualizador conserva la
-partida y espera a que cierres una misión antes de recargar. No se necesita
-borrar los datos del navegador. Se mantienen los logros antiguos y los seis nuevos.
-No se modifica la versión pública de los-insurgentes2.
+DÓNDE ESTÁ CADA NOVEDAD
+• Pintura con Ángel: en el salón; ahora tienes 3 minutos y 30 segundos.
+• Guía del director: incluye el cartel actualizado con uniforme de invierno
+  y una explicación legible del conjunto junto a la imagen.
+• Romina: junto al teatro, al oeste de la explanada. Acércate y pulsa Enter/A.
+  Cuenta hasta cinco, encuentra a cinco compañeros en 2 minutos. H o botón
+  Pista; X del mando también pide pista. E/START pausa. B corre durante la
+  búsqueda; desde la pausa puedes volver al patio. Primer triunfo: 80 puntos.
+• Clima: toca el termómetro, o Mapa → Clima y uniforme de invierno.
+  Consulta Nuevo Laredo cada 15 minutos. Invierno automático a 18 °C o menos;
+  puedes cambiar ese límite. Rojo niñas, azul marino niños, polo roja y tenis
+  blancos. Lluvia/nubes/niebla/nieve se muestran en exteriores.
+• Sin internet: el juego continúa; el termómetro identifica el último dato
+  guardado. Si no existe dato, muestra — °C, no inventa una temperatura.
+• Prueba de efectos: en Clima → Probar efectos. La demo se identifica en
+  pantalla y es temporal. Actualizar clima real vuelve al dato real.
+• Controles: botón Controles en portada o mapa. Teclas configurables,
+  distribución J/K/P, correr siempre y tamaño de botones táctiles.
+• Personajes: busca el nombre, toca una tarjeta y pulsa Jugar con…;
+  con teclado/mando, Enter/A sobre la tarjeta confirma directamente.
+• Uniformes: martes/jueves blanco y cuadros; miércoles/viernes polo rojo;
+  lunes gala. Educación Física se configura según el día del grupo.
+
+PARA USO LOCAL
+Abre index.html desde la carpeta completa. El clima necesita acceso a internet
+al servicio Open-Meteo; el resto de los recursos está incluido. Si tu navegador
+restringe consultas desde un archivo local, usa tu publicación en GitHub Pages.

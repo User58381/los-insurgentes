@@ -61,7 +61,8 @@
     if(active?.matches(':disabled'))return true;
     const target=controls.includes(active)?active:(options.defaultTarget||controls[0]);
     if(!target||!visible(target,root))return true;
-    if(target.tagName==='SELECT'||target.matches('input,textarea,[data-keyboard-scroll]'))move(root,1,options);
+    if(target.matches('input[type="checkbox"],input[type="radio"]')){target.click();focus(target,false);}
+    else if(target.tagName==='SELECT'||target.matches('input,textarea,[data-keyboard-scroll]'))move(root,1,options);
     else if(target.tagName==='SUMMARY'){target.parentElement.open=!target.parentElement.open;focus(target);}
     else target.click();
     return true;

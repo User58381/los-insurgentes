@@ -36,14 +36,68 @@
     const {x,y,facing,time}=state.player;
     state.player={...actor,x,y,facing,time,walking:false};return true;
   }
-  function frame(game,actor,day,facing='down'){
+  function frame(game,actor,day,facing='down',options={}){
     const row={down:0,left:1,right:2,up:3}[facing]??0;
     if(actor.kind==='staff'&&actor.frames&&actor.assetKey)return {key:actor.assetKey,rect:actor.frames[row],baseHeight:actor.frames[row][3]};
-    const column=game.studentUniformColumn(actor,day);
-    return {key:'students',rect:game.STUDENT_FRAMES[row][column],baseHeight:game.STUDENT_FRAMES[0][column][3]};
+    const weather=typeof globalThis!=='undefined'?globalThis.SchoolWeather:null;
+    const winter=!options.ignoreWeather&&weather?.isWinter?.();
+    const normal=game.studentUniformColumn(actor,day);
+    const column=winter?4+(actor.style==='girl'?1:0):(!options.ignoreWeather&&weather?.uniformColumn?weather.uniformColumn(actor,day,normal):normal);
+    return {key:'students',rect:game.STUDENT_FRAMES[row][column],baseHeight:game.STUDENT_FRAMES[0][column][3],column,winter};
+  }
+  // Reuse the original faces, hair, outline and four-direction animation rig.
+  // Only clothing pixels are recolored; sleeves, seams and white piping are
+  // rendered on the same native canvas grid. No extra downloaded sprite is needed.
+  const WINTER_CACHE=new WeakMap();
+  function winterSprite(image,spec,actor,facing){
+    if(typeof document==='undefined')return null;
+    let cache=WINTER_CACHE.get(image);if(!cache){cache=new Map();WINTER_CACHE.set(image,cache);}
+    const key=actor.style+':'+facing;if(cache.has(key))return cache.get(key);
+    const [sx,sy,w,h,ax]=spec.rect,c=document.createElement('canvas');c.width=w;c.height=h;const context=c.getContext('2d');
+    context.drawImage(image,sx,sy,w,h,0,0,w,h);
+    try{
+      const pixels=context.getImageData(0,0,w,h),a=pixels.data,girl=actor.style==='girl',back=facing==='up',side=facing==='left'||facing==='right';
+      // The back frame's hair reaches farther down the torso than front frames.
+      const neck=back?.46:.47,waist=back?.69:.70;
+      for(let y=Math.floor(h*neck);y<h;y++)for(let x=0;x<w;x++){
+        const k=(y*w+x)*4;if(a[k+3]<100)continue;const r=a[k],g=a[k+1],b=a[k+2],t=y/h;
+        const red=r>65&&r>g*1.7&&r>b*1.5&&b>=g*.9;
+        const navy=b>r*1.12&&b>g*.91&&b<175&&g<135;
+        const skin=r>150&&g>85&&b>40&&r>g*1.12&&g>b*1.14;
+        const middle=Math.abs(x-ax)<w*(back?0:side?.055:.11);
+        const polo=!back&&t<.60&&middle;
+        const sleeve=skin&&t>.585&&t<.725&&Math.abs(x-ax)>w*(side?.11:.265);
+        if((red&&t<waist&&!polo)||sleeve||(girl&&navy&&t>=waist&&t<.92)){
+          const light=Math.max(.24,Math.min(1,(r+g+b)/300));
+          const color=girl?[Math.round(142+75*light),Math.round(12+22*light),Math.round(31+27*light)]:[Math.round(16+21*light),Math.round(30+25*light),Math.round(55+31*light)];
+          a[k]=color[0];a[k+1]=color[1];a[k+2]=color[2];
+        }
+      }
+      context.putImageData(pixels,0,0);
+      // Narrow white sports piping follows opaque garment pixels, preserving the silhouette.
+      const painted=context.getImageData(0,0,w,h),b=painted.data;
+      for(let y=Math.round(h*.55);y<Math.round(h*.91);y++){
+        const leg=y>h*.73,sideBand=side?(facing==='left'?ax+w*.13:ax-w*.13):null;
+        const candidates=side?[Math.round(sideBand)]:[Math.round(ax-w*(leg?.235:.345)),Math.round(ax+w*(leg?.235:.345))];
+        for(const xx of candidates)for(let offset=0;offset<2;offset++){
+          const x=xx+offset;if(x<0||x>=w)continue;const k=(y*w+x)*4,r=b[k],g=b[k+1],bl=b[k+2];
+          const garment=b[k+3]>220&&((bl>r*1.12&&bl>g*.9)||(r>80&&r>g*2.0&&r>bl*1.5&&bl>=g*.9));
+          if(garment){b[k]=226;b[k+1]=235;b[k+2]=239;}
+        }
+      }
+      context.putImageData(painted,0,0);
+      if(facing==='down'){
+        // The jacket is open over a red polo, with a light zipper and a school badge.
+        context.strokeStyle='#aebdc9';context.lineWidth=1.4;
+        context.beginPath();context.moveTo(ax-w*.12,h*.52);context.lineTo(ax-w*.055,h*.62);context.lineTo(ax-w*.055,h*.70);context.moveTo(ax+w*.12,h*.52);context.lineTo(ax+w*.055,h*.62);context.lineTo(ax+w*.055,h*.70);context.stroke();
+        context.strokeStyle='#e5e9ef';context.lineWidth=2;context.strokeRect(Math.round(ax+w*.17),Math.round(h*.55),5,6);
+      }
+      cache.set(key,c);return c;
+    }catch(_){return null;}
   }
   function draw(ctx,game,images,actor,day,x,y,height,facing='down',motion=null){
-    const spec=frame(game,actor,day,facing),image=images[spec.key];if(!image)return;
+    let spec=frame(game,actor,day,facing,motion||{}),image=images[spec.key];if(!image)return;
+    if(spec.winter){const dressed=winterSprite(image,spec,actor,facing);if(dressed){image=dressed;spec={...spec,rect:[0,0,spec.rect[2],spec.rect[3],spec.rect[4],spec.rect[5]]};}}
     const [sx,sy,sw,sh,ax,ay]=spec.rect,scale=height/spec.baseHeight,dx=x-ax*scale,dy=y-ay*scale;
     ctx.imageSmoothingEnabled=false;
     if(!motion?.walking||motion.reducedMotion){ctx.drawImage(image,sx,sy,sw,sh,dx,dy,sw*scale,sh*scale);return;}
@@ -54,7 +108,7 @@
       if(!rig){ctx.drawImage(image,sx,sy,sw,sh,dx,dy,sw*scale,sh*scale);return;}
       [cut,left,split,right]=rig;
     }else{
-      const column=game.studentUniformColumn(actor,day),skirt=actor.style==='girl'&&(column===1||column===3);
+      const column=spec.column,skirt=actor.style==='girl'&&(column===1||column===3);
       cut=Math.round(sh*(skirt?.84:.72));split=Math.round(ax);
       const bounds=STUDENT_LEGS[row][column];left=Math.max(0,bounds[0]-3);right=Math.min(sw,bounds[1]+4);
     }

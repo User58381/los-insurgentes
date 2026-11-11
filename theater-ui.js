@@ -31,6 +31,7 @@
   }
   function drawStudent(student,row,x,y,height){
     if(student.kind==='staff'&&student.frames&&student.assetKey){drawStaff(student,row,x,y,height);return;}
+    if(callbacks.drawStudent){callbacks.drawStudent(stageCtx,student,row,x,y,height);return;}
     const frame=callbacks.studentFrame?.(student,row);if(!frame||!callbacks.images?.students)return;
     const [sx,sy,sw,sh,ax,ay]=frame,scale=height/sh;stageCtx.drawImage(callbacks.images.students,sx,sy,sw,sh,x-ax*scale,y-ay*scale,sw*scale,sh*scale);
   }

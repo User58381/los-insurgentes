@@ -1,12 +1,12 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.SchoolMissions=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const TASKS={
-    dibujo:{type:'drawing',npc:'angel',scene:'classroom',title:'Pinta con el maestro Ángel',commission:'Arte y creatividad',copy:'¡Vamos a pintar en nuestro salón! Sigue las claves del 1 al 6. Mueve la cubeta con las flechas o la palanca. Elige un color y pulsa Enter / A dentro de una figura para rellenarla. Hay 12 zonas y 90 segundos. Puedes corregir los colores.'},
+    dibujo:{type:'drawing',npc:'angel',scene:'classroom',title:'Pinta con el maestro Ángel',commission:'Arte y creatividad',copy:'¡Vamos a pintar en nuestro salón! Sigue las claves del 1 al 6. Mueve la cubeta con las flechas o la palanca. Elige un color y pulsa Enter / A dentro de una figura para rellenarla. Hay 12 zonas y 3 minutos con 30 segundos. Puedes corregir los colores.'},
     ingles:{type:'english',npc:'raul',title:'English con el Teacher Raúl',commission:'Inglés',copy:'Hello! Soy el Teacher Raúl. Mira los colores y los útiles escolares. Elige la palabra correcta en inglés con las flechas o la cruceta y confirma con Enter / A. Si te equivocas, te ayudo a intentarlo otra vez.'},
-    uniforme:{type:'uniform',npc:'angelica',title:'El uniforme con Angélica',commission:'Uniforme escolar',copy:'¡Hola! Soy la maestra Angélica. Mira la imagen y el día que aparece. ¿Es un uniforme permitido para ese día? Responde Verdadero o Falso. Vamos a reconocer el uniforme de toda la semana.'},
+    uniforme:{type:'uniform',npc:'angelica',title:'El uniforme con Angélica',commission:'Uniforme escolar',copy:'¡Hola! Soy la maestra Angélica. Mira la imagen y el día que aparece. ¿Es un uniforme permitido para ese día? Responde Verdadero o Falso. Vamos a reconocer el uniforme habitual de la semana. Estas tarjetas muestran el horario general; en días fríos usamos el conjunto de invierno y Educación Física sigue el horario del grupo.'},
     puntualidad:{type:'punctuality',npc:'luis_miguel',title:'A tiempo con Luis Miguel y Norma',commission:'Puntualidad',copy:'El maestro Luis Miguel y la maestra Norma te invitamos a llegar a tiempo. Entramos a las 8:00 a. m. y salimos a las 12:30 p. m. Lee los relojes y elige hábitos que te ayuden a prepararte.'}
   };
-  const WIDTH=720,HEIGHT=460,DRAW_SECONDS=90;
+  const WIDTH=720,HEIGHT=460,DRAW_SECONDS=210;
   const COLORS=[{key:1,name:'Rojo',color:'#e95453'},{key:2,name:'Amarillo',color:'#f5ca54'},{key:3,name:'Verde',color:'#67af75'},{key:4,name:'Azul',color:'#56a4d9'},{key:5,name:'Café',color:'#a46c42'},{key:6,name:'Blanco',color:'#ffffff'}];
   const DRAW_REGIONS=[
     {id:'pasto',key:3,shape:'rect',bounds:[40,284,640,70],label:[610,330]},
@@ -42,9 +42,9 @@
   function uniformCards(game){
     return [[1,1],[2,2],[2,4],[3,1],[4,4],[5,2],[1,3],[5,5]].map(([day,shownDay])=>{
       const expected=game.UNIFORM_DAYS[day],shown=game.UNIFORM_DAYS[shownDay],allowed=[expected.column];
-      if(day===2)allowed.push(game.UNIFORM_DAYS[4].column);
+      // La guía general usa blanco y cuadros martes y jueves.
       const valid=allowed.includes(shown.column);
-      return {prompt:'¿Este uniforme está permitido el '+expected.name.toLowerCase()+'?',picture:'uniform',day,shownDay,options:['Verdadero','Falso'],answer:valid?0:1,explanation:expected.name+': '+expected.description+(day===2?' También se permite el uniforme blanco y de cuadros.':'')};
+      return {prompt:'¿Este uniforme está permitido el '+expected.name.toLowerCase()+'?',picture:'uniform',day,shownDay,options:['Verdadero','Falso'],answer:valid?0:1,explanation:expected.name+': '+expected.description+' En días fríos se permite el conjunto de invierno. Educación Física corresponde al horario del grupo.'};
     });
   }
   function createState(id,game,hostId){

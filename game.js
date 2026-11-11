@@ -57,13 +57,14 @@
     updateSoundButton();if(enabled)void activateSound();
   }
   function syncMusic() {
+    const hiding=window.RominaHideSeek?.snapshot();
     const playground=window.PlaygroundGames.isOpen()?window.PlaygroundGames.snapshot():null;
-    const mission=window.MissionActivities.isOpen()?window.MissionActivities.snapshot():null,activity=playground||mission;
-    const miniMusic=playground?({football:'football',rope:'rope',cleanup:'cleanup'}[playground.type]||null):mission?.type==='drawing'?'cleanup':null;
+    const mission=window.MissionActivities.isOpen()?window.MissionActivities.snapshot():null,activity=hiding||playground||mission;
+    const miniMusic=hiding?'cleanup':playground?({football:'football',rope:'rope',cleanup:'cleanup'}[playground.type]||null):mission?.type==='drawing'?'cleanup':null;
     music.setMusicPaused(!!(window.PacmanArcade.isOpen()||window.TheaterRehearsal.isOpen()||(miniMusic&&activity.phase!=='playing')));
     const scene=state.phase==='uniform'&&state.uniformReturnPhase==='welcome'?'welcome':state.phase;
     music.setScene(miniMusic||(['title','welcome','trompo'].includes(scene)?scene:state.scene));
-    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||trompoPaused||mission?.phase==='paused'||(miniMusic&&activity.phase==='paused')));
+    music.setPaused(!!(document.hidden||!windowActive||schoolEditorOpen||settingsOpen()||trompoPaused||mission?.phase==='paused'||hiding?.phase==='paused'||(miniMusic&&activity.phase==='paused')));
     music.update();
   }
   function resumeWorldMusic(){syncMusic();if(soundOn)void activateSound();}
@@ -81,6 +82,9 @@
     $('toast').textContent=message;$('toast').classList.add('visible');
     clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),4200);
   }
+  function settingsOpen(){return !!(window.SchoolWeather?.isOpen()||window.SchoolControls?.isOpen());}
+  function settingsVisibility(){clearInput();enableWorldControls(!settingsOpen()&&!mapOpen&&!schoolEditorOpen&&state.phase==='play');syncMusic();}
+  function uniformDescription(){const w=window.SchoolWeather?.snapshot();const u=G.UNIFORM_DAYS[state.schoolDay];return w?.winter?'Invierno · Chamarra y pantalón del conjunto escolar: rojo para niñas y azul marino para niños, polo roja y tenis blancos.':w?.settings.peDay===state.schoolDay?'Educación Física · Polo escolar, short o bermuda azul marino, calcetas y tenis blancos.':u.name+' · '+u.uniform+'. '+u.description;}
   function clearInput() {
     held.clear();touch.clear();
     document.querySelectorAll('[data-direction]').forEach(b=>b.classList.remove('pressed'));
@@ -108,6 +112,17 @@
       onClose(){clearInput();enableWorldControls(state.phase==='play');},
       onPick(id){C.select(G,state,id);characterConfirmed=true;saveProgress();syncUI();if(begin)startGame();else if(state.started)showToast('Ahora juegas como '+state.player.name+'. Tus estrellas se conservan.');}
     });
+  }
+  function openRomina(){
+    if(!loaded||state.quiz||window.RominaHideSeek.isOpen()||state.scene!=='outside')return;
+    const host=state.classmates.find(a=>a.id==='romina');
+    if(!host||Math.hypot(host.x-state.player.x,host.y-state.player.y)>=55){showToast('Romina te espera al suroeste de la explanada, junto al teatro. Acércate y habla con ella.');return;}
+    if(mapOpen)closeMap();clearInput();state.phase='hide-seek';
+    window.RominaHideSeek.open({game:G,world:state,images,sound:playTone,clearInput,focus:()=>canvas.focus({preventScroll:true}),
+      onPhase(phase){clearInput();enableWorldControls(['playing','counting'].includes(phase));syncMusic();},
+      onAward(){saveProgress();particles();syncChallengeList();},
+      onClose(){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();saveProgress();canvas.focus({preventScroll:true});}
+    });syncUI();void activateSound();
   }
   function openCrissDialogue(){
     if(!loaded||state.quiz||crissDialog.open||window.PlaygroundGames.isOpen())return;
@@ -159,6 +174,7 @@
       const locked=id==='criss'&&!state.unlocks.cleanup;if(locked){icon.textContent='🔒';button.setAttribute('aria-label','Habla con Criss para desbloquear la limpieza');}
       where.textContent=locked?'Habla con Criss · Explanada':(task.type==='football'?'Cancha':'Explanada')+(won?' · Conseguido':' · Jugar');copy.append(where);button.append(icon,copy);button.addEventListener('click',()=>openPlayground(id));$('challenge-list').append(button);
     }
+    const rominaButton=document.createElement('button');rominaButton.type='button';rominaButton.classList.toggle('won',!!state.challenges.romina?.won);rominaButton.textContent=(state.challenges.romina?.won?'✓ ':'🔎 ')+'Escondidas con Romina · Habla con ella junto al teatro';rominaButton.addEventListener('click',()=>{closeMap();openRomina();});$('challenge-list').append(rominaButton);
     syncTeacherMissions();
   }
   function startGame() {
@@ -211,12 +227,14 @@
     if(window.TheaterRehearsal.isOpen())return;
     clearInput();state.phase='theater';enableWorldControls(false);
     window.TheaterRehearsal.open({player:state.player,group:classroomLabel(),students:G.STUDENTS,teachers:G.TEACHERS,images,enabled:soundOn,
+      drawStudent:(context,student,row,x,y,height)=>C.draw(context,G,images,student,state.schoolDay,x,y,height,['down','left','right','up'][row]),
       studentFrame:(student,row)=>G.STUDENT_FRAMES[row][G.studentUniformColumn(student,state.schoolDay)],sound:playTone,onSoundChange:setSound,
       onClose(report){music.stopVoices();state.phase='play';clearInput();enableWorldControls(true);resumeWorldMusic();syncUI();canvas.focus({preventScroll:true});
         showToast(report.completed?'¡Ensayo completo! '+report.score+' puntos · '+report.accuracy+'% de precisión.':'Volviste a la explanada. Puedes ensayar cuando quieras.');}
     });syncMusic();syncUI();
   }
   function restart() {
+    if(window.RominaHideSeek.isOpen())window.RominaHideSeek.close();
     if(crissDialog.open)closeCrissDialogue();
     if(window.PlaygroundGames.isOpen())window.PlaygroundGames.close();
     if(window.CharacterSelect.isOpen())window.CharacterSelect.close();
@@ -250,6 +268,7 @@
       }
       if(event.type==='goal'){showToast(event.text);particles();playTone('goal');}
       if(event.type==='toast')showToast(event.text);
+      if(event.type==='romina-talk')openRomina();
       if(event.type==='criss-talk')openCrissDialogue();
       if(event.type==='playground-open')openPlayground(event.id);
       if(event.type==='arcade')openPacman();
@@ -266,7 +285,7 @@
       if(event.type==='uniform-open'){
         clearInput();enableWorldControls(false);
         $('uniform-return').textContent=state.uniformReturnPhase==='welcome'?'Enter / A · Volver con el director':'Enter / A · Seguir explorando';
-        $('uniform-today').textContent=(state.dayMode==='auto'?'Hoy: ':'Día elegido: ')+G.UNIFORM_DAYS[state.schoolDay].name+'. '+G.UNIFORM_DAYS[state.schoolDay].description;
+        $('uniform-today').textContent=uniformDescription();
         if(!uniformDialog.open)uniformDialog.showModal();
         uniformDialog.scrollTop=0;keyboard.focus($('uniform-return'),false);
       }
@@ -278,6 +297,7 @@
     }
   }
   function interact() {
+    if(window.RominaHideSeek.isOpen()){window.RominaHideSeek.action();return;}
     if(trompoPaused){toggleTrompoPause();return null;}
     if(state.phase==='title')return startGame();
     if(state.phase==='welcome')return finishWelcome();
@@ -295,9 +315,8 @@
   }
   function drawTrompoActors() {
     C.draw(topCtx,G,images,state.player,state.schoolDay,184,246,64,'right');
-    const oliver=state.classmates.find(actor=>actor.id==='oliver'),column=G.studentUniformColumn(oliver,state.schoolDay);
-    const [sx,sy,sw,sh,ax,ay]=G.STUDENT_FRAMES[1][column],factor=54/G.STUDENT_FRAMES[0][column][3];
-    topCtx.drawImage(images.students,sx,sy,sw,sh,538-ax*factor,246-ay*factor,sw*factor,sh*factor);
+    const oliver=state.classmates.find(actor=>actor.id==='oliver');
+    C.draw(topCtx,G,images,oliver,state.schoolDay,538,246,54,'left');
     topCtx.font='bold 18px Trebuchet MS';topCtx.textAlign='center';topCtx.textBaseline='middle';
     for(const [name,x] of [[state.player.name+' (tú)',184],['Oliver',538]]){
       const labelWidth=Math.max(76,topCtx.measureText(name).width+18);
@@ -370,6 +389,7 @@
     syncUI();
   }
   function openMap() {
+    if(window.RominaHideSeek.isOpen()){window.RominaHideSeek.pause();return;}
     if(!loaded||state.phase!=='play'||state.quiz)return;
     mapOpen=true;clearInput();syncChallengeList();saveProgress();
     const p=state.scene==='classroom'?G.CLASSROOM_DOOR:state.player;
@@ -394,7 +414,7 @@
   function syncUI() {
     $('player-name').textContent=state.player.name+' · '+(state.player.kind==='staff'?(C.find(G,state.player.id)?.group||'Personal'):classroomLabel());
     $('player-name').title='Juegas como '+state.player.name;
-    $('objective').textContent=G.objective(state);
+    $('objective').textContent=window.RominaHideSeek.isOpen()?'Encuentra a los cinco compañeros escondidos en la explanada.':G.objective(state);
     $('stars').textContent='★'.repeat(Object.values(state.completed).filter(Boolean).length)+'☆'.repeat(3-Object.values(state.completed).filter(Boolean).length);
     $('points').textContent=state.points+' puntos';
     const p=state.player;
@@ -405,7 +425,8 @@
     $('action-button').setAttribute('aria-label',target?.label||'Interactuar');
     const uniform=G.UNIFORM_DAYS[state.schoolDay];
     $('school-day').value=state.dayMode==='auto'?'auto':String(state.schoolDay);
-    $('uniform-summary').textContent=uniform.name+' · '+uniform.uniform+'. '+uniform.description;
+    $('uniform-summary').textContent=uniformDescription();
+    const weatherBadge=$('weather-badge');if(weatherBadge)weatherBadge.hidden=state.phase!=='play'||mapOpen||schoolEditorOpen||settingsOpen()||window.CharacterSelect.isOpen()||!!state.quiz;
     if(state.trompo)renderTrompo();
   }
   function drawStar(x,y,color,size=12) {
@@ -509,6 +530,7 @@
     if(state.scene==='outside'){
       drawMapLabels();
       for(const actor of G.challengeActors(state)){const task=P.TASKS[actor.id],complete=state.challenges[actor.id]?.won;ctx.save();ctx.font='bold 19px Trebuchet MS';ctx.textAlign='center';ctx.fillStyle=complete?'#bce9a9':'#ffdd84';ctx.strokeStyle='#173c35';ctx.lineWidth=5;const icon=complete?'✓':task.type==='football'?'⚽':task.type==='rope'?'↻':'♻';ctx.strokeText(icon,actor.x,actor.y-48);ctx.fillText(icon,actor.x,actor.y-48);ctx.restore();}
+      if(!window.RominaHideSeek.isOpen()){const romina=state.classmates.find(a=>a.id==='romina');if(romina){ctx.save();ctx.font='bold 13px Trebuchet MS';ctx.textAlign='center';ctx.strokeStyle='#173f3c';ctx.lineWidth=4;ctx.fillStyle='#ffe295';ctx.strokeText('🔎 Romina · Escondidas',romina.x,romina.y-47);ctx.fillText('🔎 Romina · Escondidas',romina.x,romina.y-47);ctx.restore();}}
       marker(998,1016,'Sumas',state.completed.fountain,time);
       marker(G.CLASSROOM_DOOR.x,G.CLASSROOM_DOOR.y-2,classroomLabel(),state.completed.classroom,time);
       marker(643,413,'Números',state.completed.field,time);
@@ -521,16 +543,19 @@
       marker(640,166,'Lectura',state.completed.classroom,time);
       ctx.save();ctx.font='bold 17px Trebuchet MS';ctx.fillStyle='#28554d';ctx.textAlign='center';ctx.fillText(classroomLabel()+' · El cuaderno de Lucía',640,85);ctx.restore();
     }
-    const classmates=G.classmatesInScene(state),teachers=G.teachersInScene(state);
+    const hiddenIds=window.RominaHideSeek.hiddenIds();
+    const classmates=G.classmatesInScene(state).filter(a=>!hiddenIds.has(a.id)),teachers=G.teachersInScene(state);
     const actors=[...classmates.map(student=>({student,y:student.y})),...teachers.map(teacher=>({teacher,y:teacher.y})),...(state.scene==='classroom'?[{arcade:true,y:G.ARCADE.y}]:[]),{player:true,y:state.player.y}].sort((a,b)=>a.y-b.y);
     for(const actor of actors){if(actor.student)drawClassmate(actor.student);else if(actor.teacher)drawTeacher(actor.teacher);else if(actor.arcade)drawArcade();else drawPlayer();}
     drawActorNames(classmates,teachers);
+    if(state.scene==='outside')window.RominaHideSeek.draw(ctx,time);
     for(let i=eventParticles.length-1;i>=0;i--){
       const e=eventParticles[i];e.life-=dt;e.x+=e.vx*dt;e.y+=e.vy*dt;e.vy+=150*dt;
       if(e.life<=0){eventParticles.splice(i,1);continue;}
       ctx.globalAlpha=Math.min(1,e.life*2);ctx.fillStyle=e.color;ctx.fillRect(e.x,e.y,4,4);
     }
     ctx.restore();
+    if(['play','hide-seek'].includes(state.phase))window.SchoolWeather?.draw(ctx,width,height,time,{scene:state.scene,reducedMotion:media.matches});
   }
   function chooseAnswer(direction) {
     if(!state.quiz||state.quiz.correct)return;
@@ -638,11 +663,14 @@
     if(!controller){if(window.PlaygroundGames.isOpen())window.PlaygroundGames.pad({x:0,y:0});if(window.MissionActivities.isOpen())window.MissionActivities.pad({x:0,y:0});return {x:0,y:0,run:false};}
     const pressed=controller.pressed,{x,y}=controller;
     const edge=index=>!!pressed[index]&&!gamepadButtons[index];
+    if(window.SchoolWeather?.isOpen()){window.SchoolWeather.pad({x,y,confirm:edge(0),back:edge(1),pause:edge(9),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
+    if(window.SchoolControls?.isOpen()){window.SchoolControls.pad({x,y,confirm:edge(0),back:edge(1)||edge(9),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(schoolEditorOpen){
       if(edge(1))window.SchoolEditor?.close();else controllerMenu($('school-editor'),x,y,edge(0),timestamp);
       gamepadButtons=pressed.slice();return {x:0,y:0,run:false};
     }
     if(edge(3))setSound(window.TheaterRehearsal.isOpen()?!soundOn:!(soundOn&&music.ready));
+    if(window.RominaHideSeek.isOpen()){window.RominaHideSeek.pad({x,y,confirm:edge(0),back:edge(1),pause:edge(9),hint:edge(2),timestamp});gamepadButtons=pressed.slice();return {x,y,run:!!pressed[1]};}
     if(window.CharacterSelect.isOpen()){window.CharacterSelect.pad({x,y,confirm:edge(0),back:edge(1),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(window.MissionActivities.isOpen()){window.MissionActivities.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1),previous:edge(4),next:edge(5),timestamp});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
     if(window.PlaygroundGames.isOpen()){window.PlaygroundGames.pad({x,y,confirm:edge(0),pause:edge(9),back:edge(1)});gamepadButtons=pressed.slice();return {x:0,y:0,run:false};}
@@ -682,7 +710,7 @@
     let y=(held.has('arrowdown')||held.has('s')?1:0)-(held.has('arrowup')||held.has('w')?1:0);
     for(const direction of touch.values()){if(direction==='right')x++;if(direction==='left')x--;if(direction==='down')y++;if(direction==='up')y--;}
     if(controller.x)x=controller.x;if(controller.y)y=controller.y;
-    return{x,y,run:keyboardRun||held.has(' ')||held.has('shift')||controller.run};
+    return{x,y,run:window.SchoolControls?.alwaysRun()||keyboardRun||held.has(' ')||held.has('shift')||controller.run};
   }
   function frame(timestamp) {
     const dt=Math.min(.05,lastTime?(timestamp-lastTime)/1000:1/60);lastTime=timestamp;
@@ -690,7 +718,9 @@
     if(document.hasFocus?.())windowActive=true;
     if(!document.hidden&&windowActive&&loaded){
       const controller=controllerInput(timestamp);
-      if(window.CharacterSelect.isOpen()){}
+      if(settingsOpen()){}
+      else if(window.RominaHideSeek.isOpen())window.RominaHideSeek.tick(dt,inputVector(controller));
+      else if(window.CharacterSelect.isOpen()){}
       else if(window.MissionActivities.isOpen())window.MissionActivities.tick(dt);
       else if(window.PlaygroundGames.isOpen())window.PlaygroundGames.tick(dt);
       else if(window.TheaterRehearsal.isOpen())window.TheaterRehearsal.tick();
@@ -743,6 +773,9 @@
   }
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey)return;
+    if(window.SchoolWeather?.isOpen()){if(window.SchoolWeather.key(event))event.preventDefault();return;}
+    if(window.SchoolControls?.isOpen())return;
+    if(window.RominaHideSeek.isOpen()&&window.RominaHideSeek.key(event)){event.preventDefault();return;}
     if(window.CharacterSelect.isOpen()){if(window.CharacterSelect.key(event))event.preventDefault();return;}
     if(window.MissionActivities.isOpen()){if(window.MissionActivities.key(event))event.preventDefault();return;}
     if(window.PlaygroundGames.isOpen()){if(window.PlaygroundGames.key(event))event.preventDefault();return;}
@@ -787,7 +820,7 @@
       if(['1','2','3'].includes(key)){event.preventDefault();submitAnswer(Number(key)-1);}
       return;
     }
-    if(state.phase!=='play')return;
+    if(!['play','hide-seek'].includes(state.phase))return;
     if(gameKeys.includes(key))event.preventDefault();
     if(key==='m'&&!event.repeat){openMap();return;}
     if(key==='enter'){if(!event.repeat)interact();return;}
@@ -797,6 +830,7 @@
     const key=event.key.toLowerCase();held.delete(key);
     if(key===' '&&!keyboard.isEditing(event))event.preventDefault();
   });
+  window.addEventListener('school-controls-visibility',settingsVisibility);
   window.addEventListener('school-editor-visibility',event=>{
     schoolEditorOpen=!!event.detail.open;clearInput();
     enableWorldControls(state.phase==='play'&&!schoolEditorOpen);syncMusic();
@@ -810,9 +844,9 @@
     if(event.gamepad){gamepadSamples.delete(gamepadKey(event.gamepad));if(event.gamepad.index===gamepadIndex){resetController();clearInput();}}
     readController();
   });
-  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();saveProgress();music.setPaused(true);});
+  window.addEventListener('blur',()=>{windowActive=false;clearInput();gamepadButtons=[];menuDirection=0;window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();window.RominaHideSeek.suspend();saveProgress();music.setPaused(true);});
   window.addEventListener('focus',()=>{windowActive=true;lastTime=0;resumeWorldMusic();});
-  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();saveProgress();}G.refreshSchoolDay(state);syncUI();syncMusic();});
+  document.addEventListener('visibilitychange',()=>{clearInput();lastTime=0;if(document.hidden){window.PacmanArcade.suspend();window.TheaterRehearsal.suspend();window.PlaygroundGames.suspend();window.MissionActivities.suspend();window.RominaHideSeek.suspend();saveProgress();}G.refreshSchoolDay(state);syncUI();syncMusic();});
   window.addEventListener('pagehide',()=>{saveProgress();clearInput();window.TheaterRehearsal.destroy();music.destroy();cancelAnimationFrame(animationHandle);},{once:true});
   window.addEventListener('resize',resize);
   function loadImage(key,path) {
@@ -844,17 +878,19 @@
       progressStore.restoreRecords(data.records);schoolStore.importSave(JSON.stringify(data.school));
       const next=G.createState();Save.restore(G,C,next,data.progress);next.phase='play';next.started=true;state=next;characterConfirmed=true;progressStore.allowSaving();saveProgress();
       if(data.records['insurgentes-sound'])setSound(data.records['insurgentes-sound']==='yes');
+      if(data.records['insurgentes-controls-v15'])window.SchoolControls?.restore?.(JSON.parse(data.records['insurgentes-controls-v15']));
+      if(data.records['insurgentes-weather-settings-v15'])window.SchoolWeather?.setSettings(JSON.parse(data.records['insurgentes-weather-settings-v15']));
       closeMap();snapCamera();syncChallengeList();syncUI();
       if(state.quiz){renderQuestion();quizDialog.showModal();}
       showToast('Copia restaurada: personaje, avances, escuela y récords.');
     }catch(error){$('adventure-save-status').textContent=error.message;$('adventure-save-status').classList.add('save-error');}
     finally{event.target.value='';}
   });
-  window.SchoolUpdater?.configure({canReload:()=>loaded&&!schoolEditorOpen&&!window.CharacterSelect.isOpen()&&!window.MissionActivities.isOpen()&&!mapOpen&&!state.quiz&&['title','play'].includes(state.phase),save:saveProgress});
+  window.SchoolUpdater?.configure({canReload:()=>loaded&&!settingsOpen()&&!schoolEditorOpen&&!window.RominaHideSeek.isOpen()&&!window.CharacterSelect.isOpen()&&!window.MissionActivities.isOpen()&&!mapOpen&&!state.quiz&&['title','play'].includes(state.phase),save:saveProgress});
   function installAgentTools(){
     const model=document.modelContext;if(!model?.registerTool)return;
     const lifecycle=new AbortController();
-    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot(),playground:window.PlaygroundGames.snapshot(),missions:window.MissionActivities.snapshot(),challenges:{...state.challenges}};}};
+    const tool={name:'read_school_adventure',title:'Leer estado de la aventura',description:'Consulta la posición, estrellas, reto actual y acción cercana del juego de Los Insurgentes.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta consulta no acepta parámetros.');return {...G.snapshot(state),pacman:window.PacmanArcade.snapshot(),theater:window.TheaterRehearsal.snapshot(),playground:window.PlaygroundGames.snapshot(),missions:window.MissionActivities.snapshot(),hideSeek:window.RominaHideSeek.snapshot(),challenges:{...state.challenges}};}};
     const startTool={name:'start_school_adventure',title:'Pulsar START',description:'Pulsa START en la portada y abre la bienvenida del director. No reinicia una partida en curso.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(input&&Object.keys(input).length)throw new Error('Esta acción no acepta parámetros.');if(state.phase!=='title')throw new Error('La aventura ya está en curso.');return startGame();}};
     for(const item of [tool,startTool]){try{void Promise.resolve(model.registerTool(item,{signal:lifecycle.signal})).catch(error=>console.warn('No se pudo registrar la herramienta del juego',error));}catch(error){console.warn('Herramientas del juego no disponibles',error);}}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
@@ -864,9 +900,11 @@
   syncSchoolNames();syncChallengeList();
   for(const [day,uniform] of Object.entries(G.UNIFORM_DAYS)){
     const term=document.createElement('dt'),description=document.createElement('dd');term.textContent=uniform.name+' · '+uniform.uniform;
-    description.textContent=uniform.description+(day==='2'?' También se permite camisa blanca con pantalón o blusa blanca con uniforme de cuadros.':'');
+    description.textContent=uniform.description;
     $('uniform-daily-details').append(term,description);
   }
+  window.SchoolWeather?.init({onModalChange:settingsVisibility});
+  $('map-weather')?.addEventListener('click',()=>window.SchoolWeather.open());
   initControllerHints();readController();
   enableWorldControls(false);updateSoundButton();resize();installAgentTools();animationHandle=requestAnimationFrame(frame);
 })();
